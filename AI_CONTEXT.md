@@ -6,9 +6,9 @@ This repository is the central brain for the owner's personal operating system: 
 
 ## Current Phase
 
-- Phase: Stage 6 complete; Stage 8 is in progress before deployment hardening
-- Main assets: working integration code, notification scheduler, Stage 8 starter workflow, architecture docs, decision log, planning templates
-- Primary need: finish Stage 8 workflow coverage and complete secrets setup for full end-to-end runtime
+- Phase: Stage 8 complete; Stage 9 implementation is next before deployment hardening
+- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 design docs, validated Notion library databases
+- Primary need: implement Stage 9 WhatsApp library handlers and complete secrets/runtime verification
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth
@@ -48,11 +48,11 @@ As the project expands, prefer this structure:
 
 ## Current Priorities
 
-1. Complete credential setup using `docs/SETUP_SECRETS.md` so integrations can run end-to-end.
-2. Expand Stage 8 from starter workflow to multiple robust workflow chains with confirmation/error handling.
-3. Add a `Dockerfile` and choose a deployment target (Railway, Fly.io, or VPS) so the webhook is publicly reachable.
-4. Add `tests/` with at least one integration smoke test per service.
-5. Expand notification jobs beyond reminders and Gmail digest once the live pipeline is proven.
+1. ~~Expand Stage 8 from starter workflow to multiple robust workflow chains~~ **DONE (3 workflows implemented)**
+2. Complete credential setup using `docs/SETUP_SECRETS.md` so integrations can run end-to-end.
+3. **NEW: Implement Stage 9 — Personal Knowledge Libraries command layer** (Notion databases are created and validated; next is router + handlers)
+4. Add a `Dockerfile` and choose a deployment target (Railway, Fly.io, or VPS) so the webhook is publicly reachable.
+5. Add `tests/` with at least one integration smoke test per service.
 
 ## Completed Stages
 
@@ -65,7 +65,8 @@ As the project expands, prefer this structure:
 | 5     | Gmail — list unread, search, read message, inbox summary (OAuth2) | Done            |
 | 6     | Notifications — proactive push scheduler                          | Done            |
 | 7     | AI agent orchestration — OpenAI + Anthropic dispatcher            | Done            |
-| 8     | Multi-step workflows — chained command handler                    | **In progress** |
+| 8     | Multi-step workflows — chained command handler                    | Done            |
+| 9     | Personal Knowledge Libraries                                      | **In progress** |
 
 ## Active Planning Documents
 

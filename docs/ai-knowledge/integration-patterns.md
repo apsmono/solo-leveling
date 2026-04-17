@@ -19,6 +19,25 @@ Working patterns, gotchas, and setup notes for every service integrated into the
 - `client.search()` returns both pages and databases; filter by `item["object"]`.
 - Title extraction differs for pages vs databases — see `_extract_title()` helper in `client.py`.
 - `blocks.children.list()` paginates; current implementation fetches first page only. Add pagination when dealing with long documents.
+- Notion IDs in this repo are now normalized automatically: plain 32-char IDs, UUID-style IDs, full URLs, and slug+ID values are accepted by the Notion client.
+
+### Notion Quick Review Checklist (Persistent)
+
+Use this checklist whenever you want to re-check Notion setup quickly.
+
+1. Create internal integration in Notion and copy token.
+2. Set `NOTION_API_TOKEN` in `.env`.
+3. Create/open the target parent page in Notion (for workflow outputs).
+4. Copy page ID from URL and set `NOTION_WORKFLOW_PARENT_ID` in `.env`.
+5. Invite the integration to the parent page (and each database it should access).
+6. Verify with command: `notion project`.
+7. Verify workflow write with command: `summarise my inbox and save to notion`.
+
+### Notion Pricing Note
+
+- Notion API integration itself does not require a paid Notion plan for basic use.
+- The free plan is usually enough for personal integrations and small-scale usage.
+- Paid plans are only needed if you want advanced workspace/team/admin features, not just API access.
 
 ## Google Drive (google-api-python-client)
 

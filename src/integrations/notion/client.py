@@ -13,11 +13,33 @@ Usage:
 
 import os
 import logging
+import re
 from typing import Any
 
 from notion_client import Client  # type: ignore
 
 logger = logging.getLogger(__name__)
+
+
+def _normalize_notion_id(raw_id: str) -> str:
+    """
+    Normalize Notion page/database identifiers into a canonical 32-hex format.
+
+    Accepts:
+    - plain 32-char IDs
+    - UUID-style IDs with hyphens
+    - full Notion URLs or slug+ID strings ending with a 32-char ID
+    """
+    candidate = (raw_id or "").strip()
+    if not candidate:
+        return candidate
+
+    # Last 32-hex run is the most reliable token in Notion URLs/slugs.
+    match = re.search(r"([0-9a-fA-F]{32})", candidate.replace("-", ""))
+    if match:
+        return match.group(1)
+
+    return candidate
 
 
 def _client() -> Client:
@@ -58,7 +80,7 @@ def search(query: str, limit: int = 5) -> list[dict[str, Any]]:
 
 def get_page(page_id: str) -> dict[str, Any]:
     """Return the full Notion page object for `page_id`."""
-    return _client().pages.retrieve(page_id=page_id)
+    return _client().pages.retrieve(page_id=_normalize_notion_id(page_id))
 
 
 def get_page_content(page_id: str) -> str:
@@ -66,7 +88,7 @@ def get_page_content(page_id: str) -> str:
     Return the plain-text content of a Notion page by reading its blocks.
     Only paragraph, heading, and bulleted/numbered list blocks are included.
     """
-    blocks = _client().blocks.children.list(block_id=page_id)
+    blocks = _client().blocks.children.list(block_id=_normalize_notion_id(page_id))
     lines = []
     for block in blocks.get("results", []):
         text = _extract_block_text(block)
@@ -82,7 +104,7 @@ def create_page(parent_id: str, title: str, content: str) -> dict[str, Any]:
     Returns the created page object.
     """
     new_page = _client().pages.create(
-        parent={"page_id": parent_id},
+        parent={"page_id": _normalize_notion_id(parent_id)},
         properties={
             "title": {
                 "title": [{"type": "text", "text": {"content": title}}]
@@ -110,7 +132,10 @@ def query_database(database_id: str, limit: int = 10) -> list[dict[str, Any]]:
     """
     Return rows from a Notion database as simplified dicts: {id, title, url}.
     """
-    response = _client().databases.query(database_id=database_id, page_size=limit)
+    response = _client().databases.query(
+        database_id=_normalize_notion_id(database_id),
+        page_size=limit,
+    )
     rows = []
     for item in response.get("results", []):
         rows.append({

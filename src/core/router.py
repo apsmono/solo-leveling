@@ -52,12 +52,12 @@ def _detect_intent(text: str) -> str:
     lower = text.strip().lower()
 
     # Stage 8 compound workflow detection should run before keyword map because
-    # terms like "notion" and "inbox" also match single-step intents.
-    if (
-        ("save to notion" in lower or ("save" in lower and "notion" in lower))
-        and any(token in lower for token in ("inbox", "gmail", "email"))
-        and any(token in lower for token in ("summarise", "summarize", "summary"))
-    ):
+    # terms like "notion", "inbox", "drive" also match single-step intents.
+    # Detect inbox-to-notion, inbox-to-drive, notion-to-drive workflows
+    if any(token in lower for token in ("inbox", "gmail", "email")) and any(token in lower for token in ("summarise", "summarize", "summary")) and any(token in lower for token in ("save to", "save")):
+        return "workflow"
+
+    if ("query notion" in lower or "notion query" in lower) and ("export to drive" in lower or ("export" in lower and "drive" in lower)):
         return "workflow"
 
     for intent, keywords in INTENT_MAP.items():
@@ -106,6 +106,8 @@ def _handle_help(_: str) -> str:
         "• drive — list recent Google Drive files\n"
         "• email — summarise unread Gmail inbox\n"
         "• summarise my inbox and save to notion\n"
+        "• summarise my inbox and save to drive\n"
+        "• query notion <query> and export to drive\n"
         "• ask <question> — ask the AI anything\n"
         "• remind me in 30 minutes to stretch\n"
         "• remind me tomorrow at 09:00 to review goals\n"

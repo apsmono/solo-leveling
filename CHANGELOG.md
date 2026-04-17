@@ -8,6 +8,13 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-17 21-52-34 Improved Notion robustness by normalizing page/database IDs in `src/integrations/notion/client.py` so API calls accept plain IDs, UUID-style IDs, full URLs, and slug+ID values (including `NOTION_WORKFLOW_PARENT_ID` from `.env`).
+- 2026-04-17 21-36-18 Added MCP knowledge pack to `docs/personal-knowledge-system-design.md` including MCP definitions (host, client, server, tool, resource, prompt, schema-first contracts, capability negotiation) and a practical MCP adoption path for this repo.
+- 2026-04-17 21-36-18 Added `Step 1.0: Notion Integration Setup (latest flow)` to `docs/personal-library-implementation-checklist.md` with explicit setup, verification, and troubleshooting sequence.
+- 2026-04-17 21-28-27 Added a persistent "Notion Quick Review Checklist" and "Notion Pricing Note" to `docs/ai-knowledge/integration-patterns.md` so setup can be reviewed instantly without re-research.
+- 2026-04-17 21-15-34 Researched self-development strategies and personal knowledge management systems. Created `docs/personal-knowledge-system-design.md` with: (1) self-development frameworks (deliberate practice, atomic habits, spaced repetition, Zettelkasten), (2) schema design for 4 library types (Knowledge Base, Books, Articles, Thoughts), (3) Notion database structure with fields and views, (4) Drive folder hierarchy, (5) WhatsApp command integration plan for Stage 9, (6) Phase-based implementation roadmap, and (7) success metrics.
+- 2026-04-17 21-15-34 Created `docs/personal-library-implementation-checklist.md` with: (1) decision framework for quick-start vs full approach, (2) step-by-step Notion setup for 4 databases, (3) Google Drive folder structure, (4) manual testing workflow, (5) WhatsApp command integration guide, (6) code skeleton for `src/core/libraries.py`, and (7) Phase 4 AI enhancement roadmap.
+- 2026-04-17 21-05-00 Expanded Stage 8 workflows with two new multi-step chains: `_workflow_inbox_summary_to_drive()` (Gmail inbox summary → Google Doc) and `_workflow_notion_query_to_drive()` (Notion search results → Google Doc). Updated router intent detection to recognize all three workflow patterns and expanded help text.
 - 2026-04-17 15-49-02 Added Stage 8 starter workflow module `src/core/workflows.py` with the first chained command: summarise unread inbox and save the result as a Notion page.
 - 2026-04-17 15-49-02 Added `docs/SETUP_SECRETS.md` with a practical TODO checklist for all required keys, per-service setup steps, and validation commands.
 - 2026-04-17 15-28-52 Added Stage 6 notification scheduling: `src/core/scheduler.py` with persistent reminder storage, reminder-listing commands, WhatsApp delivery for due reminders, and an optional daily Gmail digest job powered by APScheduler.
@@ -16,6 +23,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-17 23-40-05 Audited all Stage 9 Notion databases against `docs/personal-library-implementation-checklist.md`; confirmed `Personal Knowledge Base`, `My Book Library`, and `Article Library` align with planned schema, and noted `Thought Drafts` uses auto-managed timestamp properties (`created_time`, `last_edited_time`) for `Created` and `Last Updated`.
+- 2026-04-17 23-40-05 Cleaned validation artifacts in Notion by archiving temporary test rows (`Test Concept A`, `Test Concept B`) from `Personal Knowledge Base` after relation behavior verification.
 - 2026-04-17 16-04-26 Clarified `AGENTS.md` with an explicit absolute session policy: **ALWAYS read before starting** and **ALWAYS write after finishing**.
 - 2026-04-17 15-49-02 Updated router intent handling and help output to support Stage 8 workflow commands; added `NOTION_WORKFLOW_PARENT_ID` to `.env.example` and config.
 - 2026-04-17 15-49-02 Updated AI context and continuation docs to keep a visible blocking TODO for secrets setup and to mark Stage 8 as in progress.
