@@ -1,0 +1,55 @@
+# AGENTS.md
+
+## Purpose
+
+This repository is the central brain and command center for the owner's personal operating system. It holds persistent context, routes commands from WhatsApp, integrates with Notion, Google Drive, and Gmail, and orchestrates AI agents for complex tasks.
+
+## Current State
+
+- Stages 1–7 are implemented, including the proactive notification scheduler for reminders and optional Gmail digests.
+- Stage 8 (multi-step workflows) is the main remaining product stage.
+- The owner switches devices frequently and collaborates with multiple AI tools. Session knowledge must be written back to the repo after every working session.
+- AI assistants should treat documentation accuracy and decision traceability as first-class work.
+- Full build history, error log, integration patterns, and continuation plan: `docs/ai-working-notes.md`.
+
+## Agent Rules
+
+- Read `README.md`, `AI_CONTEXT.md`, `AGENTS.md`, and `docs/ai-working-notes.md` before making any substantial changes.
+- Read `docs/architecture/command-center.md` before adding any integration code or command routing logic.
+- Prefer small, explicit edits over broad speculative scaffolding.
+- Record important assumptions, operating rules, and project decisions in documentation.
+- Update documentation and file descriptions whenever a change affects behavior, structure, workflow, or meaning.
+- Update `CHANGELOG.md` for every notable change using local device time in the format `YYYY-MM-DD HH-mm-ss`. Get the timestamp with: `date "+%Y-%m-%d %H-%M-%S"`
+- When adding integration code, update `docs/architecture/integrations.md` to reflect the current state.
+- When making a significant scope, structure, or policy decision, create a numbered record in `docs/decisions/`.
+- Never store credentials, API keys, or secrets in this repository.
+- Do not invent business claims, metrics, or roadmap items that are not documented in the repository.
+
+## Persistent Memory Rule (IMPORTANT)
+
+The owner works across multiple devices and collaborates with multiple AI tools. Context is never guaranteed to carry over. Every AI agent that does meaningful work in this repo **must write its session knowledge back before finishing**:
+
+**Absolute rule for every session:**
+
+- **ALWAYS read before starting.**
+- **ALWAYS write after finishing.**
+
+1. **Update `docs/ai-working-notes.md`** with any new patterns, errors, fixes, or decisions discovered during the session. Add to the relevant section; do not overwrite — only append or update.
+2. **Update `AI_CONTEXT.md`** if the current phase, completed stages, or active priorities have changed.
+3. **Update `CHANGELOG.md`** with all notable changes made during the session.
+4. **Create a `docs/decisions/NNN-*.md`** if any significant architectural or policy choice was made.
+
+Think of it this way: when you finish, the next AI that opens this repo should be able to read the docs and know exactly what you did, what you found, and where to continue — without needing to re-explore the codebase.
+
+## Changelog Rule
+
+- Keep `CHANGELOG.md` human-readable and curated rather than copying commit history.
+- Add new entries in reverse chronological order, with newest first inside each active section.
+- Use grouped sections such as `Added`, `Changed`, `Fixed`, `Removed`, `Docs`, and `Decisions` when relevant.
+- Each entry should state what changed and why it matters to a human reader.
+
+## Expected Output Style
+
+- Keep plans actionable and concrete.
+- Separate confirmed facts from proposed next steps.
+- When creating frameworks or templates, optimize for maintainability and reuse.
