@@ -6,8 +6,8 @@ This repository is the central brain and command center for the owner's personal
 
 ## Current State
 
-- Stages 1–7 are implemented, including the proactive notification scheduler for reminders and optional Gmail digests.
-- Stage 8 (multi-step workflows) is the main remaining product stage.
+- Stages 1–8 are implemented, including multi-step workflow chains and the proactive notification scheduler.
+- Stage 9 (Personal Knowledge Libraries) is the main active stage.
 - The owner switches devices frequently and collaborates with multiple AI tools. Session knowledge must be written back to the repo after every working session.
 - AI assistants should treat documentation accuracy and decision traceability as first-class work.
 - Full build history, error log, integration patterns, and continuation plan: `docs/ai-working-notes.md`.
@@ -22,6 +22,7 @@ This repository is the central brain and command center for the owner's personal
 - Update `CHANGELOG.md` for every notable change using local device time in the format `YYYY-MM-DD HH-mm-ss`. Get the timestamp with: `date "+%Y-%m-%d %H-%M-%S"`
 - Keep repository sync strict for every file-change session:
 	- Before edits: run `git fetch --all --prune && git status -sb`; if behind, run `git pull --ff-only`.
+	- Post-sync (after any `git pull` or `git push`): re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md` to refresh your understanding of current phase, completed stages, and active priorities.
 	- Post-edit (required): always commit first, then run `git push` so remote stays in sync.
 - When adding integration code, update `docs/architecture/integrations.md` to reflect the current state.
 - When making a significant scope, structure, or policy decision, create a numbered record in `docs/decisions/`.

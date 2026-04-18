@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-18 08-52-24 Added reusable shell templates under `config/zsh/` (`.zshrc.example`, `.zprofile.example`) based on the current device setup, sanitized for repo-safe reuse across machines and AI sessions.
 - 2026-04-17 21-52-34 Improved Notion robustness by normalizing page/database IDs in `src/integrations/notion/client.py` so API calls accept plain IDs, UUID-style IDs, full URLs, and slug+ID values (including `NOTION_WORKFLOW_PARENT_ID` from `.env`).
 - 2026-04-17 21-36-18 Added MCP knowledge pack to `docs/personal-knowledge-system-design.md` including MCP definitions (host, client, server, tool, resource, prompt, schema-first contracts, capability negotiation) and a practical MCP adoption path for this repo.
 - 2026-04-17 21-36-18 Added `Step 1.0: Notion Integration Setup (latest flow)` to `docs/personal-library-implementation-checklist.md` with explicit setup, verification, and troubleshooting sequence.
@@ -23,6 +24,10 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-18 08-56-01 Required all AI agents to re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md` after every `git pull` or `git push`, so agents never operate on stale project state after a sync. Rule added to `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/ai-knowledge/conventions.md`.
+- 2026-04-18 08-56-01 Fixed stale wording in `AGENTS.md` Current State section — now correctly reflects Stage 8 as complete and Stage 9 (Personal Knowledge Libraries) as the main active stage.
+- 2026-04-18 08-52-24 Updated workspace terminal defaults in `.vscode/settings.json` to use macOS zsh login shell profile, MesloLGS NF terminal font, shell integration, and iTerm external terminal for consistent local behavior.
+- 2026-04-18 08-52-24 Extended `docs/README.md` with a "Local Environment Templates" section so humans and AI agents can discover and apply terminal/zsh setup files quickly.
 - 2026-04-18 08-45-54 Clarified git sync policy language to explicit post-edit order across instruction files: always commit first, then push.
 - 2026-04-18 08-43-42 Updated `.github/copilot-instructions.md`, `AGENTS.md`, and conventions notes to enforce git sync on every file-change cycle: pull before edits and push after completion.
 - 2026-04-17 23-40-05 Audited all Stage 9 Notion databases against `docs/personal-library-implementation-checklist.md`; confirmed `Personal Knowledge Base`, `My Book Library`, and `Article Library` align with planned schema, and noted `Thought Drafts` uses auto-managed timestamp properties (`created_time`, `last_edited_time`) for `Created` and `Last Updated`.

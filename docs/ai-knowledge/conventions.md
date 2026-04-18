@@ -26,6 +26,7 @@ Every meaningful change must update the nearest source-of-truth file in the same
 
 - Before any setup or implementation session, run: `git fetch --all --prune && git status -sb`.
 - If the branch is behind remote, update first with: `git pull --ff-only`.
+- After any `git pull` or `git push`, re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md` to refresh your understanding of the current phase, completed stages, and active priorities. Never rely on cached context after a sync.
 - Post-edit (required): always commit first, then run: `git push`.
 - Use this preflight to avoid preparing or editing against stale local state.
 

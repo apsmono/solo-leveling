@@ -16,6 +16,12 @@ This folder contains the full planning structure for the project, including syst
 - `../requirements.txt` — Python dependencies.
 - `../.env.example` — environment variable template (copy to `.env`, never commit).
 
+## Local Environment Templates
+
+- `../config/zsh/.zshrc.example` — sanitized zsh profile template (Oh My Zsh, powerlevel10k, plugins, nvm).
+- `../config/zsh/.zprofile.example` — sanitized login-shell profile template (Homebrew shellenv + local PATH).
+- `../.vscode/settings.json` — workspace terminal defaults (zsh login shell, MesloLGS NF font, iTerm external terminal).
+
 ## Decisions
 
 - `decisions/001-command-center-scope.md` — decision to redefine the repo as the central brain and command center.
