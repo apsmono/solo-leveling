@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-18 09-03-43 Added `.editorconfig` and `.prettierrc` to lock Markdown indentation to 2-space spaces and preserve prose wrap, preventing VS Code's formatter from silently producing unstaged whitespace-only diffs on every edit.
 - 2026-04-18 08-52-24 Added reusable shell templates under `config/zsh/` (`.zshrc.example`, `.zprofile.example`) based on the current device setup, sanitized for repo-safe reuse across machines and AI sessions.
 - 2026-04-17 21-52-34 Improved Notion robustness by normalizing page/database IDs in `src/integrations/notion/client.py` so API calls accept plain IDs, UUID-style IDs, full URLs, and slug+ID values (including `NOTION_WORKFLOW_PARENT_ID` from `.env`).
 - 2026-04-17 21-36-18 Added MCP knowledge pack to `docs/personal-knowledge-system-design.md` including MCP definitions (host, client, server, tool, resource, prompt, schema-first contracts, capability negotiation) and a practical MCP adoption path for this repo.
