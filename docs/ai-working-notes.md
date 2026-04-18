@@ -27,3 +27,4 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 - 2026-04-18: Added a mandatory AI sync rule in `.github/copilot-instructions.md` and `AGENTS.md` to always pull before file edits and push after completed changes.
 - 2026-04-18: Tightened post-edit language to explicit order: always commit first, then push.
 - 2026-04-18: Updated `.vscode/settings.json` terminal auto-approve command patterns from the other-device path to this device path (`/Users/macmini/Documents/projects/solo-leveling`).
+- 2026-04-18: Installed `font-meslo-for-powerlevel10k` on macOS and set VS Code integrated terminal font family to `MesloLGS NF` fallback chain for proper Oh My Zsh/Powerlevel10k glyph rendering.

@@ -13,7 +13,7 @@
       ]
     }
   },
-  "terminal.integrated.fontFamily": "MesloLGS NF",
+  "terminal.integrated.fontFamily": "MesloLGS NF, MesloLGS NF Regular, monospace",
   "terminal.integrated.shellIntegration.enabled": true,
   "chat.tools.terminal.autoApprove": {
     "/^cd /Users/macmini/Documents/projects/solo-leveling && python3 - <<'PY'\nfrom pathlib import Path\np = Path\\('\\.env'\\)\nprint\\('env_exists=', p\\.exists\\(\\)\\)\nif not p\\.exists\\(\\):\n    raise SystemExit\ntext = p\\.read_text\\(\\)\nvals = \\{\\}\nfor line in text\\.splitlines\\(\\):\n    s=line\\.strip\\(\\)\n    if not s or s\\.startswith\\('#'\\) or '=' not in s:\n        continue\n    k,v=s\\.split\\('=',1\\)\n    vals\\[k\\.strip\\(\\)\\]=v\\.strip\\(\\)\nfor k in \\['NOTION_API_TOKEN','NOTION_WORKFLOW_PARENT_ID'\\]:\n    v=vals\\.get\\(k,''\\)\n    ok = bool\\(v and not v\\.startswith\\('<'\\) and v not in \\{'\"\"',\"''\"\\}\\)\n    print\\(f'\\{k\\}_set=', ok\\)\nprint\\('note: values redacted'\\)\nPY$/": {
