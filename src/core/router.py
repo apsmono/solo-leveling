@@ -13,6 +13,7 @@ Adding new commands:
 import logging
 
 from src.core.scheduler import handle_reminder_command
+from src.core.libraries import handle_library_command
 from src.core.workflows import handle_workflow_command
 from src.integrations.notion import client as notion
 from src.integrations.gdrive import client as gdrive
@@ -28,6 +29,12 @@ logger = logging.getLogger(__name__)
 INTENT_MAP: dict[str, list[str]] = {
     "help": ["help", "commands", "what can you do"],
     "status": ["status", "how are you", "ping"],
+    "library_profile": ["profile skill", "profile interest", "profile domain", "profile update", "profile summary"],
+    "library_term": ["add term:", "term ", "define ", "review terms"],
+    "library_book": ["book:", "reading ", "finished ", "book insights:"],
+    "library_article": ["article:", "articles on "],
+    "library_thought": ["thought:", "draft:", "publish thought:"],
+    "library_review": ["my library", "library status", "review books", "review terms"],
     "workflow": ["workflow", "save to notion", "and save"],
     "notion_search": ["notion", "read notion", "show notion", "find notion"],
     "gdrive_list": ["drive", "gdrive", "google drive", "list drive", "list files"],
@@ -74,6 +81,12 @@ def _dispatch(intent: str, original_text: str) -> str:
     handlers = {
         "help": _handle_help,
         "status": _handle_status,
+        "library_profile": _handle_library,
+        "library_term": _handle_library,
+        "library_book": _handle_library,
+        "library_article": _handle_library,
+        "library_thought": _handle_library,
+        "library_review": _handle_library,
         "workflow": _handle_workflow,
         "notion_search": _handle_notion_search,
         "gdrive_list": _handle_gdrive_list,
@@ -102,6 +115,17 @@ def _handle_help(_: str) -> str:
         "Brain command center ready.\n\n"
         "Available commands:\n"
         "• status — check if the brain is running\n"
+        "• profile skill: <name> | confidence: high | priority: now\n"
+        "• profile interest: <topic> | priority: next\n"
+        "• profile domain: <domain> | focus: <note>\n"
+        "• profile update: <item> | <new value>\n"
+        "• profile summary — list recent profile entries\n"
+        "• add term: <term> = <definition>\n"
+        "• term <word> — find saved term entries\n"
+        "• book: <title> by <author>\n"
+        "• article: <url>\n"
+        "• thought: <idea>\n"
+        "• my library — quick library counts\n"
         "• notion <query> — search Notion\n"
         "• drive — list recent Google Drive files\n"
         "• email — summarise unread Gmail inbox\n"
@@ -118,6 +142,11 @@ def _handle_help(_: str) -> str:
 
 def _handle_status(_: str) -> str:
     return "Brain is online and listening."
+
+
+def _handle_library(text: str) -> str:
+    intent = _detect_intent(text)
+    return handle_library_command(text=text, intent=intent)
 
 
 def _handle_workflow(text: str) -> str:

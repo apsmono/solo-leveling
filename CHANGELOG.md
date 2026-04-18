@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-18 09-34-07 Added `src/core/libraries.py` as the first Stage 9 command module, including handlers for profile, term, book, article, thought, and review flows with sensitive-data blocking for profile capture commands.
 - 2026-04-18 09-03-43 Added `.editorconfig` and `.prettierrc` to lock Markdown indentation to 2-space spaces and preserve prose wrap, preventing VS Code's formatter from silently producing unstaged whitespace-only diffs on every edit.
 - 2026-04-18 08-52-24 Added reusable shell templates under `config/zsh/` (`.zshrc.example`, `.zprofile.example`) based on the current device setup, sanitized for repo-safe reuse across machines and AI sessions.
 - 2026-04-17 21-52-34 Improved Notion robustness by normalizing page/database IDs in `src/integrations/notion/client.py` so API calls accept plain IDs, UUID-style IDs, full URLs, and slug+ID values (including `NOTION_WORKFLOW_PARENT_ID` from `.env`).
@@ -25,6 +26,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-18 09-34-07 Extended `src/core/router.py` with Stage 9 library intents and dispatch wiring, and expanded `help` output with new profile/library commands so the new handler module is reachable from WhatsApp text commands.
 - 2026-04-18 09-31-05 Started implementation of the multi-agent delivery model: added branch naming, PR-first overlap handling, task-claim ownership, and handoff checklist rules in `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/ai-knowledge/conventions.md`.
 - 2026-04-18 09-31-05 Expanded Stage 9 documentation for personal profile capture aligned to MCP trends (schema-first contracts, profile lifecycle tools/resources/prompts, and sensitive-data exclusions) in `docs/personal-knowledge-system-design.md`, `docs/personal-library-implementation-checklist.md`, and `docs/ai-knowledge/continuation-plan.md`.
 - 2026-04-18 09-20-15 Installed Meslo Powerlevel10k font on this device (`font-meslo-for-powerlevel10k`) and updated `.vscode/settings.json` terminal font family to `MesloLGS NF` with fallbacks so Oh My Zsh/Powerlevel10k glyphs render correctly in VS Code.

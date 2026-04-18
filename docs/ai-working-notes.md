@@ -23,6 +23,8 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- 2026-04-18: Implemented first Stage 9 code slice: created `src/core/libraries.py` and wired new router intents (`library_profile`, `library_term`, `library_book`, `library_article`, `library_thought`, `library_review`) so knowledge profile and library capture commands are now routable.
+- 2026-04-18: Stage 9 runtime currently uses Notion page capture mode under `NOTION_WORKFLOW_PARENT_ID` for immediate operation; database-property writes are the next hardening step.
 - 2026-04-18: Started implementation of multi-agent coordination model: standardized `agent/<agent-name>/<task-slug>/<stage-or-scope>` branches, PR-first merge guidance for overlapping work, task-claim ownership, and handoff checklist expectations.
 - 2026-04-18: Expanded Stage 9 library design with MCP-aligned knowledge profile scope (skills, interests, domains, learning priorities, focus themes) and explicit sensitive-data exclusions.
 - 2026-04-18: Added a standard git preflight rule before preparation/setup (`git fetch --all --prune && git status -sb`) in setup and conventions docs.

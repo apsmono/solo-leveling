@@ -2,7 +2,7 @@
 
 Current state of the project and the next steps. Update this file whenever a stage is completed or a new workstream begins.
 
-Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design)
+Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring)
 
 ---
 
@@ -34,9 +34,9 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 ## Recommended Next Steps (in order)
 
-1. Implement Stage 9 command handlers in `src/core/libraries.py` (`library_profile`, `library_term`, `library_book`, `library_article`, `library_thought`, `library_review`).
-2. Wire Stage 9 intents and dispatch in `src/core/router.py`.
-3. Run manual WhatsApp command tests for each handler path and confirm corresponding Notion writes/reads.
+1. Run manual WhatsApp command tests for each handler path and confirm corresponding Notion writes/reads.
+2. Upgrade Stage 9 from page-capture mode to database-property writes per library schema.
+3. Add field-level validation and parser hardening for each command family.
 4. Add a lightweight smoke test plan under `tests/` (or docs-first test checklist if code tests are deferred).
 5. Add a `Dockerfile` and deploy to a permanent host.
 
@@ -47,6 +47,8 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Archived temporary validation rows (`Test Concept A`, `Test Concept B`) from `Personal Knowledge Base` to keep production data clean.
 - Started implementation with explicit multi-agent Git branch/PR/task-claim protocol in core instruction docs.
 - Added MCP-aligned personal profile scope to Stage 9 docs (`skills`, `interests`, `domains`, `learning priorities`, `focus themes`) with sensitive-data exclusions.
+- Implemented initial Stage 9 code in `src/core/libraries.py` and router wiring for intents: `library_profile`, `library_term`, `library_book`, `library_article`, `library_thought`, `library_review`.
+- Current Stage 9 code path stores captures as Notion pages under `NOTION_WORKFLOW_PARENT_ID` for immediate usability; database-structured writes remain the next upgrade slice.
 
 ## Environment Variable Reference
 
