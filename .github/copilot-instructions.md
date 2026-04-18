@@ -16,9 +16,9 @@ This repository is for building structured self-development and financial freedo
 - Update related descriptions and documentation whenever a change modifies behavior, purpose, usage, or structure.
 - Update `CHANGELOG.md` for every notable change using local device time in the format `YYYY-MM-DD HH-mm-ss`.
 - Git sync is mandatory on each change cycle:
-	- Before editing files: run `git fetch --all --prune && git status -sb`; if behind, run `git pull --ff-only`.
-	- Post-sync (after any `git pull` or `git push`): re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md` to update your understanding of the current phase, completed stages, and active priorities.
-	- Post-edit (required): always commit first, then run `git push` so local and remote stay aligned.
+  - Before editing files: run `git fetch --all --prune && git status -sb`; if behind, run `git pull --ff-only`.
+  - Post-sync (after any `git pull` or `git push`): re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md` to update your understanding of the current phase, completed stages, and active priorities.
+  - Post-edit (required): always commit first, then run `git push` so local and remote stay aligned.
 - When proposing new folders or files, align them to an actual use case.
 - Avoid generic filler content and unsupported assumptions.
 - If code is added, document how to run, verify, and maintain it.
