@@ -20,3 +20,9 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 2. **Hit an error?** Check `error-log.md` first; add a new entry if you solve something new.
 3. **Adding an integration?** Read `integration-patterns.md` and `security-rules.md` before writing code.
 4. **Finishing a session?** Update `continuation-plan.md` with what changed, then stamp `CHANGELOG.md`.
+
+## Recent note
+
+- 2026-04-18: Added a standard git preflight rule before preparation/setup (`git fetch --all --prune && git status -sb`) in setup and conventions docs.
+- 2026-04-18: Added a mandatory AI sync rule in `.github/copilot-instructions.md` and `AGENTS.md` to always pull before file edits and push after completed changes.
+- 2026-04-18: Tightened post-edit language to explicit order: always commit first, then push.

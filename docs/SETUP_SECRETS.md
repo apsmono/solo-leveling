@@ -8,6 +8,16 @@ Right now, this project has no configured credentials, so live integrations are 
 - Current state: **Not configured**
 - Blocking impact: Notion, Gmail, Google Drive, WhatsApp send/receive, and AI agents cannot run end-to-end.
 
+## Step 0: Sync with git before any preparation
+
+Run this before starting setup so you always prepare against the latest repository state:
+
+`git fetch --all --prune && git status -sb`
+
+If status shows your branch behind remote (for example `[behind 1]`), update first:
+
+`git pull --ff-only`
+
 ## Step 1: Prepare local environment file
 
 1. Copy `.env.example` to `.env`.

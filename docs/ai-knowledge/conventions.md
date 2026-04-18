@@ -22,6 +22,13 @@ Every meaningful change must update the nearest source-of-truth file in the same
 - `docs/architecture/integrations.md` → when any integration scope or status changes
 - `docs/ai-knowledge/continuation-plan.md` → when stages are completed or new work begins
 
+## Preparation Preflight
+
+- Before any setup or implementation session, run: `git fetch --all --prune && git status -sb`.
+- If the branch is behind remote, update first with: `git pull --ff-only`.
+- Post-edit (required): always commit first, then run: `git push`.
+- Use this preflight to avoid preparing or editing against stale local state.
+
 ## Decision Records
 
 - Location: `docs/decisions/NNN-slug.md` (sequentially numbered).

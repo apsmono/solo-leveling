@@ -23,8 +23,11 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-18 08-45-54 Clarified git sync policy language to explicit post-edit order across instruction files: always commit first, then push.
+- 2026-04-18 08-43-42 Updated `.github/copilot-instructions.md`, `AGENTS.md`, and conventions notes to enforce git sync on every file-change cycle: pull before edits and push after completion.
 - 2026-04-17 23-40-05 Audited all Stage 9 Notion databases against `docs/personal-library-implementation-checklist.md`; confirmed `Personal Knowledge Base`, `My Book Library`, and `Article Library` align with planned schema, and noted `Thought Drafts` uses auto-managed timestamp properties (`created_time`, `last_edited_time`) for `Created` and `Last Updated`.
 - 2026-04-17 23-40-05 Cleaned validation artifacts in Notion by archiving temporary test rows (`Test Concept A`, `Test Concept B`) from `Personal Knowledge Base` after relation behavior verification.
+- 2026-04-18 08-36-18 Added a mandatory git preflight step to preparation docs: run `git fetch --all --prune && git status -sb` before setup, and use `git pull --ff-only` when behind remote.
 - 2026-04-17 16-04-26 Clarified `AGENTS.md` with an explicit absolute session policy: **ALWAYS read before starting** and **ALWAYS write after finishing**.
 - 2026-04-17 15-49-02 Updated router intent handling and help output to support Stage 8 workflow commands; added `NOTION_WORKFLOW_PARENT_ID` to `.env.example` and config.
 - 2026-04-17 15-49-02 Updated AI context and continuation docs to keep a visible blocking TODO for secrets setup and to mark Stage 8 as in progress.
