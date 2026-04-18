@@ -24,6 +24,11 @@ This repository is the central brain and command center for the owner's personal
   - Before edits: run `git fetch --all --prune && git status -sb`; if behind, run `git pull --ff-only`.
   - Post-sync (after any `git pull` or `git push`): re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md` to refresh your understanding of current phase, completed stages, and active priorities.
   - Post-edit (required): always commit first, then run `git push` so remote stays in sync.
+- Multi-agent Git coordination is mandatory for concurrent work:
+  - Use a feature branch per task: `agent/<agent-name>/<task-slug>/<stage-or-scope>`.
+  - Prefer PR-based merges to `main`; do not push direct to `main` when a task can conflict with another active task.
+  - Claim ownership of a task before editing and keep one active owner per task at a time.
+  - Include a handoff summary in the same change: what was done, what is pending, and what the next agent should do.
 - When adding integration code, update `docs/architecture/integrations.md` to reflect the current state.
 - When making a significant scope, structure, or policy decision, create a numbered record in `docs/decisions/`.
 - Never store credentials, API keys, or secrets in this repository.

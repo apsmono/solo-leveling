@@ -62,6 +62,61 @@ Use this as a ready-to-store knowledge bundle in your `Personal Knowledge Base`.
 4. Add prompts for recurring outputs: weekly self-review, monthly knowledge synthesis.
 5. Use schema-validated inputs to make WhatsApp commands safer and less error-prone.
 
+### Knowledge Profile (Phase 1 personal information scope)
+
+For the first rollout, personal information capture should stay focused on knowledge profile data only:
+
+- Skills and capability areas
+- Interests and curiosity areas
+- Domains of focus (for example: business, psychology, engineering)
+- Learning priorities and current focus themes
+
+Do not store sensitive personal data in this phase (credentials, legal IDs, private contact data, or sensitive financial values).
+
+**Profile schema extension (MCP-ready):**
+
+```
+{
+  Profile Item: text
+  Profile Type: select (Skill, Interest, Domain, Learning Priority, Focus Theme)
+  Description: rich_text
+  Confidence: select (High, Medium, Low, Exploring)
+  Priority: select (Now, Next, Later)
+  Related Terms: relation
+  Related Books: relation
+  Related Articles: relation
+  Related Thoughts: relation
+  Last Updated: date
+  Source: text
+}
+```
+
+**MCP tool contracts for profile lifecycle:**
+
+- `create_profile_item` (validated create)
+- `update_profile_item` (validated patch)
+- `search_profile_items` (filter by type/topic/priority)
+- `summarize_profile` (state snapshot for planning)
+
+**MCP resources for agent grounding:**
+
+- `/profile/recent-updates`
+- `/profile/domain-map`
+- `/profile/learning-priorities`
+
+**MCP prompt templates for agents:**
+
+- `profile_aware_planning`
+- `profile_aware_retrieval`
+- `weekly_profile_review`
+
+### Implementation trends to adopt
+
+- Schema-first contracts for all tool inputs/outputs to reduce command ambiguity.
+- Provenance-first captures (include `Source` and `Last Updated`) for traceable memory.
+- Small, composable tools over large monolithic commands to improve multi-agent reuse.
+- Git-tracked synthesis outputs (weekly or monthly) so learning evolution is reviewable.
+
 ### Self-Development Frameworks
 
 **1. Deliberate Practice Model (Ericsson)**

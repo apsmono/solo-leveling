@@ -23,6 +23,8 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- 2026-04-18: Started implementation of multi-agent coordination model: standardized `agent/<agent-name>/<task-slug>/<stage-or-scope>` branches, PR-first merge guidance for overlapping work, task-claim ownership, and handoff checklist expectations.
+- 2026-04-18: Expanded Stage 9 library design with MCP-aligned knowledge profile scope (skills, interests, domains, learning priorities, focus themes) and explicit sensitive-data exclusions.
 - 2026-04-18: Added a standard git preflight rule before preparation/setup (`git fetch --all --prune && git status -sb`) in setup and conventions docs.
 - 2026-04-18: Added a mandatory AI sync rule in `.github/copilot-instructions.md` and `AGENTS.md` to always pull before file edits and push after completed changes.
 - 2026-04-18: Tightened post-edit language to explicit order: always commit first, then push.

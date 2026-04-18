@@ -25,6 +25,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-18 09-31-05 Started implementation of the multi-agent delivery model: added branch naming, PR-first overlap handling, task-claim ownership, and handoff checklist rules in `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/ai-knowledge/conventions.md`.
+- 2026-04-18 09-31-05 Expanded Stage 9 documentation for personal profile capture aligned to MCP trends (schema-first contracts, profile lifecycle tools/resources/prompts, and sensitive-data exclusions) in `docs/personal-knowledge-system-design.md`, `docs/personal-library-implementation-checklist.md`, and `docs/ai-knowledge/continuation-plan.md`.
 - 2026-04-18 09-20-15 Installed Meslo Powerlevel10k font on this device (`font-meslo-for-powerlevel10k`) and updated `.vscode/settings.json` terminal font family to `MesloLGS NF` with fallbacks so Oh My Zsh/Powerlevel10k glyphs render correctly in VS Code.
 - 2026-04-18 08-56-01 Required all AI agents to re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md` after every `git pull` or `git push`, so agents never operate on stale project state after a sync. Rule added to `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/ai-knowledge/conventions.md`.
 - 2026-04-18 08-56-01 Fixed stale wording in `AGENTS.md` Current State section — now correctly reflects Stage 8 as complete and Stage 9 (Personal Knowledge Libraries) as the main active stage.

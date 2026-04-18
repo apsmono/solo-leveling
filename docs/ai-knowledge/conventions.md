@@ -30,6 +30,21 @@ Every meaningful change must update the nearest source-of-truth file in the same
 - Post-edit (required): always commit first, then run: `git push`.
 - Use this preflight to avoid preparing or editing against stale local state.
 
+## Multi-Agent Git Workflow
+
+- Branch naming convention: `agent/<agent-name>/<task-slug>/<stage-or-scope>`.
+- Keep one active owner per task; claim the task before editing any files.
+- For overlapping or concurrent work, prefer PR-based merges into `main`.
+- Keep commits small and scoped to one task so handoffs are reviewable.
+
+## PR and Handoff Checklist
+
+- Include what changed, why it changed, and which files were touched.
+- Include what is still pending and the immediate next step for the next agent.
+- Confirm `CHANGELOG.md` was updated (if notable change).
+- Confirm related source-of-truth docs were updated in the same change.
+- After merge or push, re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md`.
+
 ## Decision Records
 
 - Location: `docs/decisions/NNN-slug.md` (sequentially numbered).

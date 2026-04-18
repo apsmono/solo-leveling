@@ -19,6 +19,10 @@ This repository is for building structured self-development and financial freedo
   - Before editing files: run `git fetch --all --prune && git status -sb`; if behind, run `git pull --ff-only`.
   - Post-sync (after any `git pull` or `git push`): re-read `AI_CONTEXT.md` and `docs/ai-knowledge/continuation-plan.md` to update your understanding of the current phase, completed stages, and active priorities.
   - Post-edit (required): always commit first, then run `git push` so local and remote stay aligned.
+- For concurrent AI work, use Git task isolation:
+  - Work on `agent/<agent-name>/<task-slug>/<stage-or-scope>` branches.
+  - Use pull requests to merge into `main` when a task overlaps with active work.
+  - Claim task ownership before editing and include a short handoff summary before finishing.
 - When proposing new folders or files, align them to an actual use case.
 - Avoid generic filler content and unsupported assumptions.
 - If code is added, document how to run, verify, and maintain it.

@@ -267,6 +267,24 @@ Before automation, test manually:
 
 ## Phase 3: WhatsApp Command Integration (1-2 weeks)
 
+### 3.0: Add Knowledge Profile Commands (skills, interests, domains)
+
+Use profile commands to capture your personal learning identity without storing sensitive data.
+
+Command templates:
+
+- `profile skill: <name> | confidence: <high|medium|low|exploring> | priority: <now|next|later>`
+- `profile interest: <topic> | priority: <now|next|later>`
+- `profile domain: <domain> | focus: <short note>`
+- `profile update: <item> | <new value>`
+- `profile summary`
+
+Validation rules:
+
+- Reject unknown enum values with a clear correction hint.
+- Require `profile type` and `profile item` on create.
+- Never accept credentials, legal IDs, private contact records, or sensitive financial values through profile commands.
+
 ### 3.1: Extend Router (src/core/router.py)
 
 Add new intents:
@@ -274,6 +292,7 @@ Add new intents:
 ```python
 INTENT_MAP: dict[str, list[str]] = {
     # ... existing intents ...
+    "library_profile": ["profile skill", "profile interest", "profile domain", "profile update", "profile summary"],
     "library_term": ["term", "definition", "acronym", "add term", "define"],
     "library_book": ["book:", "add book", "reading", "finished", "book insights"],
     "library_article": ["article:", "save article", "articles on"],
@@ -302,6 +321,8 @@ from src.integrations.notion import client as notion
 def handle_library_command(text: str, intent: str) -> str:
     """Route library command to the right handler."""
 
+    if intent == "library_profile":
+        return _handle_profile(text)
     if intent == "library_term":
         return _handle_term(text)
     elif intent == "library_book":
@@ -314,6 +335,13 @@ def handle_library_command(text: str, intent: str) -> str:
         return _handle_review(text)
 
     return "Library command not recognized."
+
+def _handle_profile(text: str) -> str:
+    """Capture or retrieve knowledge profile data (skills, interests, domains)."""
+    # Parse profile create/update/summary commands
+    # Validate allowed profile types and enum values
+    # Reject sensitive categories outside profile scope
+    pass
 
 def _handle_term(text: str) -> str:
     """Capture or retrieve a term."""
@@ -361,6 +389,7 @@ In `src/core/router.py`, update `_dispatch()`:
 def _dispatch(intent: str, original_text: str) -> str:
     handlers = {
         # ... existing handlers ...
+        "library_profile": _handle_library,
         "library_term": _handle_library,
         "library_book": _handle_library,
         "library_article": _handle_library,
@@ -383,6 +412,13 @@ When user saves a book or article with a URL, use AI agent to:
 - Generate summary
 - Extract key points
 - Suggest topics
+
+### 4.4: MCP Profile Contracts
+
+- [ ] Define MCP tools: `create_profile_item`, `update_profile_item`, `search_profile_items`, `summarize_profile`
+- [ ] Define MCP resources: `/profile/recent-updates`, `/profile/domain-map`, `/profile/learning-priorities`
+- [ ] Add profile-aware prompt templates for planning and weekly review
+- [ ] Ensure every tool input/output is schema-validated
 
 ### 4.2: Monthly Synthesis
 
