@@ -6,9 +6,10 @@ This repository is the central brain for the owner's personal operating system: 
 
 ## Current Phase
 
-- Phase: Stage 8 complete; Stage 9 implementation is next before deployment hardening
-- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 design docs, validated Notion library databases
-- Primary need: implement Stage 9 WhatsApp library handlers and complete secrets/runtime verification
+- Phase: Stage 8 complete; Stage 9 Phase 1 (formatting standard) complete; Stage 9 Phase 2+ (database-property writes, field validation, scheduler) pending
+- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, validated Notion library databases, comprehensive formatting standard, formatting enforcement code
+- Current work: Stage 9 Phase 1 complete — formatting guide deployed with auto-enforcement for Title Case, tag validation, date timestamps
+- Primary need: test WhatsApp `library_guide` trigger, then implement database-property writes and field-level validation
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth
