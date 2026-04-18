@@ -26,3 +26,4 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 - 2026-04-18: Added a standard git preflight rule before preparation/setup (`git fetch --all --prune && git status -sb`) in setup and conventions docs.
 - 2026-04-18: Added a mandatory AI sync rule in `.github/copilot-instructions.md` and `AGENTS.md` to always pull before file edits and push after completed changes.
 - 2026-04-18: Tightened post-edit language to explicit order: always commit first, then push.
+- 2026-04-18: Updated `.vscode/settings.json` terminal auto-approve command patterns from the other-device path to this device path (`/Users/macmini/Documents/projects/solo-leveling`).
