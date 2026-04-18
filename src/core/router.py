@@ -35,6 +35,7 @@ INTENT_MAP: dict[str, list[str]] = {
     "library_article": ["article:", "articles on "],
     "library_thought": ["thought:", "draft:", "publish thought:"],
     "library_review": ["my library", "library status", "review books", "review terms"],
+    "library_guide": ["library guide", "formatting guide", "save guide"],
     "workflow": ["workflow", "save to notion", "and save"],
     "notion_search": ["notion", "read notion", "show notion", "find notion"],
     "gdrive_list": ["drive", "gdrive", "google drive", "list drive", "list files"],

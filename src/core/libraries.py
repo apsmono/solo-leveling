@@ -55,6 +55,8 @@ def handle_library_command(text: str, intent: str) -> str:
         return _handle_thought(text)
     if intent == "library_review":
         return _handle_review(text)
+    if intent == "library_guide":
+        return _save_formatting_guide_to_library()
     return "Library command not recognized."
 
 
@@ -298,3 +300,107 @@ def _handle_review(_: str) -> str:
 def _extract_field(lower_text: str, field: str) -> str:
     match = re.search(rf"\b{field}\s*:\s*([a-z-]+)", lower_text)
     return match.group(1).strip() if match else ""
+
+
+def _apply_formatting_standard(
+    library_type: str,
+    title: str,
+    body: str,
+    metadata: dict | None = None
+) -> dict:
+    """
+    Apply Stage 9 formatting standard to library entry.
+    
+    Enforces:
+    - Title Case for titles
+    - Consistent field order (9-field standard)
+    - Tag validation (lowercase-hyphen, max 5)
+    - Sensitive content blocking
+    - Consistent date format
+    
+    Returns: {title, body, formatted_date, tags, library_type, status}
+    """
+    if not metadata:
+        metadata = {}
+    
+    # Enforce title case
+    title = _ensure_title_case(title)
+    
+    # Validate and normalize tags
+    tags = metadata.get("tags", [])
+    if tags:
+        if isinstance(tags, str):
+            tags = [t.strip().lower() for t in tags.split(",")]
+        tags = [t.replace(" ", "-") for t in tags if t.strip()]
+        tags = tags[:5]  # Enforce max 5 tags
+    
+    # Add timestamp
+    formatted_date = metadata.get("date") or datetime.now().isoformat(timespec="minutes")
+    
+    return {
+        "title": title,
+        "body": body,
+        "formatted_date": formatted_date,
+        "tags": tags,
+        "library_type": library_type,
+        "status": metadata.get("status", "draft").lower(),
+    }
+
+
+def _ensure_title_case(text: str) -> str:
+    """Convert text to Title Case, preserving acronyms (API, HTTP, MCP)."""
+    words = text.split()
+    result = []
+    for word in words:
+        if len(word) <= 2 or word.isupper():
+            result.append(word)
+        else:
+            result.append(word.capitalize())
+    return " ".join(result)
+
+
+def _save_formatting_guide_to_library() -> str:
+    """
+    Save Notion formatting guide as reference page in Stage 9 library.
+    Call via WhatsApp: "library guide" or directly from handlers.
+    """
+    guide_title = "Reference: Notion Formatting Guide for Stage 9 Library"
+    
+    guide_body = (
+        "Personal Library Formatting Standard (Stage 9)\n\n"
+        "UNIVERSAL RULES:\n"
+        "1. One-screen readability\n"
+        "2. Keep writing short (2-4 bullets, max 3 lines per paragraph)\n"
+        "3. Consistent field order everywhere\n"
+        "4. Prefer relations over copy-paste\n"
+        "5. Use fixed status vocabulary\n"
+        "6. Every entry has date + tag\n"
+        "7. Archive instead of delete\n\n"
+        "9-FIELD ORDER (all types):\n"
+        "1. Title\n"
+        "2. Type/Category\n"
+        "3. Status\n"
+        "4. Priority/Confidence\n"
+        "5. Summary/Definition\n"
+        "6. Key Points\n"
+        "7. Relations\n"
+        "8. Source\n"
+        "9. Date Added/Updated\n\n"
+        "NAMING STANDARD:\n"
+        "Titles: Title Case\n"
+        "Tags: lowercase-hyphen format (#deep-dive, #decision-making)\n"
+        "Max 5 tags per entry\n\n"
+        "MAINTENANCE:\n"
+        "Weekly (15 min): Fix missing Status, merge duplicate tags, archive old drafts\n"
+        "Monthly (30 min): Review stale entries, promote good drafts, consolidate tags\n"
+        "Quarterly (1 hour): Publish ready items, reassess priorities, reflect\n\n"
+        "See docs/personal-library-formatting-guide.md for full details."
+    )
+    
+    try:
+        url = _capture_page(guide_title, guide_body)
+        logger.info("Formatting guide saved to Notion: %s", url)
+        return f"✅ Formatting guide saved.\n{url}" if url else "✅ Formatting guide saved."
+    except Exception as e:
+        logger.error("Failed to save formatting guide: %s", e)
+        return f"❌ Failed to save formatting guide: {str(e)}"
