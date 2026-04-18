@@ -310,22 +310,22 @@ def _apply_formatting_standard(
 ) -> dict:
     """
     Apply Stage 9 formatting standard to library entry.
-    
+
     Enforces:
     - Title Case for titles
     - Consistent field order (9-field standard)
     - Tag validation (lowercase-hyphen, max 5)
     - Sensitive content blocking
     - Consistent date format
-    
+
     Returns: {title, body, formatted_date, tags, library_type, status}
     """
     if not metadata:
         metadata = {}
-    
+
     # Enforce title case
     title = _ensure_title_case(title)
-    
+
     # Validate and normalize tags
     tags = metadata.get("tags", [])
     if tags:
@@ -333,10 +333,10 @@ def _apply_formatting_standard(
             tags = [t.strip().lower() for t in tags.split(",")]
         tags = [t.replace(" ", "-") for t in tags if t.strip()]
         tags = tags[:5]  # Enforce max 5 tags
-    
+
     # Add timestamp
     formatted_date = metadata.get("date") or datetime.now().isoformat(timespec="minutes")
-    
+
     return {
         "title": title,
         "body": body,
@@ -365,7 +365,7 @@ def _save_formatting_guide_to_library() -> str:
     Call via WhatsApp: "library guide" or directly from handlers.
     """
     guide_title = "Reference: Notion Formatting Guide for Stage 9 Library"
-    
+
     guide_body = (
         "Personal Library Formatting Standard (Stage 9)\n\n"
         "UNIVERSAL RULES:\n"
@@ -396,7 +396,7 @@ def _save_formatting_guide_to_library() -> str:
         "Quarterly (1 hour): Publish ready items, reassess priorities, reflect\n\n"
         "See docs/personal-library-formatting-guide.md for full details."
     )
-    
+
     try:
         url = _capture_page(guide_title, guide_body)
         logger.info("Formatting guide saved to Notion: %s", url)
