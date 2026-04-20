@@ -32,6 +32,36 @@ Apply this order to **ALL** library entries for consistent markdown structure an
 
 ## Format Per Information Type
 
+### Research Bundles / Deep Knowledge Intake
+
+Use this format when the request is broad, strategic, ambiguous, or explicitly asks to "add to library" / "add to my personal knowledge".
+
+**Storage rule**:
+
+- Save as a folder bundle under the best-fit library section or `library/research/`
+- Always preserve raw input, processing trail, and conclusion
+
+**Must-have files**:
+
+- `index.md` — categorized summary and why it matters
+- `01-raw-input.md` — exact original material
+- `02-search-history.md` — what was searched, matched, or inferred
+- `03-research-notes.md` — relevant findings
+- `04-information-to-track.md` — valuable facts, metrics, entities, or questions to monitor
+- `05-qa-log.md` — internal Q/A used to clarify the topic
+- `06-logic-trail.md` — reasoning and categorization logic
+- `07-conclusion.md` — final conclusion, open questions, and next action
+
+**What counts as valuable information to track**:
+
+- Definitions and core claims
+- Decision relevance and practical use
+- Key entities, people, tools, frameworks, or metrics
+- Open questions and uncertainty points
+- Follow-up actions, experiments, or review dates
+
+---
+
 ### Knowledge Profile (Skills, Interests, Domains)
 
 **Best title style**: `Skill — Python Automation` or `Domain — Financial Systems`

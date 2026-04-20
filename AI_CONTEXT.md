@@ -7,9 +7,9 @@ This repository is the central brain for the owner's personal operating system: 
 ## Current Phase
 
 - Phase: Stage 8 complete; Stage 9 local-library pivot active (library means folder `library/`)
-- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, comprehensive formatting standard, formatting enforcement code
-- Current work: Stage 9 captures and lookups now run against local markdown entries under `library/`
-- Primary need: continue Stage 9 improvements with filesystem-first workflows (validation, indexing, maintenance scheduler)
+- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, comprehensive formatting standard, formatting enforcement code, deep research-bundle capture flow for "add to library"
+- Current work: Stage 9 captures and lookups now run against local markdown entries under `library/`, including research bundles that preserve raw input, search history, Q/A, logic, and conclusions
+- Primary need: continue Stage 9 improvements with filesystem-first workflows (validation, indexing, bundle retrieval, maintenance scheduler)
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth

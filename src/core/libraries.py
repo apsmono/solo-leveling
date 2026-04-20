@@ -16,9 +16,12 @@ This keeps Stage 9 local-first and file-based for predictable versioning.
 from __future__ import annotations
 
 from datetime import datetime
+import json
 import logging
 from pathlib import Path
 import re
+
+from src.agents.dispatcher import run_agent
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +35,7 @@ _SECTION_DIRS = {
     "article": "articles",
     "thought": "thoughts",
     "reference": "references",
+    "research": "research",
 }
 
 
@@ -55,6 +59,8 @@ _SENSITIVE_TOKENS = (
 
 def handle_library_command(text: str, intent: str) -> str:
     """Route library command to the right handler."""
+    if intent == "library_capture":
+        return _handle_library_capture(text)
     if intent == "library_profile":
         return _handle_profile(text)
     if intent == "library_term":
@@ -78,6 +84,13 @@ def _ensure_library_dirs() -> None:
         (_LIBRARY_ROOT / dirname).mkdir(parents=True, exist_ok=True)
 
 
+def _resolve_section_dir(section: str) -> str:
+    known = _SECTION_DIRS.get(section)
+    if known:
+        return known
+    return _slugify(section)
+
+
 def _contains_sensitive_content(text: str) -> bool:
     lower = text.lower()
     return any(token in lower for token in _SENSITIVE_TOKENS)
@@ -85,7 +98,7 @@ def _contains_sensitive_content(text: str) -> bool:
 
 def _capture_entry(section: str, title: str, body: str, *, status: str = "draft", tags: list[str] | None = None) -> str:
     _ensure_library_dirs()
-    dirname = _SECTION_DIRS[section]
+    dirname = _resolve_section_dir(section)
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
     slug = _slugify(title)
     path = _LIBRARY_ROOT / dirname / f"{ts}-{slug}.md"
@@ -106,11 +119,11 @@ def _capture_entry(section: str, title: str, body: str, *, status: str = "draft"
 
 def _search_entries(section: str, query: str, limit: int = 8) -> list[str]:
     _ensure_library_dirs()
-    dirname = _SECTION_DIRS[section]
+    dirname = _resolve_section_dir(section)
     root = _LIBRARY_ROOT / dirname
     q = query.lower().strip()
     matches: list[Path] = []
-    for path in sorted(root.glob("*.md"), reverse=True):
+    for path in sorted(root.rglob("*.md"), reverse=True):
         text = path.read_text(encoding="utf-8", errors="ignore").lower()
         if q in text:
             matches.append(path)
@@ -121,20 +134,333 @@ def _search_entries(section: str, query: str, limit: int = 8) -> list[str]:
 
 def _count_entries(section: str) -> int:
     _ensure_library_dirs()
-    dirname = _SECTION_DIRS[section]
+    dirname = _resolve_section_dir(section)
     return sum(1 for _ in (_LIBRARY_ROOT / dirname).glob("*.md"))
 
 
 def _recent_entries(section: str, limit: int = 10) -> list[str]:
     _ensure_library_dirs()
-    dirname = _SECTION_DIRS[section]
-    paths = sorted((_LIBRARY_ROOT / dirname).glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
+    dirname = _resolve_section_dir(section)
+    paths = sorted((_LIBRARY_ROOT / dirname).rglob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
     return [str(p.relative_to(_PROJECT_ROOT)) for p in paths[:limit]]
+
+
+def _search_all_entries(query: str, limit: int = 12) -> list[str]:
+    _ensure_library_dirs()
+    q = query.lower().strip()
+    matches: list[Path] = []
+    for path in sorted(_LIBRARY_ROOT.rglob("*.md"), reverse=True):
+        text = path.read_text(encoding="utf-8", errors="ignore").lower()
+        if q in text:
+            matches.append(path)
+            if len(matches) >= limit:
+                break
+    return [str(p.relative_to(_PROJECT_ROOT)) for p in matches]
 
 
 def _slugify(text: str) -> str:
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", text.strip().lower()).strip("-")
     return slug[:80] or "entry"
+
+
+def _normalize_tags(values: list[str]) -> list[str]:
+    tags = []
+    for value in values:
+        tag = _slugify(str(value))
+        if tag:
+            tags.append(tag)
+    return tags[:5]
+
+
+def _normalize_str_list(value: object) -> list[str]:
+    if not value:
+        return []
+    if isinstance(value, str):
+        return [value.strip()] if value.strip() else []
+    if isinstance(value, list):
+        result = []
+        for item in value:
+            if isinstance(item, str) and item.strip():
+                result.append(item.strip())
+        return result
+    return []
+
+
+def _normalize_qa_list(value: object) -> list[dict[str, str]]:
+    if not isinstance(value, list):
+        return []
+    items: list[dict[str, str]] = []
+    for item in value:
+        if isinstance(item, dict):
+            question = str(item.get("question", "")).strip()
+            answer = str(item.get("answer", "")).strip()
+            if question or answer:
+                items.append({"question": question, "answer": answer})
+    return items
+
+
+def _strip_code_fences(text: str) -> str:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```[a-zA-Z0-9_-]*\n", "", cleaned)
+        cleaned = re.sub(r"\n```$", "", cleaned)
+    return cleaned.strip()
+
+
+def _default_capture_analysis(payload: str, existing_matches: list[str]) -> dict:
+    lower = payload.lower()
+    words = payload.split()
+
+    if "http://" in lower or "https://" in lower:
+        category = "article"
+        storage_folder = "articles"
+        item_type = "article-research"
+        title = f"Article Research — {payload[:60].strip()}"
+        information_to_track = [
+            "source-url",
+            "author-or-source",
+            "core-claim",
+            "key-supporting-points",
+            "why-it-matters",
+            "follow-up-action",
+        ]
+    elif lower.startswith("book") or " by " in lower:
+        category = "book"
+        storage_folder = "books"
+        item_type = "book-research"
+        title = f"Book Research — {payload[:60].strip()}"
+        information_to_track = [
+            "author",
+            "main-thesis",
+            "top-insights",
+            "use-cases",
+            "rating-criteria",
+            "next-action",
+        ]
+    elif len(words) <= 6 and "=" not in payload:
+        category = "term"
+        storage_folder = "terms"
+        item_type = "concept"
+        title = f"Concept Research — {payload.strip()}"
+        information_to_track = [
+            "plain-definition",
+            "why-it-matters",
+            "example",
+            "related-concepts",
+            "review-cadence",
+        ]
+    else:
+        category = "research"
+        storage_folder = "research"
+        item_type = "knowledge-intake"
+        title = f"Knowledge Intake — {payload[:60].strip()}"
+        information_to_track = [
+            "core-definition",
+            "decision-relevance",
+            "high-value-facts",
+            "open-questions",
+            "next-actions",
+            "related-topics",
+        ]
+
+    return {
+        "title": title,
+        "category": category,
+        "storage_folder": storage_folder,
+        "item_type": item_type,
+        "summary": payload.strip(),
+        "why_valuable": "This topic was explicitly flagged for long-term development, so it should be captured with reasoning, traceability, and follow-up points.",
+        "key_facts": [payload.strip()],
+        "information_to_track": information_to_track,
+        "research_notes": [
+            "Captured from explicit user request.",
+            "Existing library entries were checked for overlap before writing.",
+            "Further external verification may still be useful for factual topics.",
+        ],
+        "qa_log": [
+            {
+                "question": "What is the most important thing to preserve from this intake?",
+                "answer": "The original framing, the category choice, the facts to track, and the conclusion for later reuse.",
+            }
+        ],
+        "logic_trail": [
+            "Inspect the input for obvious type cues such as URL, term-style query, or book pattern.",
+            "Search existing library entries to avoid duplication and recover context.",
+            "Choose the storage folder that best matches long-term retrieval needs.",
+            "Capture both raw input and processed synthesis so nothing important is lost.",
+        ],
+        "conclusion": "Store this as a reusable knowledge asset and revisit it as new evidence or decisions appear.",
+        "tags": _normalize_tags([category, item_type, "critical-knowledge"]),
+        "open_questions": [
+            "What must be validated externally?",
+            "What action should this knowledge change?",
+        ],
+        "research_mode": "fallback-heuristic",
+        "related_existing_entries": existing_matches[:5],
+    }
+
+
+def _parse_capture_analysis(response: str, payload: str, existing_matches: list[str]) -> dict:
+    fallback = _default_capture_analysis(payload, existing_matches)
+    try:
+        parsed = json.loads(_strip_code_fences(response))
+    except Exception:
+        return fallback
+
+    title = str(parsed.get("title", fallback["title"]))[:120].strip() or fallback["title"]
+    category = _slugify(str(parsed.get("category", fallback["category"]))) or fallback["category"]
+    storage_folder = _slugify(str(parsed.get("storage_folder", parsed.get("category", fallback["storage_folder"])))) or fallback["storage_folder"]
+    item_type = _slugify(str(parsed.get("item_type", fallback["item_type"]))) or fallback["item_type"]
+
+    return {
+        "title": title,
+        "category": category,
+        "storage_folder": storage_folder,
+        "item_type": item_type,
+        "summary": str(parsed.get("summary", fallback["summary"])).strip() or fallback["summary"],
+        "why_valuable": str(parsed.get("why_valuable", fallback["why_valuable"])).strip() or fallback["why_valuable"],
+        "key_facts": _normalize_str_list(parsed.get("key_facts")) or fallback["key_facts"],
+        "information_to_track": _normalize_str_list(parsed.get("information_to_track")) or fallback["information_to_track"],
+        "research_notes": _normalize_str_list(parsed.get("research_notes")) or fallback["research_notes"],
+        "qa_log": _normalize_qa_list(parsed.get("qa_log")) or fallback["qa_log"],
+        "logic_trail": _normalize_str_list(parsed.get("logic_trail")) or fallback["logic_trail"],
+        "conclusion": str(parsed.get("conclusion", fallback["conclusion"])).strip() or fallback["conclusion"],
+        "tags": _normalize_tags(_normalize_str_list(parsed.get("tags")) or fallback["tags"]),
+        "open_questions": _normalize_str_list(parsed.get("open_questions")) or fallback["open_questions"],
+        "research_mode": "ai-synthesized",
+        "related_existing_entries": existing_matches[:5],
+    }
+
+
+def _analyze_capture_request(payload: str, existing_matches: list[str]) -> dict:
+    context = (
+        f"Original request:\n{payload}\n\n"
+        f"Existing matching library entries:\n"
+        + ("\n".join(f"- {item}" for item in existing_matches) if existing_matches else "- none")
+    )
+    task = (
+        "Analyze this knowledge intake for long-term storage. Return valid JSON only with keys: "
+        "title, category, storage_folder, item_type, summary, why_valuable, key_facts, "
+        "information_to_track, research_notes, qa_log, logic_trail, conclusion, tags, open_questions. "
+        "qa_log must be an array of objects with question and answer. "
+        "Optimize for durable knowledge capture, retrieval, and future decision-making."
+    )
+    system = (
+        "You are a research librarian for a personal knowledge system. "
+        "Categorize incoming information, identify the most valuable facts to preserve, "
+        "and produce structured outputs for a filesystem-based library. "
+        "Return strict JSON only."
+    )
+    try:
+        response = run_agent(task=task, context=context, system=system)
+        return _parse_capture_analysis(response, payload, existing_matches)
+    except Exception as exc:
+        logger.warning("Deep library capture fell back to heuristic analysis: %s", exc)
+        return _default_capture_analysis(payload, existing_matches)
+
+
+def _write_bundle_file(path: Path, content: str) -> None:
+    path.write_text(content.rstrip() + "\n", encoding="utf-8")
+
+
+def _capture_research_bundle(payload: str, analysis: dict, existing_matches: list[str]) -> str:
+    _ensure_library_dirs()
+    ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+    section_dir = _resolve_section_dir(analysis["storage_folder"])
+    bundle_dir = _LIBRARY_ROOT / section_dir / f"{ts}-{_slugify(analysis['title'])}"
+    bundle_dir.mkdir(parents=True, exist_ok=True)
+
+    metadata = (
+        f"---\n"
+        f"title: {analysis['title']}\n"
+        f"category: {analysis['category']}\n"
+        f"storage_folder: {section_dir}\n"
+        f"item_type: {analysis['item_type']}\n"
+        f"tags: [{', '.join(analysis['tags'])}]\n"
+        f"captured_at: {datetime.now().isoformat(timespec='minutes')}\n"
+        f"research_mode: {analysis['research_mode']}\n"
+        f"---\n\n"
+    )
+
+    overview = metadata + (
+        f"## Summary\n\n{analysis['summary']}\n\n"
+        f"## Why This Is Valuable\n\n{analysis['why_valuable']}\n\n"
+        "## Key Facts\n\n"
+        + "\n".join(f"- {item}" for item in analysis["key_facts"])
+        + "\n\n## Information To Track\n\n"
+        + "\n".join(f"- {item}" for item in analysis["information_to_track"])
+        + "\n\n## Related Existing Entries\n\n"
+        + ("\n".join(f"- {item}" for item in analysis["related_existing_entries"]) if analysis["related_existing_entries"] else "- none")
+        + "\n"
+    )
+
+    search_history = metadata + (
+        "## Search History\n\n"
+        f"- Original query: {payload}\n"
+        f"- Search mode: {analysis['research_mode']}\n"
+        "- Library scan: searched existing markdown entries under library/ for related material\n"
+        + ("\n".join(f"- Existing match: {item}" for item in existing_matches) if existing_matches else "- Existing match: none")
+        + "\n"
+    )
+
+    research_notes = metadata + "## Research Notes\n\n" + "\n".join(f"- {item}" for item in analysis["research_notes"]) + "\n"
+    tracking = metadata + "## Valuable Information To Track\n\n" + "\n".join(f"- {item}" for item in analysis["information_to_track"]) + "\n"
+    qa_lines = []
+    for item in analysis["qa_log"]:
+        qa_lines.append(f"### Q: {item['question'] or '(unspecified)'}\n\n{item['answer'] or '(no answer)'}\n")
+    qa_log = metadata + "## Question / Answer Log\n\n" + ("\n".join(qa_lines) if qa_lines else "No Q/A generated.\n")
+    logic = metadata + "## Logic Trail\n\n" + "\n".join(f"- {item}" for item in analysis["logic_trail"]) + "\n"
+    conclusion = metadata + (
+        f"## Conclusion\n\n{analysis['conclusion']}\n\n"
+        "## Open Questions\n\n"
+        + "\n".join(f"- {item}" for item in analysis["open_questions"])
+        + "\n"
+    )
+    raw_input = metadata + f"## Raw Input\n\n{payload}\n"
+
+    _write_bundle_file(bundle_dir / "index.md", overview)
+    _write_bundle_file(bundle_dir / "01-raw-input.md", raw_input)
+    _write_bundle_file(bundle_dir / "02-search-history.md", search_history)
+    _write_bundle_file(bundle_dir / "03-research-notes.md", research_notes)
+    _write_bundle_file(bundle_dir / "04-information-to-track.md", tracking)
+    _write_bundle_file(bundle_dir / "05-qa-log.md", qa_log)
+    _write_bundle_file(bundle_dir / "06-logic-trail.md", logic)
+    _write_bundle_file(bundle_dir / "07-conclusion.md", conclusion)
+
+    return str(bundle_dir.relative_to(_PROJECT_ROOT))
+
+
+def _handle_library_capture(text: str) -> str:
+    lower = text.lower().strip()
+    payload = _extract_after_prefix(
+        text,
+        (
+            "add to library:",
+            "add to my personal knowledge:",
+            "add to library ",
+            "add to my personal knowledge ",
+        ),
+    )
+
+    if not payload:
+        return (
+            "Use: add to library: <topic, note, question, source, or raw information>\n"
+            "I will categorize it, define what is valuable to track, and save a full research bundle into library/."
+        )
+
+    if _contains_sensitive_content(text):
+        return "Library capture blocked because the input appears to contain sensitive secrets or identity data."
+
+    existing_matches = _search_all_entries(payload, limit=8)
+    analysis = _analyze_capture_request(payload, existing_matches)
+    bundle_path = _capture_research_bundle(payload, analysis, existing_matches)
+
+    return (
+        "Knowledge capture saved to local library.\n"
+        f"Category: {analysis['category']}\n"
+        f"Storage: {bundle_path}\n"
+        f"Track next: {', '.join(analysis['information_to_track'][:4])}"
+    )
 
 
 def _extract_after_prefix(text: str, prefixes: tuple[str, ...]) -> str:
