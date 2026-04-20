@@ -20,6 +20,7 @@ import json
 import logging
 from pathlib import Path
 import re
+from typing import Any
 
 from src.agents.dispatcher import run_agent
 
@@ -28,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _LIBRARY_ROOT = _PROJECT_ROOT / "library"
+_INDEX_PATH = _LIBRARY_ROOT / "index.json"
 _SECTION_DIRS = {
     "profile": "profile",
     "term": "terms",
@@ -61,6 +63,12 @@ def handle_library_command(text: str, intent: str) -> str:
     """Route library command to the right handler."""
     if intent == "library_capture":
         return _handle_library_capture(text)
+    if intent == "library_search":
+        return _handle_library_search(text)
+    if intent == "library_bundle":
+        return _handle_library_bundle(text)
+    if intent == "library_summary":
+        return _handle_library_summary(text)
     if intent == "library_profile":
         return _handle_profile(text)
     if intent == "library_term":
@@ -82,6 +90,113 @@ def _ensure_library_dirs() -> None:
     _LIBRARY_ROOT.mkdir(parents=True, exist_ok=True)
     for dirname in _SECTION_DIRS.values():
         (_LIBRARY_ROOT / dirname).mkdir(parents=True, exist_ok=True)
+
+
+def _build_library_index() -> dict[str, Any]:
+    _ensure_library_dirs()
+    entries: list[dict[str, Any]] = []
+    bundles: list[dict[str, Any]] = []
+
+    for path in sorted(_LIBRARY_ROOT.rglob("*.md")):
+        if path == _INDEX_PATH:
+            continue
+        rel_path = str(path.relative_to(_PROJECT_ROOT))
+        if any(part.startswith(".") for part in path.parts):
+            continue
+        if path.parent != _LIBRARY_ROOT / path.parent.name and path.name != "index.md":
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        title_match = re.search(r"^title:\s*(.+)$", text, flags=re.MULTILINE)
+        section_match = re.search(r"^section:\s*(.+)$", text, flags=re.MULTILINE)
+        category_match = re.search(r"^category:\s*(.+)$", text, flags=re.MULTILINE)
+        status_match = re.search(r"^status:\s*(.+)$", text, flags=re.MULTILINE)
+        title = title_match.group(1).strip() if title_match else path.stem
+        section = section_match.group(1).strip() if section_match else path.parent.name
+        category = category_match.group(1).strip() if category_match else section
+        status = status_match.group(1).strip() if status_match else "unknown"
+        record = {
+            "title": title,
+            "path": rel_path,
+            "section": section,
+            "category": category,
+            "status": status,
+            "type": "bundle-index" if path.name == "index.md" and path.parent != (_LIBRARY_ROOT / _resolve_section_dir(section)) else "entry",
+            "updated_at": datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="minutes"),
+        }
+        entries.append(record)
+
+    for path in sorted(_LIBRARY_ROOT.rglob("index.md")):
+        if path.parent == _LIBRARY_ROOT:
+            continue
+        rel_path = str(path.parent.relative_to(_PROJECT_ROOT))
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        title_match = re.search(r"^title:\s*(.+)$", text, flags=re.MULTILINE)
+        category_match = re.search(r"^category:\s*(.+)$", text, flags=re.MULTILINE)
+        title = title_match.group(1).strip() if title_match else path.parent.name
+        category = category_match.group(1).strip() if category_match else path.parent.parent.name
+        bundles.append(
+            {
+                "title": title,
+                "path": rel_path,
+                "category": category,
+                "updated_at": datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="minutes"),
+            }
+        )
+
+    index = {
+        "generated_at": datetime.now().isoformat(timespec="minutes"),
+        "entries": entries,
+        "bundles": bundles,
+    }
+    _INDEX_PATH.write_text(json.dumps(index, indent=2), encoding="utf-8")
+    return index
+
+
+def _load_library_index() -> dict[str, Any]:
+    return _build_library_index()
+
+
+def _match_index_records(records: list[dict[str, Any]], query: str, limit: int = 8) -> list[dict[str, Any]]:
+    q = query.lower().strip()
+    results = []
+    for record in records:
+        haystacks = [
+            str(record.get("title", "")).lower(),
+            str(record.get("path", "")).lower(),
+            str(record.get("section", "")).lower(),
+            str(record.get("category", "")).lower(),
+        ]
+        if any(q in value for value in haystacks):
+            results.append(record)
+            if len(results) >= limit:
+                break
+    return results
+
+
+def _find_bundle_by_query(query: str, limit: int = 5) -> list[dict[str, Any]]:
+    index = _load_library_index()
+    return _match_index_records(index.get("bundles", []), query, limit=limit)
+
+
+def _find_entries_by_query(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    index = _load_library_index()
+    return _match_index_records(index.get("entries", []), query, limit=limit)
+
+
+def _extract_summary_from_bundle(bundle_path: str) -> str:
+    index_file = _PROJECT_ROOT / bundle_path / "index.md"
+    if not index_file.exists():
+        return "Bundle index not found."
+    text = index_file.read_text(encoding="utf-8", errors="ignore")
+    summary_match = re.search(r"## Summary\n\n(.+?)(\n## |$)", text, flags=re.DOTALL)
+    track_match = re.search(r"## Information To Track\n\n(.+?)(\n## |$)", text, flags=re.DOTALL)
+    parts = []
+    if summary_match:
+        parts.append("Summary:\n" + summary_match.group(1).strip())
+    if track_match:
+        lines = [line.strip() for line in track_match.group(1).splitlines() if line.strip()]
+        parts.append("Track:\n" + "\n".join(lines[:5]))
+    return "\n\n".join(parts) if parts else "Bundle summary not available."
 
 
 def _resolve_section_dir(section: str) -> str:
@@ -114,6 +229,7 @@ def _capture_entry(section: str, title: str, body: str, *, status: str = "draft"
         f"{body}\n"
     )
     path.write_text(content, encoding="utf-8")
+    _build_library_index()
     return str(path.relative_to(_PROJECT_ROOT))
 
 
@@ -427,7 +543,63 @@ def _capture_research_bundle(payload: str, analysis: dict, existing_matches: lis
     _write_bundle_file(bundle_dir / "06-logic-trail.md", logic)
     _write_bundle_file(bundle_dir / "07-conclusion.md", conclusion)
 
+    _build_library_index()
+
     return str(bundle_dir.relative_to(_PROJECT_ROOT))
+
+
+def _handle_library_search(text: str) -> str:
+    query = _extract_after_prefix(text, ("search library:", "find in library:", "library search:", "search library ", "find in library ", "library search ")).strip()
+    if not query:
+        return "Use: search library: <query>"
+    results = _find_entries_by_query(query, limit=10)
+    if not results:
+        return f"No library matches found for: {query}"
+    lines = [f"Library matches for '{query}':\n"]
+    for idx, item in enumerate(results, 1):
+        lines.append(f"{idx}. {item['title']}")
+        path = item["path"]
+        if item.get("type") == "bundle-index":
+            path = path.rsplit("/", 1)[0]
+        lines.append(f"   {path}")
+    return "\n".join(lines)
+
+
+def _handle_library_bundle(text: str) -> str:
+    query = _extract_after_prefix(text, ("library bundle:", "research bundle:", "open bundle:", "open research:", "library bundle ", "research bundle ", "open bundle ", "open research ")).strip()
+    if not query:
+        return "Use: library bundle: <topic>"
+    bundles = _find_bundle_by_query(query, limit=5)
+    if not bundles:
+        return f"No research bundle found for: {query}"
+    lines = [f"Research bundles for '{query}':\n"]
+    for idx, bundle in enumerate(bundles, 1):
+        lines.append(f"{idx}. {bundle['title']}")
+        lines.append(f"   {bundle['path']}")
+    return "\n".join(lines)
+
+
+def _handle_library_summary(text: str) -> str:
+    query = _extract_after_prefix(text, ("summarize library:", "summarise library:", "summarize research:", "summarise research:", "library summary:", "summarize library ", "summarise library ", "summarize research ", "summarise research ", "library summary ")).strip()
+    if not query:
+        return "Use: summarize library: <topic>"
+    bundles = _find_bundle_by_query(query, limit=1)
+    if bundles:
+        bundle = bundles[0]
+        return (
+            f"Summary for '{query}':\n"
+            f"{bundle['path']}\n\n"
+            f"{_extract_summary_from_bundle(bundle['path'])}"
+        )
+
+    entries = _find_entries_by_query(query, limit=3)
+    if not entries:
+        return f"No library summary source found for: {query}"
+    lines = [f"Top library matches for '{query}':\n"]
+    for idx, entry in enumerate(entries, 1):
+        lines.append(f"{idx}. {entry['title']}")
+        lines.append(f"   {entry['path']}")
+    return "\n".join(lines)
 
 
 def _handle_library_capture(text: str) -> str:
@@ -545,7 +717,12 @@ def _handle_term(text: str) -> str:
         payload = text.split(":", 1)[1].strip() if ":" in text else ""
         if not payload:
             return "Use: add term: <term> = <definition>"
+        if "=" not in payload:
+            return "Use: add term: <term> = <definition>"
         term_title = payload.split("=", 1)[0].strip() if "=" in payload else payload
+        definition = payload.split("=", 1)[1].strip() if "=" in payload else ""
+        if not term_title or not definition:
+            return "Use: add term: <term> = <definition>"
         body = f"{payload}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
         formatted = _apply_formatting_standard("term", f"Term: {term_title}", body, metadata={"status": "active"})
         path = _capture_entry("term", formatted["title"], formatted["body"], status=formatted["status"], tags=formatted["tags"])
@@ -572,6 +749,8 @@ def _handle_book(text: str) -> str:
     if lower.startswith("book:"):
         payload = text.split(":", 1)[1].strip() if ":" in text else ""
         if not payload:
+            return "Use: book: <title> by <author>"
+        if " by " not in payload.lower():
             return "Use: book: <title> by <author>"
         title = f"Book: {payload.split('|')[0].strip()}"
         body = f"{payload}\nStatus: wishlist\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
@@ -609,6 +788,8 @@ def _handle_article(text: str) -> str:
         payload = text.split(":", 1)[1].strip() if ":" in text else ""
         if not payload:
             return "Use: article: <url or title>"
+        if len(payload) < 5:
+            return "Use: article: <url or title>"
         title = f"Article: {payload.split('|')[0].strip()}"
         body = f"{payload}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
         formatted = _apply_formatting_standard("article", title, body, metadata={"status": "to-read"})
@@ -637,6 +818,8 @@ def _handle_thought(text: str) -> str:
         payload = text.split(":", 1)[1].strip() if ":" in text else ""
         if not payload:
             return "Use: thought: <idea>"
+        if len(payload.strip()) < 8:
+            return "Use: thought: <idea with enough detail to be useful>"
         title = f"Thought: {payload[:80].strip()}"
         body = f"{payload}\nStatus: draft\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
         formatted = _apply_formatting_standard("thought", title, body, metadata={"status": "draft"})

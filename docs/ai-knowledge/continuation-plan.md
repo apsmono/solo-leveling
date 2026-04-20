@@ -22,6 +22,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - **Stage 9 — Personal Knowledge Libraries (Phase 1 complete):**
   - Library handler module implemented (`src/core/libraries.py`) with 6 handler functions for profile, term, book, article, thought, and review captures.
   - Deep intake handler added for `add to library` / `add to my personal knowledge`; it categorizes input, identifies valuable information to track, searches existing library files, and writes a full research bundle with raw input, search history, research notes, Q/A, logic trail, and conclusion.
+  - Filesystem indexing and retrieval added: library writes now refresh `library/index.json`, and users can search library contents, reopen research bundles, and summarize matching bundle overviews from WhatsApp commands.
   - Router intents wired for all library commands.
   - Comprehensive formatting guide created (`docs/personal-library-formatting-guide.md`) covering: 9-field standard property order, per-type formats (Profile, Terms, Books, Articles, Thoughts), Title Case naming, lowercase-hyphen tags (max 5), anti-mess guardrails, weekly/monthly/quarterly maintenance checklists.
   - Formatting enforcement functions added: `_apply_formatting_standard()` (validates titles, tags, dates, status), `_ensure_title_case()` (consistent title casing), `_save_formatting_guide_to_library()` (saves guide under `library/references`).
@@ -31,12 +32,10 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 ## What Is Not Done Yet
 
 - **Stage 9 — Personal Knowledge Libraries (Phase 2+):** Formatting guide is live. Next work is:
-  1. **Filesystem indexing** — add fast search index for `library/` markdown entries.
-  2. **Bundle retrieval UX** — add commands to summarize or reopen research bundles by topic.
-  3. **Field-level validation** — add format constraints per library type (tag limits, status enums, required fields).
-  4. **End-to-end testing** — manual WhatsApp tests for each library command family.
-  5. **Library migration** — convert remaining legacy Notion-based assumptions/docs to local `library/` semantics.
-  6. **Weekly maintenance scheduler** — automate cleanup checks (15-min checklist).
+  1. **Field-level validation** — harden format constraints per library type (tag limits, status enums, required fields).
+  2. **End-to-end testing** — manual WhatsApp tests for each library command family.
+  3. **Library migration** — convert remaining legacy Notion-based assumptions/docs to local `library/` semantics.
+  4. **Weekly maintenance scheduler** — automate cleanup checks (15-min checklist).
 - **Tests:** `tests/` folder does not exist. Integration tests will need mock credentials or a test `.env`.
 - **Deployment:** no `Dockerfile`, no CI/CD pipeline, no server. The Meta webhook requires a public HTTPS URL. Options: Railway, Fly.io, or any VPS with a reverse proxy.
 
@@ -49,11 +48,10 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 ## Recommended Next Steps (in order)
 
 1. Run manual WhatsApp command tests for each handler path and confirm corresponding writes/reads under `library/`.
-2. Add bundle lookup/summarization commands for deep research captures.
-3. Upgrade Stage 9 from basic file capture to indexed filesystem retrieval per library schema.
-4. Add field-level validation and parser hardening for each command family.
-5. Add a lightweight smoke test plan under `tests/` (or docs-first test checklist if code tests are deferred).
-6. Add a `Dockerfile` and deploy to a permanent host.
+2. Add field-level validation and parser hardening for each command family.
+3. Add a lightweight smoke test plan under `tests/` (or executable tests if code tests are feasible).
+4. Convert remaining legacy Notion-library wording in docs that are still meant to be active.
+5. Add a `Dockerfile` and deploy to a permanent host.
 
 ## Latest Session Notes
 
@@ -64,6 +62,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Added local library structure and tracking files in repo (`library/README.md` plus `.gitkeep` files per section).
 - Updated Stage 9 context/planning docs to local-library-first wording.
 - Added deep research-bundle capture flow for `add to library` / `add to my personal knowledge`, preserving all logic, search history, Q/A, conclusions, and the valuable information-to-track list inside `library/`.
+- Added indexed retrieval commands for Stage 9: `search library`, `library bundle`, and `summarize library`, backed by generated `library/index.json`.
 
 ### 2026-04-18 — Multi-Agent Git Protocol & Stage 9 Formatting Implementation
 

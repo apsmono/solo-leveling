@@ -17,6 +17,7 @@ From this point onward, the term "library" in this repo means the local `library
 ## File Format
 
 Entries are stored as Markdown files with front matter-like metadata and body content.
+The library also maintains `library/index.json` as a generated retrieval index for search and bundle lookup commands.
 
 Research bundles are stored as folders containing:
 
@@ -36,3 +37,9 @@ Research bundles are stored as folders containing:
 This keeps entries sortable by capture time and avoids filename collisions.
 
 For research bundles, the parent folder uses the same timestamp + slug pattern.
+
+## Retrieval Commands
+
+- `search library: <query>` — search indexed library entries and bundles
+- `library bundle: <topic>` — find matching research bundles
+- `summarize library: <topic>` — read the matched bundle overview and tracking points

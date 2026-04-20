@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-20 23-16-38 Added Stage 9 indexed retrieval: `library/index.json` is now generated from `library/` contents, and new library commands can search indexed entries, find research bundles, and summarize bundle overviews.
 - 2026-04-20 23-02-54 Added deep research-bundle capture flow for `add to library` / `add to my personal knowledge`: Stage 9 can now categorize incoming knowledge, define valuable information to track, search existing library entries, and save raw input, search history, research notes, Q/A, logic trail, and conclusion under `library/`.
 - 2026-04-20 22-47-07 Added canonical local library structure under `library/` with subfolders: `profile/`, `terms/`, `books/`, `articles/`, `thoughts/`, and `references/`, plus `library/README.md` to define folder semantics and file naming.
 - 2026-04-18 10-22-15 Added `docs/personal-library-formatting-guide.md`: comprehensive human-readable standard for all Stage 9 library entries covering 9-field property order, per-type formats (Profile, Terms, Books, Articles, Thoughts), Title Case naming, lowercase-hyphen tags (max 5), anti-mess guardrails, and weekly/monthly/quarterly maintenance checklists.
@@ -31,6 +32,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-20 23-16-38 Tightened Stage 9 field validation for core capture commands (`add term`, `book`, `article`, `thought`) and improved search output so research bundles resolve at bundle level instead of listing every internal file.
 - 2026-04-20 23-02-54 Updated Stage 9 documentation and local library conventions so "add to library" now implies full research + categorization + processing workflow before writing to `library/`, with `library/research/` as the default bundle location for new knowledge types.
 - 2026-04-20 22-47-07 Reworked `src/core/libraries.py` from Notion-backed Stage 9 captures to local filesystem storage; library commands now write/read markdown entries inside `library/` and `library_guide` saves to `library/references/`.
 - 2026-04-20 22-47-07 Updated Stage 9 planning/context docs (`AI_CONTEXT.md`, `docs/ai-knowledge/continuation-plan.md`, `docs/personal-library-formatting-guide.md`, `docs/personal-knowledge-system-design.md`, `docs/personal-library-implementation-checklist.md`, `docs/ai-working-notes.md`) so "library" consistently means local folder `library/` and no longer implies a Notion library backend.

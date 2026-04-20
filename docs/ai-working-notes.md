@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- 2026-04-20: Added indexed retrieval for Stage 9 local library. `library/index.json` is now generated from filesystem contents, and new commands can search the library, locate research bundles, and summarize bundle overviews.
 - 2026-04-20: Added deep Stage 9 intake workflow for `add to library` / `add to my personal knowledge`. The command now categorizes the topic, searches existing library entries, identifies valuable information to track, and writes a full research bundle with raw input, search history, research notes, Q/A log, logic trail, and conclusion.
 - 2026-04-20: Terminology pivot applied — in this repo, "library" now means local folder `library/` only. Stage 9 handlers were switched from Notion-backed capture/search to local markdown storage under `library/profile`, `library/terms`, `library/books`, `library/articles`, `library/thoughts`, and `library/references`.
 - 2026-04-18: Implemented first Stage 9 code slice: created `src/core/libraries.py` and wired new router intents (`library_profile`, `library_term`, `library_book`, `library_article`, `library_thought`, `library_review`) so knowledge profile and library capture commands are now routable.

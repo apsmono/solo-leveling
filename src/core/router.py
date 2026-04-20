@@ -30,6 +30,9 @@ INTENT_MAP: dict[str, list[str]] = {
     "help": ["help", "commands", "what can you do"],
     "status": ["status", "how are you", "ping"],
     "library_capture": ["add to library", "add to my personal knowledge"],
+    "library_search": ["search library", "find in library", "library search"],
+    "library_bundle": ["library bundle", "research bundle", "open bundle", "open research"],
+    "library_summary": ["summarize library", "summarise library", "summarize research", "summarise research", "library summary"],
     "library_profile": ["profile skill", "profile interest", "profile domain", "profile update", "profile summary"],
     "library_term": ["add term:", "term ", "define ", "review terms"],
     "library_book": ["book:", "reading ", "finished ", "book insights:"],
@@ -84,6 +87,9 @@ def _dispatch(intent: str, original_text: str) -> str:
         "help": _handle_help,
         "status": _handle_status,
         "library_capture": _handle_library,
+        "library_search": _handle_library,
+        "library_bundle": _handle_library,
+        "library_summary": _handle_library,
         "library_profile": _handle_library,
         "library_term": _handle_library,
         "library_book": _handle_library,
@@ -122,6 +128,9 @@ def _handle_help(_: str) -> str:
         "• profile skill: <name> | confidence: high | priority: now\n"
         "• add to library: <raw information> — research, categorize, and store full bundle\n"
         "• add to my personal knowledge: <raw information>\n"
+        "• search library: <query> — search indexed library entries\n"
+        "• library bundle: <topic> — find research bundles\n"
+        "• summarize library: <topic> — summarize a matching research bundle\n"
         "• profile interest: <topic> | priority: next\n"
         "• profile domain: <domain> | focus: <note>\n"
         "• profile update: <item> | <new value>\n"
