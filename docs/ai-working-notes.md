@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- 2026-04-20: Added a deployment baseline with `Dockerfile` and `.dockerignore`. The container runs the FastAPI WhatsApp webhook and assumes mounted persistence for `library/` and `data/` so Stage 9 writes and reminders survive container restarts.
 - 2026-04-20: Added weekly Stage 9 maintenance support. `library maintenance` now returns a cleanup checklist plus live coverage counts, `library maintenance schedule` reports the configured reminder slot, and the scheduler can send a recurring weekly WhatsApp maintenance reminder through new env vars.
 - 2026-04-20: Cleaned active Stage 9 doc entry points so `docs/README.md` and `docs/personal-library-implementation-checklist.md` now describe the local `library/` workflow first. Older Notion schema material is retained there only as historical reference.
 - 2026-04-20: Added executable Stage 9 regression coverage in `tests/test_stage9_libraries.py`. The tests verify validation failures, local entry creation, deep bundle capture, and indexed retrieval commands using a temporary local library root.

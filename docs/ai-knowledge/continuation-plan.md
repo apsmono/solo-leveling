@@ -25,6 +25,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
   - Filesystem indexing and retrieval added: library writes now refresh `library/index.json`, and users can search library contents, reopen research bundles, and summarize matching bundle overviews from WhatsApp commands.
   - Executable regression coverage added in `tests/test_stage9_libraries.py` for validation errors, local entry writes, deep capture bundle creation, and indexed retrieval flows.
   - Weekly maintenance support added through `src/core/scheduler.py`: `library maintenance` shows the current cleanup checklist and coverage counts, and the scheduler can send a recurring weekly maintenance reminder via WhatsApp.
+  - Containerization baseline added: `Dockerfile` now runs the FastAPI WhatsApp webhook with persistent mounts for `library/` and `data/`.
   - Router intents wired for all library commands.
   - Comprehensive formatting guide created (`docs/personal-library-formatting-guide.md`) covering: 9-field standard property order, per-type formats (Profile, Terms, Books, Articles, Thoughts), Title Case naming, lowercase-hyphen tags (max 5), anti-mess guardrails, weekly/monthly/quarterly maintenance checklists.
   - Formatting enforcement functions added: `_apply_formatting_standard()` (validates titles, tags, dates, status), `_ensure_title_case()` (consistent title casing), `_save_formatting_guide_to_library()` (saves guide under `library/references`).
@@ -35,7 +36,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 - **Stage 9 — Personal Knowledge Libraries (Phase 2+):** Formatting guide is live. Next work is:
   1. **End-to-end testing** — manual WhatsApp tests for each library command family.
-  2. **Deployment hardening** — containerize and prepare a stable public runtime.
+  2. **Deployment hardening** — choose a target and validate container runtime in a real environment.
 - **Tests:** Stage 9 local-library regression coverage exists in `tests/test_stage9_libraries.py`. Broader integration tests will still need mock credentials or a test `.env`.
 - **Deployment:** no `Dockerfile`, no CI/CD pipeline, no server. The Meta webhook requires a public HTTPS URL. Options: Railway, Fly.io, or any VPS with a reverse proxy.
 
@@ -48,7 +49,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 ## Recommended Next Steps (in order)
 
 1. Run manual WhatsApp command tests for each handler path and confirm corresponding writes/reads under `library/`.
-2. Add a `Dockerfile` and deploy to a permanent host.
+2. Choose a deployment target and validate the new container runtime end to end.
 3. Add broader integration smoke tests for Notion, Drive, Gmail, and WhatsApp-facing flows once credentials are available.
 
 ## Latest Session Notes
@@ -64,6 +65,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Added executable Stage 9 regression tests covering validation, local writes, deep capture bundles, and indexed retrieval.
 - Cleaned the active Stage 9 checklist/doc entry points so they now describe the local `library/` workflow first and keep old Notion schema notes as historical reference only.
 - Added weekly library maintenance support: new commands expose a cleanup checklist and coverage summary, and the scheduler can send a recurring WhatsApp reminder using dedicated maintenance env vars.
+- Added a deployment baseline with `Dockerfile`, `.dockerignore`, and container run instructions that preserve `library/` and `data/` via mounted volumes.
 
 ### 2026-04-18 — Multi-Agent Git Protocol & Stage 9 Formatting Implementation
 
