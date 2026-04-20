@@ -52,7 +52,7 @@ As the project expands, prefer this structure:
 1. ~~Expand Stage 8 from starter workflow to multiple robust workflow chains~~ **DONE (3 workflows implemented)**
 2. Complete credential setup using `docs/SETUP_SECRETS.md` so integrations can run end-to-end.
 3. **NEW: Implement Stage 9 — Personal Knowledge Libraries command layer** (`library/` folder is canonical storage; all handlers and plans must be local-library-first)
-4. Add a `Dockerfile` and choose a deployment target (Railway, Fly.io, or VPS) so the webhook is publicly reachable.
+4. Choose a deployment target (Railway, Fly.io, or VPS) and validate the new container runtime so the webhook is publicly reachable.
 5. Add `tests/` with at least one integration smoke test per service.
 
 ## Completed Stages

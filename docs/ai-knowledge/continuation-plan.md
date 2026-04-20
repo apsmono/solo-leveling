@@ -38,7 +38,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
   1. **End-to-end testing** — manual WhatsApp tests for each library command family.
   2. **Deployment hardening** — choose a target and validate container runtime in a real environment.
 - **Tests:** Stage 9 local-library regression coverage exists in `tests/test_stage9_libraries.py`. Broader integration tests will still need mock credentials or a test `.env`.
-- **Deployment:** no `Dockerfile`, no CI/CD pipeline, no server. The Meta webhook requires a public HTTPS URL. Options: Railway, Fly.io, or any VPS with a reverse proxy.
+- **Deployment:** `Dockerfile` and `.dockerignore` now exist, but there is still no CI/CD pipeline or live server. The Meta webhook requires a public HTTPS URL. Options: Railway, Fly.io, or any VPS with a reverse proxy.
 
 ## Blocking TODO (Secrets Setup)
 
