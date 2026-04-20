@@ -12,7 +12,7 @@ Adding new commands:
 
 import logging
 
-from src.core.scheduler import handle_reminder_command
+from src.core.scheduler import handle_library_maintenance_command, handle_reminder_command
 from src.core.libraries import handle_library_command
 from src.core.workflows import handle_workflow_command
 from src.integrations.notion import client as notion
@@ -39,6 +39,7 @@ INTENT_MAP: dict[str, list[str]] = {
     "library_article": ["article:", "articles on "],
     "library_thought": ["thought:", "draft:", "publish thought:"],
     "library_review": ["my library", "library status", "review books", "review terms"],
+    "library_maintenance": ["library maintenance", "maintenance schedule", "library upkeep"],
     "library_guide": ["library guide", "formatting guide", "save guide"],
     "workflow": ["workflow", "save to notion", "and save"],
     "notion_search": ["notion", "read notion", "show notion", "find notion"],
@@ -96,6 +97,7 @@ def _dispatch(intent: str, original_text: str) -> str:
         "library_article": _handle_library,
         "library_thought": _handle_library,
         "library_review": _handle_library,
+        "library_maintenance": _handle_library_maintenance,
         "library_guide": _handle_library,
         "workflow": _handle_workflow,
         "notion_search": _handle_notion_search,
@@ -141,6 +143,8 @@ def _handle_help(_: str) -> str:
         "• article: <url>\n"
         "• thought: <idea>\n"
         "• my library — quick library counts\n"
+        "• library maintenance — weekly cleanup checklist and current coverage\n"
+        "• library maintenance schedule — show weekly maintenance reminder schedule\n"
         "• library guide — save formatting reference into library/references\n"
         "• notion <query> — search Notion\n"
         "• drive — list recent Google Drive files\n"
@@ -220,6 +224,10 @@ def _handle_ask_ai(text: str) -> str:
 
 def _handle_reminder(text: str) -> str:
     return handle_reminder_command(text)
+
+
+def _handle_library_maintenance(text: str) -> str:
+    return handle_library_maintenance_command(text)
 
 
 def _handle_unknown(text: str) -> str:

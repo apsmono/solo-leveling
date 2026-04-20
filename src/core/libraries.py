@@ -81,6 +81,8 @@ def handle_library_command(text: str, intent: str) -> str:
         return _handle_thought(text)
     if intent == "library_review":
         return _handle_review(text)
+    if intent == "library_maintenance":
+        return format_library_maintenance_summary()
     if intent == "library_guide":
         return _save_formatting_guide_to_library()
     return "Library command not recognized."
@@ -858,6 +860,37 @@ def _handle_review(_: str) -> str:
         f"• Thoughts: {thoughts}\n\n"
         "Tip: run 'profile summary' or 'review terms' style searches for details."
     )
+
+
+def format_library_maintenance_summary() -> str:
+    profile = _count_entries("profile")
+    terms = _count_entries("term")
+    books = _count_entries("book")
+    articles = _count_entries("article")
+    thoughts = _count_entries("thought")
+    references = _count_entries("reference")
+    bundles = sum(1 for path in (_LIBRARY_ROOT / _resolve_section_dir("research")).iterdir() if path.is_dir()) if (_LIBRARY_ROOT / _resolve_section_dir("research")).exists() else 0
+
+    lines = [
+        "Weekly library maintenance",
+        "",
+        "Coverage:",
+        f"• Profile: {profile}",
+        f"• Terms: {terms}",
+        f"• Books: {books}",
+        f"• Articles: {articles}",
+        f"• Thoughts: {thoughts}",
+        f"• References: {references}",
+        f"• Research bundles: {bundles}",
+        "",
+        "Checklist:",
+        "• Review the newest research bundles and promote durable notes into core sections.",
+        "• Clean weak titles, tags, or statuses in the latest captures.",
+        "• Revisit unfinished books, unread articles, and draft thoughts.",
+        "• Search for duplicates or overlapping entries before adding more.",
+        "• Decide the next 1-3 topics that should move from capture to action.",
+    ]
+    return "\n".join(lines)
 
 
 def _extract_field(lower_text: str, field: str) -> str:

@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- 2026-04-20: Added weekly Stage 9 maintenance support. `library maintenance` now returns a cleanup checklist plus live coverage counts, `library maintenance schedule` reports the configured reminder slot, and the scheduler can send a recurring weekly WhatsApp maintenance reminder through new env vars.
 - 2026-04-20: Cleaned active Stage 9 doc entry points so `docs/README.md` and `docs/personal-library-implementation-checklist.md` now describe the local `library/` workflow first. Older Notion schema material is retained there only as historical reference.
 - 2026-04-20: Added executable Stage 9 regression coverage in `tests/test_stage9_libraries.py`. The tests verify validation failures, local entry creation, deep bundle capture, and indexed retrieval commands using a temporary local library root.
 - 2026-04-20: Added indexed retrieval for Stage 9 local library. `library/index.json` is now generated from filesystem contents, and new commands can search the library, locate research bundles, and summarize bundle overviews.

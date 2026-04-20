@@ -16,19 +16,26 @@ from pathlib import Path
 from threading import Lock
 from uuid import uuid4
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
+try:
+    from apscheduler.schedulers.background import BackgroundScheduler
+    from apscheduler.triggers.cron import CronTrigger
+except ModuleNotFoundError:
+    BackgroundScheduler = None
+    CronTrigger = None
 
 from src.core.config import (
     DAILY_GMAIL_DIGEST_ENABLED,
     DAILY_GMAIL_DIGEST_HOUR,
     DAILY_GMAIL_DIGEST_MINUTE,
+    LIBRARY_MAINTENANCE_DAY,
+    LIBRARY_MAINTENANCE_ENABLED,
+    LIBRARY_MAINTENANCE_HOUR,
+    LIBRARY_MAINTENANCE_MINUTE,
     REMINDER_STORE_PATH,
     SCHEDULER_POLL_SECONDS,
     WHATSAPP_OWNER_NUMBER,
 )
-from src.integrations.gmail import client as gmail
-from src.integrations.whatsapp.client import send_message
+from src.core.libraries import format_library_maintenance_summary
 
 logger = logging.getLogger(__name__)
 
@@ -125,6 +132,8 @@ def process_due_reminders() -> None:
     sent_ids: set[str] = set()
     for reminder in due:
         try:
+            from src.integrations.whatsapp.client import send_message
+
             body = (
                 "Reminder\n"
                 f"{reminder['message']}\n"
@@ -154,6 +163,9 @@ def send_daily_gmail_digest() -> None:
         return
 
     try:
+        from src.integrations.gmail import client as gmail
+        from src.integrations.whatsapp.client import send_message
+
         summary = gmail.inbox_summary(limit=5)
         send_message(
             to=WHATSAPP_OWNER_NUMBER,
@@ -165,9 +177,36 @@ def send_daily_gmail_digest() -> None:
         logger.exception("Failed to send daily Gmail digest.")
 
 
+def handle_library_maintenance_command(text: str) -> str:
+    normalized = text.strip().lower()
+    if normalized in {"library maintenance schedule", "library maintenance status", "maintenance schedule"}:
+        return format_library_maintenance_schedule()
+    return format_library_maintenance_summary()
+
+
+def send_weekly_library_maintenance() -> None:
+    if not WHATSAPP_OWNER_NUMBER:
+        logger.debug("Library maintenance reminder skipped: WHATSAPP_OWNER_NUMBER is not set.")
+        return
+
+    try:
+        from src.integrations.whatsapp.client import send_message
+
+        send_message(
+            to=WHATSAPP_OWNER_NUMBER,
+            body=format_library_maintenance_summary(),
+        )
+    except Exception:
+        logger.exception("Failed to send weekly library maintenance reminder.")
+
+
 def start_scheduler() -> None:
     """Start the background scheduler once per process."""
     global _scheduler
+
+    if BackgroundScheduler is None or CronTrigger is None:
+        logger.warning("Scheduler start skipped: apscheduler is not installed.")
+        return
 
     if _scheduler and _scheduler.running:
         return
@@ -186,6 +225,18 @@ def start_scheduler() -> None:
             send_daily_gmail_digest,
             CronTrigger(hour=DAILY_GMAIL_DIGEST_HOUR, minute=DAILY_GMAIL_DIGEST_MINUTE),
             id="daily-gmail-digest",
+            replace_existing=True,
+        )
+
+    if LIBRARY_MAINTENANCE_ENABLED:
+        _scheduler.add_job(
+            send_weekly_library_maintenance,
+            CronTrigger(
+                day_of_week=_normalize_day_of_week(LIBRARY_MAINTENANCE_DAY),
+                hour=LIBRARY_MAINTENANCE_HOUR,
+                minute=LIBRARY_MAINTENANCE_MINUTE,
+            ),
+            id="weekly-library-maintenance",
             replace_existing=True,
         )
 
@@ -275,3 +326,20 @@ def _save_reminders(reminders: list[dict[str, str]]) -> None:
 
 def _format_timestamp(value: datetime) -> str:
     return value.strftime("%Y-%m-%d %H:%M")
+
+
+def _normalize_day_of_week(value: str) -> str:
+    allowed = {"mon", "tue", "wed", "thu", "fri", "sat", "sun"}
+    normalized = value.strip().lower()[:3]
+    return normalized if normalized in allowed else "sun"
+
+
+def format_library_maintenance_schedule() -> str:
+    status = "enabled" if LIBRARY_MAINTENANCE_ENABLED else "disabled"
+    return (
+        "Library maintenance schedule\n"
+        f"• Status: {status}\n"
+        f"• Day: {_normalize_day_of_week(LIBRARY_MAINTENANCE_DAY)}\n"
+        f"• Time: {LIBRARY_MAINTENANCE_HOUR:02d}:{LIBRARY_MAINTENANCE_MINUTE:02d}\n"
+        "• Command: library maintenance"
+    )

@@ -43,3 +43,5 @@ For research bundles, the parent folder uses the same timestamp + slug pattern.
 - `search library: <query>` — search indexed library entries and bundles
 - `library bundle: <topic>` — find matching research bundles
 - `summarize library: <topic>` — read the matched bundle overview and tracking points
+- `library maintenance` — show the weekly cleanup checklist and current library coverage
+- `library maintenance schedule` — show the configured weekly maintenance reminder schedule

@@ -7,9 +7,9 @@ This repository is the central brain for the owner's personal operating system: 
 ## Current Phase
 
 - Phase: Stage 8 complete; Stage 9 local-library pivot active (library means folder `library/`)
-- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, formatting enforcement code, deep research-bundle capture flow for "add to library", and executable Stage 9 library tests
-- Current work: Stage 9 captures and lookups now run against local markdown entries under `library/`, including indexed search, bundle lookup, summary retrieval for research bundles, and regression coverage in `tests/test_stage9_libraries.py`
-- Primary need: continue Stage 9 improvements with filesystem-first workflows (manual WhatsApp tests, maintenance scheduler, deployment)
+- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, formatting enforcement code, deep research-bundle capture flow for "add to library", executable Stage 9 library tests, and weekly library maintenance commands/scheduler support
+- Current work: Stage 9 captures and lookups now run against local markdown entries under `library/`, including indexed search, bundle lookup, summary retrieval for research bundles, regression coverage in `tests/test_stage9_libraries.py`, and weekly maintenance summaries through the scheduler layer
+- Primary need: continue Stage 9 improvements with filesystem-first workflows (manual WhatsApp tests, deployment, broader integration test coverage)
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth

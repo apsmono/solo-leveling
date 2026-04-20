@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-20 23-38-29 Added weekly Stage 9 maintenance support: `library maintenance` returns a cleanup checklist with live library coverage, `library maintenance schedule` reports the configured reminder slot, and the scheduler can send a recurring weekly WhatsApp maintenance reminder via new env vars.
 - 2026-04-20 23-21-01 Added executable Stage 9 regression tests in `tests/test_stage9_libraries.py` for local validation rules, library entry writes, deep research-bundle capture, and indexed retrieval commands.
 - 2026-04-20 23-16-38 Added Stage 9 indexed retrieval: `library/index.json` is now generated from `library/` contents, and new library commands can search indexed entries, find research bundles, and summarize bundle overviews.
 - 2026-04-20 23-02-54 Added deep research-bundle capture flow for `add to library` / `add to my personal knowledge`: Stage 9 can now categorize incoming knowledge, define valuable information to track, search existing library entries, and save raw input, search history, research notes, Q/A, logic trail, and conclusion under `library/`.

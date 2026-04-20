@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from src.core import libraries
+from src.core.scheduler import format_library_maintenance_schedule, handle_library_maintenance_command
 
 
 class Stage9LibraryTests(unittest.TestCase):
@@ -88,6 +89,23 @@ class Stage9LibraryTests(unittest.TestCase):
         summary_result = libraries.handle_library_command("summarize library: retrieval ux", "library_summary")
         self.assertIn("Summary for 'retrieval ux':", summary_result)
         self.assertIn("Track:", summary_result)
+
+    def test_library_maintenance_summary_and_schedule(self) -> None:
+        libraries.handle_library_command(
+            "add term: MCP = Model Context Protocol",
+            "library_term",
+        )
+
+        maintenance_result = libraries.handle_library_command(
+            "library maintenance",
+            "library_maintenance",
+        )
+        self.assertIn("Weekly library maintenance", maintenance_result)
+        self.assertIn("• Terms: 1", maintenance_result)
+
+        schedule_result = handle_library_maintenance_command("library maintenance schedule")
+        self.assertIn("Library maintenance schedule", schedule_result)
+        self.assertIn("• Command: library maintenance", schedule_result)
 
 
 if __name__ == "__main__":

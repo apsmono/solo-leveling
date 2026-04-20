@@ -66,6 +66,10 @@ SCHEDULER_POLL_SECONDS: int = _get_int("SCHEDULER_POLL_SECONDS", 30)
 DAILY_GMAIL_DIGEST_ENABLED: bool = _get_bool("DAILY_GMAIL_DIGEST_ENABLED", False)
 DAILY_GMAIL_DIGEST_HOUR: int = _get_int("DAILY_GMAIL_DIGEST_HOUR", 8)
 DAILY_GMAIL_DIGEST_MINUTE: int = _get_int("DAILY_GMAIL_DIGEST_MINUTE", 0)
+LIBRARY_MAINTENANCE_ENABLED: bool = _get_bool("LIBRARY_MAINTENANCE_ENABLED", False)
+LIBRARY_MAINTENANCE_DAY: str = os.environ.get("LIBRARY_MAINTENANCE_DAY", "sun").strip().lower() or "sun"
+LIBRARY_MAINTENANCE_HOUR: int = _get_int("LIBRARY_MAINTENANCE_HOUR", 9)
+LIBRARY_MAINTENANCE_MINUTE: int = _get_int("LIBRARY_MAINTENANCE_MINUTE", 0)
 
 # ---------------------------------------------------------------------------
 # Workflows
