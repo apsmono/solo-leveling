@@ -29,8 +29,8 @@ This folder contains the full planning structure for the project, including syst
 
 ## Planning Documents
 
-- `personal-knowledge-system-design.md` — research on self-development strategies, schema design for 4 library types (Knowledge Base, Books, Articles, Thoughts), integration plan with Stage 9, and implementation roadmap.
-- `personal-library-implementation-checklist.md` — step-by-step guide for Phase 0-4: decision framework, Notion database setup, Google Drive structure, manual testing, WhatsApp command integration, and AI enhancement roadmap.
+- `personal-knowledge-system-design.md` — research on self-development strategies, Stage 9 library structure, integration plan, and implementation roadmap. Parts of this file are historical and should be read together with the local-library rules in `AI_CONTEXT.md`.
+- `personal-library-implementation-checklist.md` — step-by-step guide for the current local `library/` workflow, command testing, indexing/retrieval, and Stage 9 enhancement roadmap. Historical Notion schema notes are retained there only as reference.
 - `self-development-system.md` — personal growth operating model.
 - `financial-freedom-strategy.md` — wealth-building system and constraints.
 - `habit-system.md` — recurring behaviors, scorekeeping, and adjustment rules.

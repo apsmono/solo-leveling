@@ -1,8 +1,8 @@
 # Personal Library System — Implementation Checklist
 
-This is your step-by-step guide to building out the four personal knowledge libraries (Knowledge Base, Books, Articles, Thoughts). Use this to make choices and track progress.
+This is the step-by-step guide for the Stage 9 personal knowledge library stored in the local `library/` folder. The core content areas are terms, books, articles, thoughts, profile items, references, and research bundles.
 
-> 2026-04-20 update: In this project, "library" now means local folder `library/` only. Stage 9 implementation should be filesystem-first. Notion-focused sections below are legacy references and should be translated to local markdown storage.
+> 2026-04-20 update: In this project, "library" now means local folder `library/` only. Stage 9 storage, retrieval, search, summaries, and formatting all run against the filesystem. Older Notion database sections in this file are historical schema references only.
 
 ---
 
@@ -33,41 +33,53 @@ This is your step-by-step guide to building out the four personal knowledge libr
 
 ### Recommendation
 
-Start **Hybrid**: Quick Notion setup + command integration. This gives you immediate use while building infrastructure.
-
-Updated recommendation: Start **Hybrid** with local `library/` setup + command integration.
+Start **Hybrid**: local `library/` setup + command integration + indexed retrieval. This gives you immediate use while keeping the storage model aligned with the live code.
 
 ---
 
-## Phase 1: Notion Setup (2-3 hours)
+## Phase 1: Local Library Bootstrap (current path)
 
-### Step 1.0: Notion Integration Setup (latest flow)
+### Step 1.0: Bootstrap Local Library
 
-Use this sequence before creating databases so API access works on first try.
+Use this sequence before adding Stage 9 knowledge so the local structure, formatting guide, and retrieval index are ready.
 
-1. Open Notion in browser.
-2. Go to `Settings` -> `Connections` (or `My connections`) and create a new internal integration.
-3. Name it `Solo Leveling Brain` (or your preferred name).
-4. Copy the integration secret token immediately.
-5. In your local repo `.env`, set:
-   - `NOTION_API_TOKEN=<your integration token>`
-   - `NOTION_WORKFLOW_PARENT_ID=<page id from target parent page URL>`
-6. In Notion, create or open your parent page (recommended: `Personal Brain`).
-7. Click `Share` on that page and invite your integration/connection.
-8. Confirm the integration has access to the parent page and each library database you create.
-9. Run verification command through your bot: `notion project`.
-10. Run write test: `summarise my inbox and save to notion`.
+1. Confirm the repository contains the canonical Stage 9 folders under `library/`.
+2. Run the `library guide` command once so the formatting standard is saved into `library/references/`.
+3. Test one direct write for each core type:
+    - `add term: <term> = <definition>`
+    - `book: <title> by <author>`
+    - `article: <url or title>`
+    - `thought: <idea with enough detail>`
+4. Test one deep capture command:
+    - `add to library: <topic>`
+5. Test retrieval commands:
+    - `search library: <query>`
+    - `library bundle: <topic>`
+    - `summarize library: <topic>`
+6. Confirm `library/index.json` refreshes after each new write.
+7. Keep Notion credentials only for the existing Notion integration features outside Stage 9 storage.
 
 If verification fails, check these in order:
 
-- Token is present and correct in `.env`
-- Parent page ID is correct
-- Integration is invited to the specific page/database
-- Server process was restarted after `.env` changes
+- The command matches the expected Stage 9 format
+- The write was not blocked by sensitive-content detection
+- The target file or bundle was created under the expected `library/` subfolder
+- `library/index.json` exists and was refreshed after the write
 
-### Step 1.1: Create the 4 Databases
+### Step 1.1: Historical Schema Reference (legacy only)
 
-In your Notion workspace, create 4 new databases:
+The sections below preserve the original four-library schema research. They are no longer the implementation instructions for Stage 9 storage. Use them only as naming, metadata, or taxonomy reference when refining local markdown formats.
+
+### Step 1.2: Legacy Four-Library Model
+
+Historical reference: the four primary areas still map conceptually to local storage like this:
+
+- Knowledge Base -> `library/terms/`
+- Books -> `library/books/`
+- Articles -> `library/articles/`
+- Thoughts -> `library/thoughts/`
+
+Original database notes retained below:
 
 **1. Knowledge Base Database**
 
@@ -311,16 +323,15 @@ INTENT_MAP: dict[str, list[str]] = {
 
 ```python
 """
-Stage 9: Personal knowledge library handlers.
+Stage 9: Personal knowledge library handlers backed by the local `library/` folder.
 
 Manages capture, organization, and retrieval of:
-  - Knowledge Base (terms, definitions, acronyms)
-  - Books Library (with summaries, transcripts, notes)
-  - Articles Library (with summaries, links, topics)
-  - Thought Drafts (frameworks, insights, essays)
+    - Terms and definitions
+    - Books with summaries and notes
+    - Articles with links and topics
+    - Thought drafts and updates
+    - Research bundles for deep captures
 """
-
-from src.integrations.notion import client as notion
 
 def handle_library_command(text: str, intent: str) -> str:
     """Route library command to the right handler."""
@@ -448,15 +459,15 @@ On "review terms":
 
 **By End of Phase 1:**
 
-- [ ] 4 Notion databases created and accessible
-- [ ] Google Drive folder structure ready
-- [ ] You've manually added 3-5 items to each library
-- [ ] Templates/buttons working
+- [ ] `library/` folders exist and match the Stage 9 structure
+- [ ] `library guide` has been saved into `library/references/`
+- [ ] You've manually added 3-5 items across the local library
+- [ ] `library/index.json` refreshes after new writes
 
 **By End of Phase 2:**
 
 - [ ] WhatsApp commands working for each library type
-- [ ] New items auto-created in Notion from WhatsApp
+- [ ] New items auto-created in local `library/` storage from WhatsApp
 - [ ] Can retrieve items via WhatsApp
 
 **By End of Phase 3:**
@@ -478,7 +489,7 @@ On "review terms":
 
 Once libraries are live:
 
-1. **Notion Dashboard**: Create summary page showing library stats, recent additions, pending reviews
+1. **Library Dashboard**: create a local or generated summary view showing library stats, recent additions, pending reviews, and bundle activity
 2. **Integration**: Link findings to financial planning and self-development goals
 3. **Automation**: Set up monthly reminders to review and synthesize
 4. **Evolution**: Add personal projects library, decision log integration, learning roadmap
@@ -489,7 +500,7 @@ Once libraries are live:
 
 Before you start, answer these to tailor the schema:
 
-1. **Books**: Do you want to track individual quotes separately? (requires a Quotes database)
+1. **Books**: Do you want to track individual quotes separately? (could become a dedicated local section or linked note pattern)
 2. **Articles**: How many articles per month do you typically save? (affects review frequency)
 3. **Thoughts**: Do you want to publish thoughts as blog posts? (affects workflow and Drive sync)
 4. **Knowledge Base**: How do you prefer to learn? (Spaced repetition vs. manual review)

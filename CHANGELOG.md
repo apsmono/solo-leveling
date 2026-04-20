@@ -33,6 +33,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-20 23-34-40 Cleaned active Stage 9 documentation entry points so `docs/README.md` and `docs/personal-library-implementation-checklist.md` now describe the local `library/` workflow first, while keeping older Notion schema notes as historical reference only.
 - 2026-04-20 23-16-38 Tightened Stage 9 field validation for core capture commands (`add term`, `book`, `article`, `thought`) and improved search output so research bundles resolve at bundle level instead of listing every internal file.
 - 2026-04-20 23-02-54 Updated Stage 9 documentation and local library conventions so "add to library" now implies full research + categorization + processing workflow before writing to `library/`, with `library/research/` as the default bundle location for new knowledge types.
 - 2026-04-20 22-47-07 Reworked `src/core/libraries.py` from Notion-backed Stage 9 captures to local filesystem storage; library commands now write/read markdown entries inside `library/` and `library_guide` saves to `library/references/`.

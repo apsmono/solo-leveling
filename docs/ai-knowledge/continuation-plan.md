@@ -34,8 +34,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 - **Stage 9 — Personal Knowledge Libraries (Phase 2+):** Formatting guide is live. Next work is:
   1. **End-to-end testing** — manual WhatsApp tests for each library command family.
-  2. **Library migration** — convert remaining legacy Notion-based assumptions/docs to local `library/` semantics.
-  3. **Weekly maintenance scheduler** — automate cleanup checks (15-min checklist).
+  2. **Weekly maintenance scheduler** — automate cleanup checks (15-min checklist).
 - **Tests:** Stage 9 local-library regression coverage exists in `tests/test_stage9_libraries.py`. Broader integration tests will still need mock credentials or a test `.env`.
 - **Deployment:** no `Dockerfile`, no CI/CD pipeline, no server. The Meta webhook requires a public HTTPS URL. Options: Railway, Fly.io, or any VPS with a reverse proxy.
 
@@ -48,9 +47,8 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 ## Recommended Next Steps (in order)
 
 1. Run manual WhatsApp command tests for each handler path and confirm corresponding writes/reads under `library/`.
-2. Convert remaining legacy Notion-library wording in docs that are still meant to be active.
-3. Add a weekly library maintenance scheduler/checklist flow.
-4. Add a `Dockerfile` and deploy to a permanent host.
+2. Add a weekly library maintenance scheduler/checklist flow.
+3. Add a `Dockerfile` and deploy to a permanent host.
 
 ## Latest Session Notes
 
@@ -63,6 +61,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Added deep research-bundle capture flow for `add to library` / `add to my personal knowledge`, preserving all logic, search history, Q/A, conclusions, and the valuable information-to-track list inside `library/`.
 - Added indexed retrieval commands for Stage 9: `search library`, `library bundle`, and `summarize library`, backed by generated `library/index.json`.
 - Added executable Stage 9 regression tests covering validation, local writes, deep capture bundles, and indexed retrieval.
+- Cleaned the active Stage 9 checklist/doc entry points so they now describe the local `library/` workflow first and keep old Notion schema notes as historical reference only.
 
 ### 2026-04-18 — Multi-Agent Git Protocol & Stage 9 Formatting Implementation
 
