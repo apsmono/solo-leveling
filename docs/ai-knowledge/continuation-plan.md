@@ -52,7 +52,16 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 4. Add a lightweight smoke test plan under `tests/` (or docs-first test checklist if code tests are deferred).
 5. Add a `Dockerfile` and deploy to a permanent host.
 
-## Latest Session Notes (2026-04-18)
+## Latest Session Notes
+
+### 2026-04-20 — Local Library Pivot
+
+- Redefined `library` semantics for this repo: Stage 9 library storage is the local `library/` folder.
+- Reworked `src/core/libraries.py` to write/search markdown entries in `library/profile`, `library/terms`, `library/books`, `library/articles`, `library/thoughts`, and `library/references`.
+- Added local library structure and tracking files in repo (`library/README.md` plus `.gitkeep` files per section).
+- Updated Stage 9 context/planning docs to local-library-first wording.
+
+### 2026-04-18 — Multi-Agent Git Protocol & Stage 9 Formatting Implementation
 
 **Multi-Agent Git Protocol & Stage 9 Formatting Implementation:**
 
@@ -66,8 +75,6 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Committed and pushed: `045539f docs: add Notion formatting standard for Stage 9 library`.
 - Updated continuation plan with formatting standard completion and revised next steps (filesystem indexing, field validation, end-to-end testing).
 
-- 2026-04-20: Redefined "library" for this repo to mean local folder `library/` only. Stage 9 handlers and plans now align to local markdown storage; Notion remains Stage 3 integration, not Stage 9 library backend.
-
 **Previous Session Notes (2026-04-18 earlier):**
 
 - Ran live schema audit for all four Stage 9 Notion databases.
@@ -75,7 +82,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Archived temporary validation rows from `Personal Knowledge Base` to keep production data clean.
 - Implemented initial Stage 9 code in `src/core/libraries.py` with 6 handler functions for profile, term, book, article, thought, review.
 - Wired router intents for all library commands.
-- Current Stage 9 code path stores captures as Notion pages under `NOTION_WORKFLOW_PARENT_ID` for immediate usability; database-structured writes remain the next upgrade slice.
+- Historical note: Stage 9 previously used Notion page capture mode; this is now superseded by local `library/` storage.
 
 ## Environment Variable Reference
 
