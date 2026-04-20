@@ -9,18 +9,30 @@ This module handles lightweight capture and lookup flows for:
   - Thoughts
   - Library review summary
 
-Current implementation stores captures as Notion pages under NOTION_WORKFLOW_PARENT_ID.
-It reuses existing Notion client capabilities so Stage 9 can be used immediately,
-then can be upgraded to database-specific writes in a later slice.
+Current implementation stores captures as markdown files under library/.
+This keeps Stage 9 local-first and file-based for predictable versioning.
 """
 
 from __future__ import annotations
 
 from datetime import datetime
+import logging
+from pathlib import Path
 import re
 
-from src.core.config import NOTION_WORKFLOW_PARENT_ID
-from src.integrations.notion import client as notion
+
+logger = logging.getLogger(__name__)
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+_LIBRARY_ROOT = _PROJECT_ROOT / "library"
+_SECTION_DIRS = {
+    "profile": "profile",
+    "term": "terms",
+    "book": "books",
+    "article": "articles",
+    "thought": "thoughts",
+    "reference": "references",
+}
 
 
 ALLOWED_PROFILE_TYPES = {"skill", "interest", "domain", "learning", "focus"}
@@ -60,13 +72,10 @@ def handle_library_command(text: str, intent: str) -> str:
     return "Library command not recognized."
 
 
-def _require_parent() -> str:
-    if not NOTION_WORKFLOW_PARENT_ID:
-        raise EnvironmentError(
-            "NOTION_WORKFLOW_PARENT_ID is not set. "
-            "Open docs/SETUP_SECRETS.md and complete the Notion setup checklist."
-        )
-    return NOTION_WORKFLOW_PARENT_ID
+def _ensure_library_dirs() -> None:
+    _LIBRARY_ROOT.mkdir(parents=True, exist_ok=True)
+    for dirname in _SECTION_DIRS.values():
+        (_LIBRARY_ROOT / dirname).mkdir(parents=True, exist_ok=True)
 
 
 def _contains_sensitive_content(text: str) -> bool:
@@ -74,13 +83,58 @@ def _contains_sensitive_content(text: str) -> bool:
     return any(token in lower for token in _SENSITIVE_TOKENS)
 
 
-def _capture_page(title: str, body: str) -> str:
-    page = notion.create_page(
-        parent_id=_require_parent(),
-        title=title,
-        content=body,
+def _capture_entry(section: str, title: str, body: str, *, status: str = "draft", tags: list[str] | None = None) -> str:
+    _ensure_library_dirs()
+    dirname = _SECTION_DIRS[section]
+    ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+    slug = _slugify(title)
+    path = _LIBRARY_ROOT / dirname / f"{ts}-{slug}.md"
+    metadata_tags = ", ".join(tags or [])
+    content = (
+        f"---\n"
+        f"title: {title}\n"
+        f"section: {section}\n"
+        f"status: {status}\n"
+        f"tags: [{metadata_tags}]\n"
+        f"captured_at: {datetime.now().isoformat(timespec='minutes')}\n"
+        f"---\n\n"
+        f"{body}\n"
     )
-    return page.get("url", "")
+    path.write_text(content, encoding="utf-8")
+    return str(path.relative_to(_PROJECT_ROOT))
+
+
+def _search_entries(section: str, query: str, limit: int = 8) -> list[str]:
+    _ensure_library_dirs()
+    dirname = _SECTION_DIRS[section]
+    root = _LIBRARY_ROOT / dirname
+    q = query.lower().strip()
+    matches: list[Path] = []
+    for path in sorted(root.glob("*.md"), reverse=True):
+        text = path.read_text(encoding="utf-8", errors="ignore").lower()
+        if q in text:
+            matches.append(path)
+            if len(matches) >= limit:
+                break
+    return [str(p.relative_to(_PROJECT_ROOT)) for p in matches]
+
+
+def _count_entries(section: str) -> int:
+    _ensure_library_dirs()
+    dirname = _SECTION_DIRS[section]
+    return sum(1 for _ in (_LIBRARY_ROOT / dirname).glob("*.md"))
+
+
+def _recent_entries(section: str, limit: int = 10) -> list[str]:
+    _ensure_library_dirs()
+    dirname = _SECTION_DIRS[section]
+    paths = sorted((_LIBRARY_ROOT / dirname).glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
+    return [str(p.relative_to(_PROJECT_ROOT)) for p in paths[:limit]]
+
+
+def _slugify(text: str) -> str:
+    slug = re.sub(r"[^a-zA-Z0-9]+", "-", text.strip().lower()).strip("-")
+    return slug[:80] or "entry"
 
 
 def _extract_after_prefix(text: str, prefixes: tuple[str, ...]) -> str:
@@ -101,15 +155,13 @@ def _handle_profile(text: str) -> str:
         )
 
     if lower.startswith("profile summary"):
-        rows = notion.search("Profile:", limit=10)
+        rows = _recent_entries("profile", limit=10)
         if not rows:
             return "No profile entries found yet. Try: profile skill: python | confidence: high | priority: now"
 
         lines = ["Recent profile entries:\n"]
         for idx, row in enumerate(rows, 1):
-            lines.append(f"{idx}. {row.get('title', '(untitled)')}")
-            if row.get("url"):
-                lines.append(f"   {row['url']}")
+            lines.append(f"{idx}. {row}")
         return "\n".join(lines)
 
     payload = _extract_after_prefix(text, ("profile skill:", "profile interest:", "profile domain:", "profile learning:", "profile focus:"))
@@ -136,8 +188,9 @@ def _handle_profile(text: str) -> str:
             f"Input: {payload}\n"
             f"Captured At: {datetime.now().isoformat(timespec='minutes')}"
         )
-        url = _capture_page(title, body)
-        return f"Profile item saved.\n{url}" if url else "Profile item saved."
+        formatted = _apply_formatting_standard("profile", title, body, metadata={"status": "active"})
+        path = _capture_entry("profile", formatted["title"], formatted["body"], status=formatted["status"], tags=formatted["tags"])
+        return f"Profile item saved to local library.\n{path}"
 
     if lower.startswith("profile update:"):
         item = text.split(":", 1)[1].strip() if ":" in text else ""
@@ -145,8 +198,8 @@ def _handle_profile(text: str) -> str:
             return "Use: profile update: <item> | <new value>"
         title = f"Profile Update: {item.split('|')[0].strip()}"
         body = f"Update: {item}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
-        url = _capture_page(title, body)
-        return f"Profile update saved.\n{url}" if url else "Profile update saved."
+        path = _capture_entry("profile", title, body, status="updated")
+        return f"Profile update saved to local library.\n{path}"
 
     return (
         "Profile command not recognized.\n"
@@ -168,21 +221,20 @@ def _handle_term(text: str) -> str:
             return "Use: add term: <term> = <definition>"
         term_title = payload.split("=", 1)[0].strip() if "=" in payload else payload
         body = f"{payload}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
-        url = _capture_page(f"Term: {term_title}", body)
-        return f"Term saved.\n{url}" if url else "Term saved."
+        formatted = _apply_formatting_standard("term", f"Term: {term_title}", body, metadata={"status": "active"})
+        path = _capture_entry("term", formatted["title"], formatted["body"], status=formatted["status"], tags=formatted["tags"])
+        return f"Term saved to local library.\n{path}"
 
     if lower.startswith("term ") or lower.startswith("define "):
         query = _extract_after_prefix(text, ("term ", "define ")).strip()
         if not query:
             return "Use: term <word>"
-        results = notion.search(query, limit=5)
+        results = _search_entries("term", query, limit=5)
         if not results:
             return f"No term result found for: {query}"
         lines = [f"Results for '{query}':\n"]
         for i, row in enumerate(results, 1):
-            lines.append(f"{i}. {row.get('title', '(untitled)')}")
-            if row.get("url"):
-                lines.append(f"   {row['url']}")
+            lines.append(f"{i}. {row}")
         return "\n".join(lines)
 
     return "Try: add term: <term> = <definition> or term <word>"
@@ -197,29 +249,28 @@ def _handle_book(text: str) -> str:
             return "Use: book: <title> by <author>"
         title = f"Book: {payload.split('|')[0].strip()}"
         body = f"{payload}\nStatus: wishlist\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
-        url = _capture_page(title, body)
-        return f"Book saved.\n{url}" if url else "Book saved."
+        formatted = _apply_formatting_standard("book", title, body, metadata={"status": "wishlist"})
+        path = _capture_entry("book", formatted["title"], formatted["body"], status=formatted["status"], tags=formatted["tags"])
+        return f"Book saved to local library.\n{path}"
 
     if lower.startswith("reading ") or lower.startswith("finished "):
         status = "reading" if lower.startswith("reading ") else "finished"
         name = _extract_after_prefix(text, ("reading ", "finished ")).strip()
         if not name:
             return "Use: reading <title> or finished <title>"
-        url = _capture_page(f"Book Update: {name}", f"Status: {status}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}")
-        return f"Book status update saved.\n{url}" if url else "Book status update saved."
+        path = _capture_entry("book", f"Book Update: {name}", f"Status: {status}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}", status=status)
+        return f"Book status update saved to local library.\n{path}"
 
     if lower.startswith("book insights:"):
         query = text.split(":", 1)[1].strip() if ":" in text else ""
         if not query:
             return "Use: book insights: <title>"
-        results = notion.search(query, limit=5)
+        results = _search_entries("book", query, limit=5)
         if not results:
             return f"No book insights found for: {query}"
         lines = [f"Book insights matches for '{query}':\n"]
         for i, row in enumerate(results, 1):
-            lines.append(f"{i}. {row.get('title', '(untitled)')}")
-            if row.get("url"):
-                lines.append(f"   {row['url']}")
+            lines.append(f"{i}. {row}")
         return "\n".join(lines)
 
     return "Try: book: <title> by <author>, reading <title>, finished <title>, or book insights: <title>"
@@ -233,21 +284,21 @@ def _handle_article(text: str) -> str:
         if not payload:
             return "Use: article: <url or title>"
         title = f"Article: {payload.split('|')[0].strip()}"
-        url = _capture_page(title, f"{payload}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}")
-        return f"Article saved.\n{url}" if url else "Article saved."
+        body = f"{payload}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
+        formatted = _apply_formatting_standard("article", title, body, metadata={"status": "to-read"})
+        path = _capture_entry("article", formatted["title"], formatted["body"], status=formatted["status"], tags=formatted["tags"])
+        return f"Article saved to local library.\n{path}"
 
     if lower.startswith("articles on "):
         topic = _extract_after_prefix(text, ("articles on ",)).strip()
         if not topic:
             return "Use: articles on <topic>"
-        results = notion.search(topic, limit=8)
+        results = _search_entries("article", topic, limit=8)
         if not results:
             return f"No articles found for topic: {topic}"
         lines = [f"Articles on '{topic}':\n"]
         for i, row in enumerate(results, 1):
-            lines.append(f"{i}. {row.get('title', '(untitled)')}")
-            if row.get("url"):
-                lines.append(f"   {row['url']}")
+            lines.append(f"{i}. {row}")
         return "\n".join(lines)
 
     return "Try: article: <url> or articles on <topic>"
@@ -262,29 +313,32 @@ def _handle_thought(text: str) -> str:
             return "Use: thought: <idea>"
         title = f"Thought: {payload[:80].strip()}"
         body = f"{payload}\nStatus: draft\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
-        url = _capture_page(title, body)
-        return f"Thought saved.\n{url}" if url else "Thought saved."
+        formatted = _apply_formatting_standard("thought", title, body, metadata={"status": "draft"})
+        path = _capture_entry("thought", formatted["title"], formatted["body"], status=formatted["status"], tags=formatted["tags"])
+        return f"Thought saved to local library.\n{path}"
 
     if lower.startswith("draft:") or lower.startswith("publish thought:"):
         action = "draft lookup" if lower.startswith("draft:") else "publish"
         payload = text.split(":", 1)[1].strip() if ":" in text else ""
         if not payload:
             return "Use: draft: <title> or publish thought: <title>"
-        url = _capture_page(
+        path = _capture_entry(
+            "thought",
             f"Thought Update: {payload}",
-            f"Action: {action}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
+            f"Action: {action}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}",
+            status="updated",
         )
-        return f"Thought update saved.\n{url}" if url else "Thought update saved."
+        return f"Thought update saved to local library.\n{path}"
 
     return "Try: thought: <idea>, draft: <title>, or publish thought: <title>"
 
 
 def _handle_review(_: str) -> str:
-    profile = len(notion.search("Profile:", limit=20))
-    terms = len(notion.search("Term:", limit=20))
-    books = len(notion.search("Book:", limit=20))
-    articles = len(notion.search("Article:", limit=20))
-    thoughts = len(notion.search("Thought:", limit=20))
+    profile = _count_entries("profile")
+    terms = _count_entries("term")
+    books = _count_entries("book")
+    articles = _count_entries("article")
+    thoughts = _count_entries("thought")
 
     return (
         "Library quick review:\n"
@@ -361,10 +415,10 @@ def _ensure_title_case(text: str) -> str:
 
 def _save_formatting_guide_to_library() -> str:
     """
-    Save Notion formatting guide as reference page in Stage 9 library.
+    Save formatting guide as local reference markdown in library/references.
     Call via WhatsApp: "library guide" or directly from handlers.
     """
-    guide_title = "Reference: Notion Formatting Guide for Stage 9 Library"
+    guide_title = "Reference: Local Formatting Guide for Stage 9 Library"
 
     guide_body = (
         "Personal Library Formatting Standard (Stage 9)\n\n"
@@ -398,9 +452,9 @@ def _save_formatting_guide_to_library() -> str:
     )
 
     try:
-        url = _capture_page(guide_title, guide_body)
-        logger.info("Formatting guide saved to Notion: %s", url)
-        return f"✅ Formatting guide saved.\n{url}" if url else "✅ Formatting guide saved."
+        path = _capture_entry("reference", guide_title, guide_body, status="active")
+        logger.info("Formatting guide saved to local library: %s", path)
+        return f"✅ Formatting guide saved to local library.\n{path}"
     except Exception as e:
         logger.error("Failed to save formatting guide: %s", e)
         return f"❌ Failed to save formatting guide: {str(e)}"

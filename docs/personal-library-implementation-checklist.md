@@ -2,6 +2,8 @@
 
 This is your step-by-step guide to building out the four personal knowledge libraries (Knowledge Base, Books, Articles, Thoughts). Use this to make choices and track progress.
 
+> 2026-04-20 update: In this project, "library" now means local folder `library/` only. Stage 9 implementation should be filesystem-first. Notion-focused sections below are legacy references and should be translated to local markdown storage.
+
 ---
 
 ## Phase 0: Decision Point
@@ -10,14 +12,14 @@ This is your step-by-step guide to building out the four personal knowledge libr
 
 **Quick-Start (1-2 hours)**
 
-- Single Notion database with 4 views
+- Single local `library/` structure with 4 core content areas
 - Minimal field schema
 - Manual commands via WhatsApp (no automation yet)
 - Best for: Testing, immediate use, learning your preferences
 
 **Full (2-3 weeks)**
 
-- Separate Notion databases for each library type
+- Structured local folders for each library type with indexing/search
 - Rich schema with relations and rollups
 - Automated WhatsApp commands + intent detection
 - AI-powered summaries and synthesis
@@ -25,13 +27,15 @@ This is your step-by-step guide to building out the four personal knowledge libr
 
 **Hybrid (1 week)**
 
-- Quick-start Notion setup
+- Quick-start local `library/` setup
 - WhatsApp command handlers (Stage 9)
 - Defer AI summaries and synthesis to later
 
 ### Recommendation
 
 Start **Hybrid**: Quick Notion setup + command integration. This gives you immediate use while building infrastructure.
+
+Updated recommendation: Start **Hybrid** with local `library/` setup + command integration.
 
 ---
 

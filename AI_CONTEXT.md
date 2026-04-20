@@ -6,10 +6,10 @@ This repository is the central brain for the owner's personal operating system: 
 
 ## Current Phase
 
-- Phase: Stage 8 complete; Stage 9 Phase 1 (formatting standard) complete; Stage 9 Phase 2+ (database-property writes, field validation, scheduler) pending
-- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, validated Notion library databases, comprehensive formatting standard, formatting enforcement code
-- Current work: Stage 9 Phase 1 complete — formatting guide deployed with auto-enforcement for Title Case, tag validation, date timestamps
-- Primary need: test WhatsApp `library_guide` trigger, then implement database-property writes and field-level validation
+- Phase: Stage 8 complete; Stage 9 local-library pivot active (library means folder `library/`)
+- Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, comprehensive formatting standard, formatting enforcement code
+- Current work: Stage 9 captures and lookups now run against local markdown entries under `library/`
+- Primary need: continue Stage 9 improvements with filesystem-first workflows (validation, indexing, maintenance scheduler)
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth
@@ -51,7 +51,7 @@ As the project expands, prefer this structure:
 
 1. ~~Expand Stage 8 from starter workflow to multiple robust workflow chains~~ **DONE (3 workflows implemented)**
 2. Complete credential setup using `docs/SETUP_SECRETS.md` so integrations can run end-to-end.
-3. **NEW: Implement Stage 9 — Personal Knowledge Libraries command layer** (Notion databases are created and validated; next is router + handlers)
+3. **NEW: Implement Stage 9 — Personal Knowledge Libraries command layer** (`library/` folder is canonical storage; all handlers and plans must be local-library-first)
 4. Add a `Dockerfile` and choose a deployment target (Railway, Fly.io, or VPS) so the webhook is publicly reachable.
 5. Add `tests/` with at least one integration smoke test per service.
 

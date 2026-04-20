@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- 2026-04-20: Terminology pivot applied — in this repo, "library" now means local folder `library/` only. Stage 9 handlers were switched from Notion-backed capture/search to local markdown storage under `library/profile`, `library/terms`, `library/books`, `library/articles`, `library/thoughts`, and `library/references`.
 - 2026-04-18: Implemented first Stage 9 code slice: created `src/core/libraries.py` and wired new router intents (`library_profile`, `library_term`, `library_book`, `library_article`, `library_thought`, `library_review`) so knowledge profile and library capture commands are now routable.
 - 2026-04-18: Stage 9 runtime currently uses Notion page capture mode under `NOTION_WORKFLOW_PARENT_ID` for immediate operation; database-property writes are the next hardening step.
 - 2026-04-18: Started implementation of multi-agent coordination model: standardized `agent/<agent-name>/<task-slug>/<stage-or-scope>` branches, PR-first merge guidance for overlapping work, task-claim ownership, and handoff checklist expectations.

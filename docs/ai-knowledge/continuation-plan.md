@@ -2,7 +2,7 @@
 
 Current state of the project and the next steps. Update this file whenever a stage is completed or a new workstream begins.
 
-Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring) → 2026-04-18 10-22-15 (Notion formatting standard implemented)
+Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring) → 2026-04-18 10-22-15 (formatting standard implemented) → 2026-04-20 22-47-07 (library term pivoted to local folder `library/`)
 
 ---
 
@@ -22,17 +22,18 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - **Stage 9 — Personal Knowledge Libraries (Phase 1 complete):**
   - Library handler module implemented (`src/core/libraries.py`) with 6 handler functions for profile, term, book, article, thought, and review captures.
   - Router intents wired for all library commands.
-  - Comprehensive Notion formatting guide created (`docs/personal-library-formatting-guide.md`) covering: 9-field standard property order, per-type formats (Profile, Terms, Books, Articles, Thoughts), Title Case naming, lowercase-hyphen tags (max 5), anti-mess guardrails, weekly/monthly/quarterly maintenance checklists.
-  - Formatting enforcement functions added: `_apply_formatting_standard()` (validates titles, tags, dates, status), `_ensure_title_case()` (consistent title casing), `_save_formatting_guide_to_library()` (saves guide to Notion).
+  - Comprehensive formatting guide created (`docs/personal-library-formatting-guide.md`) covering: 9-field standard property order, per-type formats (Profile, Terms, Books, Articles, Thoughts), Title Case naming, lowercase-hyphen tags (max 5), anti-mess guardrails, weekly/monthly/quarterly maintenance checklists.
+  - Formatting enforcement functions added: `_apply_formatting_standard()` (validates titles, tags, dates, status), `_ensure_title_case()` (consistent title casing), `_save_formatting_guide_to_library()` (saves guide under `library/references`).
   - New intent `library_guide` wired in router for WhatsApp trigger.
+  - Library storage pivot completed: `library/` folder is now canonical, replacing Notion for Stage 9 library data.
 
 ## What Is Not Done Yet
 
 - **Stage 9 — Personal Knowledge Libraries (Phase 2+):** Formatting guide is live. Next work is:
-  1. **Database-property writes** — upgrade from current page-capture mode to structured database writes.
+  1. **Filesystem indexing** — add fast search index for `library/` markdown entries.
   2. **Field-level validation** — add format constraints per library type (tag limits, status enums, required fields).
   3. **End-to-end testing** — manual WhatsApp tests for each library command family.
-  4. **Library migration** — apply formatting standard to existing 4 databases (deferred: "work for tomorrow").
+  4. **Library migration** — convert remaining legacy Notion-based assumptions/docs to local `library/` semantics.
   5. **Weekly maintenance scheduler** — automate cleanup checks (15-min checklist).
 - **Tests:** `tests/` folder does not exist. Integration tests will need mock credentials or a test `.env`.
 - **Deployment:** no `Dockerfile`, no CI/CD pipeline, no server. The Meta webhook requires a public HTTPS URL. Options: Railway, Fly.io, or any VPS with a reverse proxy.
@@ -45,8 +46,8 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 ## Recommended Next Steps (in order)
 
-1. Run manual WhatsApp command tests for each handler path and confirm corresponding Notion writes/reads.
-2. Upgrade Stage 9 from page-capture mode to database-property writes per library schema.
+1. Run manual WhatsApp command tests for each handler path and confirm corresponding writes/reads under `library/`.
+2. Upgrade Stage 9 from basic file capture to indexed filesystem retrieval per library schema.
 3. Add field-level validation and parser hardening for each command family.
 4. Add a lightweight smoke test plan under `tests/` (or docs-first test checklist if code tests are deferred).
 5. Add a `Dockerfile` and deploy to a permanent host.
@@ -56,14 +57,16 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 **Multi-Agent Git Protocol & Stage 9 Formatting Implementation:**
 
 - Established multi-agent Git collaboration rules: branch naming (`agent/<name>/<slug>/<stage>`), PR-first for overlaps, task-ownership claims, handoff checklists.
-- Implemented comprehensive Notion formatting standard (356-line markdown guide + 150 lines of Python enforcement code).
+- Implemented comprehensive formatting standard (356-line markdown guide + 150 lines of Python enforcement code).
 - Created `docs/personal-library-formatting-guide.md` with: universal rules (7 principles), 9-field standard property order, per-type format specs (Profile, Terms, Books, Articles, Thoughts), Title Case naming, lowercase-hyphen tags (max 5), anti-mess guardrails, weekly/monthly/quarterly maintenance checklists.
 - Added `_apply_formatting_standard()` function to `src/core/libraries.py` for automatic validation of titles, tags, dates, and status on all library uploads.
 - Added `_ensure_title_case()` helper to enforce consistent title casing across all entries.
-- Added `_save_formatting_guide_to_library()` to persist the formatting guide to Notion as a reference page.
+- Added `_save_formatting_guide_to_library()` to persist the formatting guide as a reference entry.
 - Wired `library_guide` intent in router so users can send "library guide" to WhatsApp to save the standard.
 - Committed and pushed: `045539f docs: add Notion formatting standard for Stage 9 library`.
-- Updated continuation plan with formatting standard completion and revised next steps (database-property writes, field validation, end-to-end testing).
+- Updated continuation plan with formatting standard completion and revised next steps (filesystem indexing, field validation, end-to-end testing).
+
+- 2026-04-20: Redefined "library" for this repo to mean local folder `library/` only. Stage 9 handlers and plans now align to local markdown storage; Notion remains Stage 3 integration, not Stage 9 library backend.
 
 **Previous Session Notes (2026-04-18 earlier):**
 

@@ -88,6 +88,7 @@ def _dispatch(intent: str, original_text: str) -> str:
         "library_article": _handle_library,
         "library_thought": _handle_library,
         "library_review": _handle_library,
+        "library_guide": _handle_library,
         "workflow": _handle_workflow,
         "notion_search": _handle_notion_search,
         "gdrive_list": _handle_gdrive_list,
@@ -127,6 +128,7 @@ def _handle_help(_: str) -> str:
         "• article: <url>\n"
         "• thought: <idea>\n"
         "• my library — quick library counts\n"
+        "• library guide — save formatting reference into library/references\n"
         "• notion <query> — search Notion\n"
         "• drive — list recent Google Drive files\n"
         "• email — summarise unread Gmail inbox\n"

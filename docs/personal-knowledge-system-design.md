@@ -1,5 +1,7 @@
 # Personal Knowledge System Design
 
+> 2026-04-20 update: In this repo, **library** now means the local `library/` folder only. Any historical Notion-library wording below is legacy context and should be implemented as local file storage going forward.
+
 ## Research: Self-Development Strategies & Knowledge Management
 
 ### MCP Knowledge Pack (for your library)
@@ -158,10 +160,10 @@ Your needs map to **4 distinct library types**, each with different capture, sto
 
 | Library Type         | Core Content                         | Access Pattern            | Update Frequency | Best Storage              |
 | -------------------- | ------------------------------------ | ------------------------- | ---------------- | ------------------------- |
-| **Knowledge Base**   | Definitions, acronyms, reference     | Lookup, search            | On-demand        | Notion DB + Tags          |
-| **Books Library**    | Collections, transcripts, summaries  | Browse, search, reference | Monthly          | Notion DB + Drive folders |
-| **Articles Library** | Links, summaries, insights           | Skim, search, recommend   | Weekly           | Notion DB + tags + Drive  |
-| **Thought Drafts**   | Personal reasoning, work-in-progress | Capture, refine, publish  | Frequent         | Notion pages + Drive docs |
+| **Knowledge Base**   | Definitions, acronyms, reference     | Lookup, search            | On-demand        | `library/terms/` + tags   |
+| **Books Library**    | Collections, transcripts, summaries  | Browse, search, reference | Monthly          | `library/books/` + Drive  |
+| **Articles Library** | Links, summaries, insights           | Skim, search, recommend   | Weekly           | `library/articles/` + Drive |
+| **Thought Drafts**   | Personal reasoning, work-in-progress | Capture, refine, publish  | Frequent         | `library/thoughts/` + Drive docs |
 
 ---
 
@@ -176,7 +178,7 @@ WhatsApp Command
     ↓
 Router detects intent (book, article, thought, term)
     ↓
-Handler creates record in Notion DB (title, date, content, tags, status)
+Handler creates record in local `library/` markdown (title, date, content, tags, status)
     ↓
 Optional: Generate summary via AI agent
     ↓
@@ -189,7 +191,7 @@ Monthly review workflow (AI-assisted synthesis)
 
 ### Library Structure
 
-#### 1. **Knowledge Base Library** (Notion Database)
+#### 1. **Knowledge Base Library** (`library/terms/`)
 
 Purpose: Searchable dictionary of personal reference knowledge
 
@@ -218,7 +220,7 @@ Purpose: Searchable dictionary of personal reference knowledge
 
 ---
 
-#### 2. **Books Library** (Notion Database + Drive)
+#### 2. **Books Library** (`library/books/` + Drive)
 
 Purpose: Personal book collection with notes, summaries, and transcripts
 
@@ -266,7 +268,7 @@ Purpose: Personal book collection with notes, summaries, and transcripts
 
 ---
 
-#### 3. **Articles Library** (Notion Database + Drive)
+#### 3. **Articles Library** (`library/articles/` + Drive)
 
 Purpose: Curated collection of articles with summaries and linkback to original
 
@@ -314,7 +316,7 @@ Purpose: Curated collection of articles with summaries and linkback to original
 
 ---
 
-#### 4. **Thought Drafts Library** (Notion Pages + Drive Docs)
+#### 4. **Thought Drafts Library** (`library/thoughts/` + Drive Docs)
 
 Purpose: Capture evolving personal reasoning, frameworks, and insights
 
@@ -380,22 +382,21 @@ Extend router and workflows to handle library commands
 
 **New workflow chains:**
 
-1. "save book X and create summary" → Notion DB + Drive folder + AI summary
-2. "save article and add to <topic>" → Notion DB + topic tag
-3. "capture thought and link to <topic>" → Notion page + Drive doc
+1. "save book X and create summary" → `library/books/` + Drive folder + AI summary
+2. "save article and add to <topic>" → `library/articles/` + topic tag
+3. "capture thought and link to <topic>" → `library/thoughts/` + Drive doc
 4. "what's my library status" → count/summary of all libraries
 
-### Notion Page Hierarchy
+### Local Library Hierarchy
 
 ```
-Personal Brain/
-  ├── Dashboard (stats: items added this week, pending reviews, etc.)
-  ├── Knowledge Base (Terms DB)
-  ├── Books (Books DB)
-  ├── Articles (Articles DB)
-  ├── Thoughts (Thoughts collection)
-  ├── Monthly Synthesis (AI-generated insights from all libraries)
-  └── Review Schedule (spaced repetition, review templates)
+library/
+  ├── profile/
+  ├── terms/
+  ├── books/
+  ├── articles/
+  ├── thoughts/
+  └── references/
 ```
 
 ---
@@ -404,14 +405,14 @@ Personal Brain/
 
 ### Phase 1: Structure & Setup (Week 1)
 
-- [ ] Create 4 Notion databases (Knowledge, Books, Articles, Thoughts)
+- [ ] Create and validate `library/` subfolders (profile, terms, books, articles, thoughts, references)
 - [ ] Set up Google Drive folder structure
 - [ ] Create database templates (summary templates for each type)
 - [ ] Document access patterns (how to retrieve, search, link)
 
 ### Phase 2: Command Integration (Week 2)
 
-- [ ] Implement WhatsApp → Notion handlers for each library type
+- [ ] Implement WhatsApp → local library handlers for each library type
 - [ ] Add intent detection to router
 - [ ] Create workflow handlers for multi-step captures
 - [ ] Test basic: save book, save article, capture thought
@@ -436,7 +437,7 @@ Personal Brain/
 
 If you want to start immediately without full infrastructure:
 
-**Single Master Database with 4 Views:**
+**Single Local Folder with 4 Core Views:**
 
 - View 1: Terms (Type = Term, Status = Active)
 - View 2: Books (Type = Book, filters by Status)
@@ -493,7 +494,7 @@ If you want to start immediately without full infrastructure:
    - Full: Separate DBs, Drive folders, AI integration (weeks)
 
 2. **Setup:**
-   - Create Notion pages/databases
+  - Create local `library/` folder structure
    - Set up Google Drive structure
    - Document template examples
 

@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-20 22-47-07 Added canonical local library structure under `library/` with subfolders: `profile/`, `terms/`, `books/`, `articles/`, `thoughts/`, and `references/`, plus `library/README.md` to define folder semantics and file naming.
 - 2026-04-18 10-22-15 Added `docs/personal-library-formatting-guide.md`: comprehensive human-readable standard for all Stage 9 library entries covering 9-field property order, per-type formats (Profile, Terms, Books, Articles, Thoughts), Title Case naming, lowercase-hyphen tags (max 5), anti-mess guardrails, and weekly/monthly/quarterly maintenance checklists.
 - 2026-04-18 10-22-15 Added formatting enforcement to `src/core/libraries.py`: `_apply_formatting_standard()` validates titles, tags, dates, and status on all uploads; `_ensure_title_case()` enforces consistent title casing; `_save_formatting_guide_to_library()` persists the guide to Notion.
 - 2026-04-18 10-22-15 Added `library_guide` intent to router: WhatsApp users can send "library guide" to save the formatting standard as a reference page in their Notion library.
@@ -29,6 +30,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-20 22-47-07 Reworked `src/core/libraries.py` from Notion-backed Stage 9 captures to local filesystem storage; library commands now write/read markdown entries inside `library/` and `library_guide` saves to `library/references/`.
+- 2026-04-20 22-47-07 Updated Stage 9 planning/context docs (`AI_CONTEXT.md`, `docs/ai-knowledge/continuation-plan.md`, `docs/personal-library-formatting-guide.md`, `docs/personal-knowledge-system-design.md`, `docs/personal-library-implementation-checklist.md`, `docs/ai-working-notes.md`) so "library" consistently means local folder `library/` and no longer implies a Notion library backend.
 - 2026-04-18 09-34-07 Extended `src/core/router.py` with Stage 9 library intents and dispatch wiring, and expanded `help` output with new profile/library commands so the new handler module is reachable from WhatsApp text commands.
 - 2026-04-18 09-31-05 Started implementation of the multi-agent delivery model: added branch naming, PR-first overlap handling, task-claim ownership, and handoff checklist rules in `AGENTS.md`, `.github/copilot-instructions.md`, and `docs/ai-knowledge/conventions.md`.
 - 2026-04-18 09-31-05 Expanded Stage 9 documentation for personal profile capture aligned to MCP trends (schema-first contracts, profile lifecycle tools/resources/prompts, and sensitive-data exclusions) in `docs/personal-knowledge-system-design.md`, `docs/personal-library-implementation-checklist.md`, and `docs/ai-knowledge/continuation-plan.md`.

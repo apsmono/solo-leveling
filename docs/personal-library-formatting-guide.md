@@ -2,7 +2,7 @@
 
 Last updated: 2026-04-18
 
-This guide establishes human-readable, scannable standards for all Stage 9 Personal Knowledge Libraries (Notion). Every new entry follows this format to keep your library organized, maintainable, and useful.
+This guide establishes human-readable, scannable standards for all Stage 9 Personal Knowledge Libraries in the local `library/` folder. Every new entry follows this format to keep your library organized, maintainable, and useful.
 
 ## Universal Style Rules
 
@@ -16,7 +16,7 @@ This guide establishes human-readable, scannable standards for all Stage 9 Perso
 
 ## 9-Field Order (All Types)
 
-Apply this order to **ALL** library databases for optimal table, board, and mobile readability:
+Apply this order to **ALL** library entries for consistent markdown structure and retrieval readability:
 
 1. **Title** — page name
 2. **Type or Category** — what kind of item
@@ -249,7 +249,7 @@ Apply this order to **ALL** library databases for optimal table, board, and mobi
 ### Formatting
 
 - Use **bold** only for emphasized key terms (not entire sentences)
-- Use callouts (⚠️ Notion callout block) only for warnings, decisions, or next actions
+- Use callouts (or clear warning blocks) only for warnings, decisions, or next actions
 - Keep emojis minimal and semantic: one icon per database type max
 
 ### Tables & Lists
