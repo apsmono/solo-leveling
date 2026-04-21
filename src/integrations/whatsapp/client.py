@@ -35,7 +35,7 @@ def _send_meta(to: str, body: str) -> None:
     phone_number_id = os.environ["META_PHONE_NUMBER_ID"]
     access_token = os.environ["META_ACCESS_TOKEN"]
 
-    url = f"https://graph.facebook.com/v19.0/{phone_number_id}/messages"
+    url = f"https://graph.facebook.com/v22.0/{phone_number_id}/messages"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
