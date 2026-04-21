@@ -8,6 +8,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-21 21-52-07 Added `.github/workflows/ci.yml` GitHub Actions pipeline that runs all 23 tests on every push and pull request to `main`. Credential-gated live tests are automatically skipped in CI (no secrets needed). Establishes a continuous safety net for regression detection without manual test runs.
+- 2026-04-21 21-52-07 Added `docs/TASK-MULTI-AI-003.md` defining the CI pipeline setup task with acceptance criteria, scope, and execution plan.
 - 2026-04-21 19-30-19 Added `tests/test_integration_smoke.py` as a credential-aware integration smoke suite with router mocks, workflow and AI guardrails, optional live Notion/Drive/Gmail checks, and explicit skip messaging for missing credentials.
 - 2026-04-21 19-30-19 Added `.github/prompts/research-ai-task.prompt.md`, `.github/prompts/executor-ai-task.prompt.md`, and `.github/prompts/quality-ai-task.prompt.md` so additional AI collaborators can be onboarded quickly with role-specific instructions.
 - 2026-04-21 19-30-19 Added `docs/TASK-MULTI-AI-002-research.md` documenting integration entry points, credential constraints, smoke-matrix decisions, and implementation boundaries.
