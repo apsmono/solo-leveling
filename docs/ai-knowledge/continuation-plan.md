@@ -2,7 +2,7 @@
 
 Current state of the project and the next steps. Update this file whenever a stage is completed or a new workstream begins.
 
-Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring) → 2026-04-18 10-22-15 (formatting standard implemented) → 2026-04-20 22-47-07 (library term pivoted to local folder `library/`) → 2026-04-20 23-38-29 (weekly maintenance flow added) → 2026-04-21 13-04-19 (MULTI-AI-002 staged after pilot completion)
+Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring) → 2026-04-18 10-22-15 (formatting standard implemented) → 2026-04-20 22-47-07 (library term pivoted to local folder `library/`) → 2026-04-20 23-38-29 (weekly maintenance flow added) → 2026-04-21 13-04-19 (MULTI-AI-002 staged after pilot completion) → 2026-04-21 19-30-19 (MULTI-AI-002 completed and validated)
 
 ---
 
@@ -60,6 +60,14 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Updated active context to treat MULTI-AI-001 as complete rather than upcoming.
 - Staged MULTI-AI-002 as the next coordinated task: credential-aware integration smoke coverage for core services and router flows.
 - Kept Stage 9 end-to-end manual testing and deployment validation as the highest practical execution needs after secrets are ready.
+
+### 2026-04-21 — MULTI-AI-002 Completed
+
+- Implemented `tests/test_integration_smoke.py` with router-smoke coverage, workflow/AI guardrails, optional live integration checks, and explicit skip messaging when credentials are missing.
+- Hardened Gmail live smoke behavior so interactive OAuth consent does not run unexpectedly in headless environments unless `ALLOW_INTERACTIVE_OAUTH_SMOKE=true` is explicitly set.
+- Added edge-case smoke coverage for empty Notion/Drive results and malformed WhatsApp payload extraction.
+- Added exact smoke-test run commands and expectations in `docs/TASK-MULTI-AI-002.md` and `docs/README.md`.
+- Validation outcome: `python -m unittest tests.test_stage9_libraries tests.test_integration_smoke -v` passed with `23 tests, 3 skipped`.
 
 ### 2026-04-20 — Local Library Pivot
 

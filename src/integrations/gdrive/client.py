@@ -11,6 +11,8 @@ Usage:
     from src.integrations.gdrive.client import list_files, read_doc, create_doc
 """
 
+from __future__ import annotations
+
 import os
 import logging
 from typing import Any

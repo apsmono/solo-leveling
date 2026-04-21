@@ -16,6 +16,21 @@ This folder contains the full planning structure for the project, including syst
 - `../requirements.txt` — Python dependencies.
 - `../.env.example` — environment variable template (copy to `.env`, never commit).
 
+## Testing
+
+- Stage 9 local regression suite:
+  - `/Users/macmini/Documents/projects/solo-leveling/.venv/bin/python -m unittest tests.test_stage9_libraries -v`
+- Integration smoke suite (credential-aware):
+  - `/Users/macmini/Documents/projects/solo-leveling/.venv/bin/python -m unittest tests.test_integration_smoke -v`
+- Router-only smoke tests (no credentials):
+  - `/Users/macmini/Documents/projects/solo-leveling/.venv/bin/python -m unittest tests.test_integration_smoke.RouterSmokeTests -v`
+
+Smoke suite behavior:
+
+- Router smoke tests are mock-based and should pass without secrets.
+- Live integration smoke tests will skip with explicit messages when credentials are unavailable.
+- Gmail live smoke requires `GMAIL_TOKEN_PATH` or an OAuth credential file and is non-interactive by default unless `ALLOW_INTERACTIVE_OAUTH_SMOKE=true` is set.
+
 ## Local Environment Templates
 
 - `../config/zsh/.zshrc.example` — sanitized zsh profile template (Oh My Zsh, powerlevel10k, plugins, nvm).

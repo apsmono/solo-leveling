@@ -8,6 +8,9 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-21 19-30-19 Added `tests/test_integration_smoke.py` as a credential-aware integration smoke suite with router mocks, workflow and AI guardrails, optional live Notion/Drive/Gmail checks, and explicit skip messaging for missing credentials.
+- 2026-04-21 19-30-19 Added `.github/prompts/research-ai-task.prompt.md`, `.github/prompts/executor-ai-task.prompt.md`, and `.github/prompts/quality-ai-task.prompt.md` so additional AI collaborators can be onboarded quickly with role-specific instructions.
+- 2026-04-21 19-30-19 Added `docs/TASK-MULTI-AI-002-research.md` documenting integration entry points, credential constraints, smoke-matrix decisions, and implementation boundaries.
 - 2026-04-21 13-04-19 Added `docs/TASK-MULTI-AI-002.md` as the next Monitor-AI task definition: a credential-aware integration smoke suite covering Notion, Drive, Gmail, router flows, and execution instructions that do not break when secrets are missing.
 - 2026-04-21 12-10-00 Added one-command cross-device continuity helper: `scripts/device-sync.sh` with `switch-out`, `switch-in`, and `bootstrap-prompt` modes plus `prompts/cross-device-startup.prompt.txt` for consistent startup context on another device.
 - 2026-04-21 11-35-00 Completed first multi-AI coordinated task (TASK-MULTI-AI-001): Implemented in-memory LRU search cache for library queries with automatic TTL expiration and invalidation. Warm cache hits are 100% faster (1.9ms → 0ms), exceeding 50% target. All 9 tests pass (3 new cache tests). Demonstrates full async handoff workflow: Research → Design → Implement → Validate → Merge across 4 feature branches with clear handoff summaries. Task completed in ~70 minutes wall-clock time.
@@ -19,6 +22,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed (Earlier Sessions)
 
+- 2026-04-21 19-30-19 Completed and validated MULTI-AI-002: hardened smoke coverage includes empty-result and malformed-payload cases, Gmail live smoke now avoids unintended interactive OAuth in headless runs unless explicitly enabled, Stage 9 cache performance test was stabilized for fast environments, and docs now include exact smoke-test commands and expected skip behavior.
+- 2026-04-21 19-30-19 Updated active multi-AI planning state: `docs/TASK-MULTI-AI-002.md` marked `DONE`, `docs/ai-team-coordination.md` task board updated, and next coordinated candidate shifted to deployment readiness.
 - 2026-04-21 13-04-19 Updated multi-AI planning docs after pilot completion: `AI_CONTEXT.md`, `docs/ai-team-coordination.md`, `docs/ai-working-notes.md`, and `docs/ai-knowledge/continuation-plan.md` now treat MULTI-AI-001 as completed and point to MULTI-AI-002 as the next coordinated task.
 - 2026-04-21 13-00-07 Monitor AI normalized MULTI-AI-001 documentation state: `docs/TASK-MULTI-AI-001.md` now reflects `DONE` with completed acceptance criteria, and `docs/TASK-MULTI-AI-001-validation.md` no longer shows a stale pending changelog note.
 - 2026-04-21 11-29-00 Updated `AI_CONTEXT.md` to add multi-AI team execution as active priority, referencing new coordination framework and first pilot task.

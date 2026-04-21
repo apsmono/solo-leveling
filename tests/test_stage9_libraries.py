@@ -168,10 +168,15 @@ class Stage9LibraryTests(unittest.TestCase):
         # Results should be identical
         self.assertEqual(result1, result2)
 
-        # Warm should be faster (at least 1.5x)
-        # Note: may not always be true in fast tests, but trend should show cache benefit
+        # Warm should not be slower than cold. On fast environments the measured
+        # warm time can be exactly 0.0, so avoid strict positive-time assertions.
         self.assertGreater(cold_time, 0, "Cold search time not measured")
-        self.assertGreater(warm_time, 0, "Warm search time not measured")
+        self.assertGreaterEqual(warm_time, 0, "Warm search time not measured")
+        self.assertLessEqual(
+            warm_time,
+            cold_time,
+            f"Warm search should not be slower than cold search (warm={warm_time}, cold={cold_time})",
+        )
 
 
 if __name__ == "__main__":

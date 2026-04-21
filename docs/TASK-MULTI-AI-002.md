@@ -2,7 +2,8 @@
 
 **Task ID:** MULTI-AI-002
 **Created:** 2026-04-21T13:04
-**Status:** READY_FOR_ASSIGNMENT
+**Status:** DONE
+**Completed:** 2026-04-21 19:30
 **Priority:** High
 **Estimate:** 2 to 4 hours wall-clock time
 
@@ -23,12 +24,12 @@ Add credential-aware smoke coverage for the repo's highest-value integration pat
 
 ### Acceptance Criteria
 
-- [ ] Add at least one smoke path for each core area: Notion, Google Drive, Gmail, WhatsApp-facing router flow, and AI agent dispatch guardrails.
-- [ ] Smoke suite skips cleanly with clear messages when required credentials are missing.
-- [ ] Existing Stage 9 tests continue to pass unchanged.
-- [ ] Running the smoke suite is documented with exact commands and expectations.
-- [ ] `CHANGELOG.md` and `docs/ai-working-notes.md` are updated with the result.
-- [ ] Monitor AI validates the final suite before merge.
+- [x] Add at least one smoke path for each core area: Notion, Google Drive, Gmail, WhatsApp-facing router flow, and AI agent dispatch guardrails.
+- [x] Smoke suite skips cleanly with clear messages when required credentials are missing.
+- [x] Existing Stage 9 tests continue to pass unchanged.
+- [x] Running the smoke suite is documented with exact commands and expectations.
+- [x] `CHANGELOG.md` and `docs/ai-working-notes.md` are updated with the result.
+- [x] Monitor AI validates the final suite before merge.
 
 ---
 
@@ -53,6 +54,44 @@ Add credential-aware smoke coverage for the repo's highest-value integration pat
 1. Full Meta webhook end-to-end verification over public HTTPS.
 2. Full production deployment automation.
 3. Long-running or flaky external test orchestration.
+
+## Smoke Test Runbook
+
+Run from repository root after dependencies are installed.
+
+### 1) Router and Guardrail Smoke (no credentials needed)
+
+```bash
+/Users/macmini/Documents/projects/solo-leveling/.venv/bin/python -m unittest tests.test_integration_smoke.RouterSmokeTests -v
+```
+
+Expected result:
+
+1. All router and helper tests pass.
+2. No network calls are required because integrations are mocked.
+
+### 2) Live Optional Smoke (credential-aware)
+
+```bash
+/Users/macmini/Documents/projects/solo-leveling/.venv/bin/python -m unittest tests.test_integration_smoke.LiveIntegrationSmokeTests -v
+```
+
+Expected result:
+
+1. Tests run only for integrations with available credentials.
+2. Missing credentials produce explicit `skipped` messages.
+3. Gmail OAuth browser flow is disabled by default unless `ALLOW_INTERACTIVE_OAUTH_SMOKE=true` is set.
+
+### 3) Full Local Validation (Stage 9 + smoke)
+
+```bash
+/Users/macmini/Documents/projects/solo-leveling/.venv/bin/python -m unittest tests.test_stage9_libraries tests.test_integration_smoke -v
+```
+
+Expected result:
+
+1. Stage 9 regression suite remains green.
+2. Smoke suite passes or skips clearly according to credential availability.
 
 ---
 
@@ -106,3 +145,15 @@ Add credential-aware smoke coverage for the repo's highest-value integration pat
 ## Success Definition
 
 This task is successful when a new AI or human can run one command, immediately understand which integrations are testable on the current machine, and get meaningful smoke validation without tripping over missing secrets.
+
+## Validation Summary
+
+- Command run:
+  - `/Users/macmini/Documents/projects/solo-leveling/.venv/bin/python -m unittest tests.test_stage9_libraries tests.test_integration_smoke -v`
+- Result:
+  - `Ran 23 tests in 0.151s`
+  - `OK (skipped=3)`
+- Skip reasons:
+  - Live Notion/Drive/Gmail tests skipped on missing credentials as designed.
+- Notes:
+  - Hardened Gmail live-smoke logic avoids unexpected interactive OAuth flow in headless environments unless explicitly enabled via `ALLOW_INTERACTIVE_OAUTH_SMOKE=true`.

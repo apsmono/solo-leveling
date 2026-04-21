@@ -121,7 +121,7 @@ Monitor AI:
 | Task                           | Owner      | Status              | Branch | PR  | Notes                                                        |
 | ------------------------------ | ---------- | ------------------- | ------ | --- | ------------------------------------------------------------ |
 | Library retrieval optimization | Monitor AI | DONE                | main   | -   | Completed as MULTI-AI-001; cache shipped and validated       |
-| Integration smoke suite        | Monitor AI | READY_FOR_ASSIGNMENT| -      | -   | MULTI-AI-002: credential-aware smoke coverage for core flows |
+| Integration smoke suite        | Monitor AI | DONE                | main   | -   | Completed as MULTI-AI-002; credential-aware smoke suite live |
 | Deployment readiness           | TBD        | TODO                | -      | -   | Choose hosting, validate webhook                             |
 | MCP server proof-of-concept    | TBD        | TODO                | -      | -   | `library_search` as first MCP tool                           |
 
@@ -245,25 +245,25 @@ git push origin --delete <feature-branch>
 
 ## Getting Started: Next Coordinated Task
 
-**Pilot status:** MULTI-AI-001 is complete and validated.
+**Pilot status:** MULTI-AI-001 and MULTI-AI-002 are complete and validated.
 
 **Next proposed task for multi-AI coordination:**
 
-### Task: Integration Smoke Suite
+### Task: Deployment Readiness
 
-**Goal:** Add credential-aware smoke coverage for the highest-value integrations and command paths.
+**Goal:** Choose deployment target and validate webhook/runtime behavior end-to-end.
 
 **Subtasks:**
 
-1. Research: Audit current integration entry points, env requirements, and safe test boundaries (Research AI)
-2. Design: Define smoke matrix, skip policy, and credential-aware test harness (Monitor AI + Research AI)
-3. Implement: Add smoke tests and helpers under `tests/` (Executor AI)
-4. Test: Run no-credential mode and any available credential-backed checks (Quality AI)
-5. Validate: Ensure docs, changelog, and execution instructions are current (Monitor AI)
+1. Research: Compare Railway, Fly.io, and VPS setup requirements for this repo (Research AI)
+2. Design: Define deployment checklist, env strategy, and webhook validation plan (Monitor AI + Research AI)
+3. Implement: Add deployment runbook and minimal automation scaffolding (Executor AI)
+4. Test: Validate container run + webhook reachability with safe checks (Quality AI)
+5. Validate: Ensure docs and continuity notes capture the final deployment choice (Monitor AI)
 
 **Timeline:** 2 to 4 hours of wall-clock time, async execution
 
-**Success:** The repo gains one smoke path per core integration without breaking local runs when secrets are missing.
+**Success:** The repo has a documented, validated path to run publicly reachable webhook runtime.
 
 ---
 
@@ -282,4 +282,4 @@ git push origin --delete <feature-branch>
 
 ---
 
-**Next Step:** Assign MULTI-AI-002 and create the first research branch. Monitor AI is ready to coordinate.
+**Next Step:** Assign MULTI-AI-003 (deployment readiness) and create the first research branch. Monitor AI is ready to coordinate.
