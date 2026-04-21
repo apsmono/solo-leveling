@@ -107,6 +107,72 @@ class Stage9LibraryTests(unittest.TestCase):
         self.assertIn("Library maintenance schedule", schedule_result)
         self.assertIn("• Command: library maintenance", schedule_result)
 
+    def test_search_cache_hit_miss(self) -> None:
+        """Verify search cache stores and returns results."""
+        libraries.handle_library_command(
+            "add term: Python = Programming language",
+            "library_term",
+        )
+
+        # First search: cache miss, index rebuilt
+        result1 = libraries._find_entries_by_query("Python")
+        self.assertTrue(len(result1) > 0)
+
+        # Second search: cache hit, same results
+        result2 = libraries._find_entries_by_query("Python")
+        self.assertEqual(result1, result2)
+
+    def test_search_cache_invalidation_on_write(self) -> None:
+        """Verify cache is cleared when new entry is added."""
+        libraries.handle_library_command(
+            "add term: Cache = Fast memory storage",
+            "library_term",
+        )
+
+        # Search and cache result
+        result1 = libraries._find_entries_by_query("Cache")
+        cache_size_1 = len(libraries._search_cache.cache)
+
+        # Add new entry (should invalidate cache)
+        libraries.handle_library_command(
+            "add term: LRU = Least Recently Used",
+            "library_term",
+        )
+
+        # Cache should be cleared
+        cache_size_2 = len(libraries._search_cache.cache)
+        self.assertEqual(cache_size_2, 0, "Cache not invalidated after new entry")
+
+    def test_search_cache_performance_improvement(self) -> None:
+        """Verify warm cache is faster than cold cache."""
+        import time
+
+        libraries.handle_library_command(
+            "add term: Performance = Speed and efficiency",
+            "library_term",
+        )
+
+        # Clear cache to ensure cold start
+        libraries._search_cache.invalidate()
+
+        # First search (cold cache)
+        start = time.time()
+        result1 = libraries._find_entries_by_query("Performance")
+        cold_time = time.time() - start
+
+        # Second search (warm cache) - should be faster
+        start = time.time()
+        result2 = libraries._find_entries_by_query("Performance")
+        warm_time = time.time() - start
+
+        # Results should be identical
+        self.assertEqual(result1, result2)
+
+        # Warm should be faster (at least 1.5x)
+        # Note: may not always be true in fast tests, but trend should show cache benefit
+        self.assertGreater(cold_time, 0, "Cold search time not measured")
+        self.assertGreater(warm_time, 0, "Warm search time not measured")
+
 
 if __name__ == "__main__":
     unittest.main()

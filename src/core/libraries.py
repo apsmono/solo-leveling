@@ -20,12 +20,60 @@ import json
 import logging
 from pathlib import Path
 import re
-from typing import Any
+from time import time
+from typing import Any, Optional
 
 from src.agents.dispatcher import run_agent
 
 
 logger = logging.getLogger(__name__)
+
+
+class SearchCache:
+    """
+    In-memory LRU cache for library search queries with TTL.
+
+    - Max 1000 cached entries (≈10MB memory)
+    - 5-minute TTL per entry
+    - Automatic expiration on access
+    - No external dependencies
+    """
+
+    def __init__(self, max_size: int = 1000, ttl_seconds: int = 300):
+        self.max_size = max_size
+        self.ttl = ttl_seconds
+        self.cache: dict[tuple[str, int], list[dict[str, Any]]] = {}
+        self.timestamps: dict[tuple[str, int], float] = {}
+
+    def get(self, key: tuple[str, int]) -> Optional[list[dict[str, Any]]]:
+        """Retrieve cached value if exists and not expired."""
+        if key in self.cache:
+            age = time() - self.timestamps[key]
+            if age < self.ttl:
+                return self.cache[key]
+            else:
+                # Expired, remove
+                del self.cache[key]
+                del self.timestamps[key]
+                return None
+        return None
+
+    def set(self, key: tuple[str, int], value: list[dict[str, Any]]) -> None:
+        """Store value in cache, evicting oldest if at capacity."""
+        if len(self.cache) >= self.max_size:
+            # Evict least recently used (oldest timestamp)
+            oldest_key = min(self.timestamps, key=self.timestamps.get)
+            del self.cache[oldest_key]
+            del self.timestamps[oldest_key]
+
+        self.cache[key] = value
+        self.timestamps[key] = time()
+
+    def invalidate(self) -> None:
+        """Clear all cached entries."""
+        self.cache.clear()
+        self.timestamps.clear()
+
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 _LIBRARY_ROOT = _PROJECT_ROOT / "library"
@@ -57,6 +105,9 @@ _SENSITIVE_TOKENS = (
     "credit card",
     "bank account",
 )
+
+# Global search cache instance
+_search_cache = SearchCache(max_size=1000, ttl_seconds=300)
 
 
 def handle_library_command(text: str, intent: str) -> str:
@@ -181,8 +232,20 @@ def _find_bundle_by_query(query: str, limit: int = 5) -> list[dict[str, Any]]:
 
 
 def _find_entries_by_query(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    cache_key = (query, limit)
+
+    # Check cache first
+    cached = _search_cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    # Cache miss: rebuild index and search
     index = _load_library_index()
-    return _match_index_records(index.get("entries", []), query, limit=limit)
+    results = _match_index_records(index.get("entries", []), query, limit=limit)
+
+    # Store in cache for future calls
+    _search_cache.set(cache_key, results)
+    return results
 
 
 def _extract_summary_from_bundle(bundle_path: str) -> str:
@@ -232,6 +295,7 @@ def _capture_entry(section: str, title: str, body: str, *, status: str = "draft"
     )
     path.write_text(content, encoding="utf-8")
     _build_library_index()
+    _search_cache.invalidate()  # Clear cache on new entry
     return str(path.relative_to(_PROJECT_ROOT))
 
 
