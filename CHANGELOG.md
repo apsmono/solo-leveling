@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-21 11-21-00 Added comprehensive "AI Team Organization" research to library: deep research bundle covering multi-agent coordination, five core roles (Strategic Planner, Executor, Coordinator, Reviewer, Domain Expert), task allocation patterns, handoff protocols, Project Manager AI responsibilities, and scaling from 1 to 10+ AIs. Auto-generated term definition, reference guide (strategies, patterns, open questions), and reasoning/thought entry.
 - 2026-04-21 11-06-00 Completed MCP (Model Context Protocol) library entry with full enrichment: added term definition to `library/terms/`, comprehensive architecture reference to `library/references/`, three thought entries to `library/thoughts/` (strategic reasoning, phased adoption plan, recommendation), and replaced heuristic-placeholder content in the research bundle's Q/A, logic trail, and conclusion files with real MCP knowledge.
 - 2026-04-21 11-06-00 Extended `_capture_research_bundle()` in `src/core/libraries.py` to automatically produce three supporting entries on every deep capture: a term definition (`library/terms/`), a reference file (`library/references/`), and a reasoning/thought entry (`library/thoughts/`). This is now the standard behavior for all future "add to library" deep captures.
 
