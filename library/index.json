@@ -1,5 +1,22 @@
 {
-  "generated_at": "2026-04-20T23:18",
-  "entries": [],
-  "bundles": []
+  "generated_at": "2026-04-21T08:23",
+  "entries": [
+    {
+      "title": "Knowledge Intake \u2014 MCP (Model Context Protocol) is an open protocol for connect",
+      "path": "library/research/20260421-082303-knowledge-intake-mcp-model-context-protocol-is-an-open-protocol-for-connect/index.md",
+      "section": "20260421-082303-knowledge-intake-mcp-model-context-protocol-is-an-open-protocol-for-connect",
+      "category": "research",
+      "status": "unknown",
+      "type": "bundle-index",
+      "updated_at": "2026-04-21T08:23"
+    }
+  ],
+  "bundles": [
+    {
+      "title": "Knowledge Intake \u2014 MCP (Model Context Protocol) is an open protocol for connect",
+      "path": "library/research/20260421-082303-knowledge-intake-mcp-model-context-protocol-is-an-open-protocol-for-connect",
+      "category": "research",
+      "updated_at": "2026-04-21T08:23"
+    }
+  ]
 }
