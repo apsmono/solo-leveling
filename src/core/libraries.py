@@ -545,6 +545,56 @@ def _capture_research_bundle(payload: str, analysis: dict, existing_matches: lis
     _write_bundle_file(bundle_dir / "06-logic-trail.md", logic)
     _write_bundle_file(bundle_dir / "07-conclusion.md", conclusion)
 
+    # Auto-produce supporting entries for every deep capture:
+    # 1. Term definition in library/terms/
+    _capture_entry(
+        "term",
+        f"Term: {analysis['title']}",
+        (
+            f"## Definition\n\n{analysis['summary']}\n\n"
+            "## Key Facts\n\n"
+            + "\n".join(f"- {item}" for item in analysis["key_facts"])
+            + "\n\n## Information To Track\n\n"
+            + "\n".join(f"- {item}" for item in analysis["information_to_track"])
+        ),
+        status="active",
+        tags=analysis["tags"],
+    )
+
+    # 2. Reference file in library/references/
+    _capture_entry(
+        "reference",
+        f"Reference: {analysis['title']}",
+        (
+            f"## Overview\n\n{analysis['summary']}\n\n"
+            f"## Why This Is Valuable\n\n{analysis['why_valuable']}\n\n"
+            "## Research Notes\n\n"
+            + "\n".join(f"- {item}" for item in analysis["research_notes"])
+            + "\n\n## Open Questions\n\n"
+            + "\n".join(f"- {item}" for item in analysis["open_questions"])
+            + f"\n\n## Source Bundle\n\n{str(bundle_dir.relative_to(_PROJECT_ROOT))}\n"
+        ),
+        status="active",
+        tags=analysis["tags"],
+    )
+
+    # 3. Thought entry in library/thoughts/ (reasoning + conclusion)
+    logic_text = "\n".join(f"- {item}" for item in analysis["logic_trail"])
+    _capture_entry(
+        "thought",
+        f"Research Reasoning: {analysis['title']}",
+        (
+            "## Thought Process\n\n"
+            + logic_text
+            + f"\n\n## Conclusion\n\n{analysis['conclusion']}\n\n"
+            "## Open Questions\n\n"
+            + "\n".join(f"- {item}" for item in analysis["open_questions"])
+            + f"\n\n## Source Bundle\n\n{str(bundle_dir.relative_to(_PROJECT_ROOT))}\n"
+        ),
+        status="draft",
+        tags=analysis["tags"],
+    )
+
     _build_library_index()
 
     return str(bundle_dir.relative_to(_PROJECT_ROOT))

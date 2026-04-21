@@ -1,6 +1,15 @@
 {
-  "generated_at": "2026-04-21T08:23",
+  "generated_at": "2026-04-21T11:05",
   "entries": [
+    {
+      "title": "Reference: MCP (Model Context Protocol) \u2014 Architecture and Usage Guide",
+      "path": "library/references/20260421-110205-reference-mcp-model-context-protocol.md",
+      "section": "reference",
+      "category": "reference",
+      "status": "active",
+      "type": "entry",
+      "updated_at": "2026-04-21T11:05"
+    },
     {
       "title": "Knowledge Intake \u2014 MCP (Model Context Protocol) is an open protocol for connect",
       "path": "library/research/20260421-082303-knowledge-intake-mcp-model-context-protocol-is-an-open-protocol-for-connect/index.md",
@@ -9,6 +18,42 @@
       "status": "unknown",
       "type": "bundle-index",
       "updated_at": "2026-04-21T08:23"
+    },
+    {
+      "title": "Term: MCP (Model Context Protocol)",
+      "path": "library/terms/20260421-110205-term-mcp-model-context-protocol.md",
+      "section": "term",
+      "category": "term",
+      "status": "active",
+      "type": "entry",
+      "updated_at": "2026-04-21T11:05"
+    },
+    {
+      "title": "Thought: MCP Adoption Plan for This Brain \u2014 Phased Approach",
+      "path": "library/thoughts/20260421-110205-thought-mcp-adoption-plan.md",
+      "section": "thought",
+      "category": "thought",
+      "status": "active",
+      "type": "entry",
+      "updated_at": "2026-04-21T11:05"
+    },
+    {
+      "title": "Thought: MCP Recommendation \u2014 What I Think You Should Do",
+      "path": "library/thoughts/20260421-110205-thought-mcp-recommendation.md",
+      "section": "thought",
+      "category": "thought",
+      "status": "active",
+      "type": "entry",
+      "updated_at": "2026-04-21T11:05"
+    },
+    {
+      "title": "Thought: Why MCP Matters for This Brain and What To Do About It",
+      "path": "library/thoughts/20260421-110205-thought-mcp-why-this-matters-for-solo-leveling.md",
+      "section": "thought",
+      "category": "thought",
+      "status": "draft",
+      "type": "entry",
+      "updated_at": "2026-04-21T11:05"
     }
   ],
   "bundles": [
