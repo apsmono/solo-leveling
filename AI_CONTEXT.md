@@ -52,7 +52,7 @@ As the project expands, prefer this structure:
 1. ~~Expand Stage 8 from starter workflow to multiple robust workflow chains~~ **DONE (3 workflows implemented)**
 2. Complete credential setup using `docs/SETUP_SECRETS.md` so integrations can run end-to-end.
 3. **ACTIVE: Implement Stage 9 — Personal Knowledge Libraries command layer** (`library/` folder is canonical storage; all handlers and plans must be local-library-first)
-4. **NEW: Multi-AI Team Execution** — Use `docs/ai-team-coordination.md` to execute MULTI-AI-001 (Library Search Optimization) as proof-of-concept. Monitor AI coordinates async work via git branches.
+4. **ACTIVE: Multi-AI Team Execution** — MULTI-AI-001 (Library Search Optimization) is complete. Next coordinated task is MULTI-AI-002 in `docs/TASK-MULTI-AI-002.md` for credential-aware integration smoke coverage across Notion, Drive, Gmail, router flows, and deployment-adjacent checks.
 5. Choose a deployment target (Railway, Fly.io, or VPS) and validate the new container runtime so the webhook is publicly reachable.
 6. Add `tests/` with at least one integration smoke test per service.
 

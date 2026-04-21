@@ -45,7 +45,7 @@
 
 ### Task Status Lifecycle
 
-```
+```text
 TODO → IN_PROGRESS → REVIEW → VALIDATED → DONE
        (Assigned)   (PR open)  (Approved)  (Merged)
 ```
@@ -118,12 +118,12 @@ Monitor AI:
 
 ### Current Tasks (Stage 9 Continuation)
 
-| Task                           | Owner | Status | Branch | PR  | Notes                                   |
-| ------------------------------ | ----- | ------ | ------ | --- | --------------------------------------- |
-| Library retrieval optimization | TBD   | TODO   | -      | -   | Search performance, caching             |
-| Integration test suite         | TBD   | TODO   | -      | -   | TestContainers for Notion, Drive, Gmail |
-| Deployment readiness           | TBD   | TODO   | -      | -   | Choose hosting, validate webhook        |
-| MCP server proof-of-concept    | TBD   | TODO   | -      | -   | library_search as first MCP tool        |
+| Task                           | Owner      | Status              | Branch | PR  | Notes                                                        |
+| ------------------------------ | ---------- | ------------------- | ------ | --- | ------------------------------------------------------------ |
+| Library retrieval optimization | Monitor AI | DONE                | main   | -   | Completed as MULTI-AI-001; cache shipped and validated       |
+| Integration smoke suite        | Monitor AI | READY_FOR_ASSIGNMENT| -      | -   | MULTI-AI-002: credential-aware smoke coverage for core flows |
+| Deployment readiness           | TBD        | TODO                | -      | -   | Choose hosting, validate webhook                             |
+| MCP server proof-of-concept    | TBD        | TODO                | -      | -   | `library_search` as first MCP tool                           |
 
 ### How to Claim a Task
 
@@ -155,7 +155,7 @@ git commit -m "clear message describing what changed"
 
 ### Handoff Summary (in PR)
 
-```
+```markdown
 ## What Was Done
 - List each change clearly
 - Link to relevant docs/tests
@@ -243,25 +243,27 @@ git push origin --delete <feature-branch>
 
 ---
 
-## Getting Started: First Pilot Task
+## Getting Started: Next Coordinated Task
 
-**Proposed first task for multi-AI coordination:**
+**Pilot status:** MULTI-AI-001 is complete and validated.
 
-### Task: Library Search Optimization
+**Next proposed task for multi-AI coordination:**
 
-**Goal:** Improve `library_search` performance with caching + indexed lookups
+### Task: Integration Smoke Suite
+
+**Goal:** Add credential-aware smoke coverage for the highest-value integrations and command paths.
 
 **Subtasks:**
 
-1. Research: Analyze current search performance bottlenecks (Research AI)
-2. Design: Document optimization strategy (Monitor AI + Research AI)
-3. Implement: Update `src/core/libraries.py` with caching (Executor AI)
-4. Test: Verify performance improvement (Quality AI)
-5. Validate: Ensure no regressions in existing tests (Monitor AI)
+1. Research: Audit current integration entry points, env requirements, and safe test boundaries (Research AI)
+2. Design: Define smoke matrix, skip policy, and credential-aware test harness (Monitor AI + Research AI)
+3. Implement: Add smoke tests and helpers under `tests/` (Executor AI)
+4. Test: Run no-credential mode and any available credential-backed checks (Quality AI)
+5. Validate: Ensure docs, changelog, and execution instructions are current (Monitor AI)
 
-**Timeline:** 2 hours of wall-clock time, async execution
+**Timeline:** 2 to 4 hours of wall-clock time, async execution
 
-**Success:** `library_search: <query>` returns results 50% faster with no functional changes
+**Success:** The repo gains one smoke path per core integration without breaking local runs when secrets are missing.
 
 ---
 
@@ -280,4 +282,4 @@ git push origin --delete <feature-branch>
 
 ---
 
-**Next Step:** Pick the first task and assign it. Monitor AI is ready to coordinate.
+**Next Step:** Assign MULTI-AI-002 and create the first research branch. Monitor AI is ready to coordinate.
