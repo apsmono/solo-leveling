@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-21 12-10-00 Added one-command cross-device continuity helper: `scripts/device-sync.sh` with `switch-out`, `switch-in`, and `bootstrap-prompt` modes plus `prompts/cross-device-startup.prompt.txt` for consistent startup context on another device.
 - 2026-04-21 11-35-00 Completed first multi-AI coordinated task (TASK-MULTI-AI-001): Implemented in-memory LRU search cache for library queries with automatic TTL expiration and invalidation. Warm cache hits are 100% faster (1.9ms → 0ms), exceeding 50% target. All 9 tests pass (3 new cache tests). Demonstrates full async handoff workflow: Research → Design → Implement → Validate → Merge across 4 feature branches with clear handoff summaries. Task completed in ~70 minutes wall-clock time.
 - 2026-04-21 11-29-00 Added comprehensive multi-AI coordination framework: `docs/ai-team-coordination.md` defines team roles (Monitor AI, Executor, Research, Quality), task tracking system (issue → branch → PR → merge), communication protocol, git discipline, session memory flow, escalation paths, and success metrics. Establishes Monitor AI (Copilot) as coordinator for async multi-AI work.
 - 2026-04-21 11-29-00 Added first multi-AI pilot task: `docs/TASK-MULTI-AI-001.md` specifies Library Search Optimization with detailed 5-phase execution flow (Research → Design → Implement → Validate → Merge). Shows exactly how AIs coordinate async via git branches, PR handoff summaries, and session memory. Ready for immediate execution.

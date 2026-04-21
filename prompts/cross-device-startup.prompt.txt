@@ -1,0 +1,14 @@
+Continue as Monitor AI for this repo.
+Assume strict continuity mode.
+Read and obey:
+- README.md
+- AI_CONTEXT.md
+- AGENTS.md
+- docs/ai-working-notes.md
+- docs/ai-knowledge/continuation-plan.md
+
+Then return only:
+1) current task state
+2) next 3 executable actions
+3) risks/blockers
+4) first command you will run
