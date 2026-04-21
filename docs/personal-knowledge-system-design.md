@@ -158,11 +158,11 @@ Do not store sensitive personal data in this phase (credentials, legal IDs, priv
 
 Your needs map to **4 distinct library types**, each with different capture, storage, and usage patterns:
 
-| Library Type         | Core Content                         | Access Pattern            | Update Frequency | Best Storage              |
-| -------------------- | ------------------------------------ | ------------------------- | ---------------- | ------------------------- |
-| **Knowledge Base**   | Definitions, acronyms, reference     | Lookup, search            | On-demand        | `library/terms/` + tags   |
-| **Books Library**    | Collections, transcripts, summaries  | Browse, search, reference | Monthly          | `library/books/` + Drive  |
-| **Articles Library** | Links, summaries, insights           | Skim, search, recommend   | Weekly           | `library/articles/` + Drive |
+| Library Type         | Core Content                         | Access Pattern            | Update Frequency | Best Storage                     |
+| -------------------- | ------------------------------------ | ------------------------- | ---------------- | -------------------------------- |
+| **Knowledge Base**   | Definitions, acronyms, reference     | Lookup, search            | On-demand        | `library/terms/` + tags          |
+| **Books Library**    | Collections, transcripts, summaries  | Browse, search, reference | Monthly          | `library/books/` + Drive         |
+| **Articles Library** | Links, summaries, insights           | Skim, search, recommend   | Weekly           | `library/articles/` + Drive      |
 | **Thought Drafts**   | Personal reasoning, work-in-progress | Capture, refine, publish  | Frequent         | `library/thoughts/` + Drive docs |
 
 ---
@@ -494,9 +494,10 @@ If you want to start immediately without full infrastructure:
    - Full: Separate DBs, Drive folders, AI integration (weeks)
 
 2. **Setup:**
-  - Create local `library/` folder structure
-   - Set up Google Drive structure
-   - Document template examples
+
+- Create local `library/` folder structure
+- Set up Google Drive structure
+- Document template examples
 
 3. **Integrate:**
    - Add WhatsApp commands to router

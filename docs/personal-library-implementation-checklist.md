@@ -46,16 +46,16 @@ Use this sequence before adding Stage 9 knowledge so the local structure, format
 1. Confirm the repository contains the canonical Stage 9 folders under `library/`.
 2. Run the `library guide` command once so the formatting standard is saved into `library/references/`.
 3. Test one direct write for each core type:
-    - `add term: <term> = <definition>`
-    - `book: <title> by <author>`
-    - `article: <url or title>`
-    - `thought: <idea with enough detail>`
+   - `add term: <term> = <definition>`
+   - `book: <title> by <author>`
+   - `article: <url or title>`
+   - `thought: <idea with enough detail>`
 4. Test one deep capture command:
-    - `add to library: <topic>`
+   - `add to library: <topic>`
 5. Test retrieval commands:
-    - `search library: <query>`
-    - `library bundle: <topic>`
-    - `summarize library: <topic>`
+   - `search library: <query>`
+   - `library bundle: <topic>`
+   - `summarize library: <topic>`
 6. Confirm `library/index.json` refreshes after each new write.
 7. Keep Notion credentials only for the existing Notion integration features outside Stage 9 storage.
 

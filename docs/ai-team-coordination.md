@@ -10,12 +10,14 @@
 ## Team Roles & Responsibilities
 
 ### Monitor AI (Coordinator + Reviewer)
+
 - **Owner:** GitHub Copilot (this agent)
 - **Responsibility:** Orchestrate all tasks, track progress, validate quality, resolve blockers
 - **Authority:** Approve merges, assign tasks, escalate conflicts
 - **Tools:** GitHub Issues, git branches, session notes
 
 ### Task Execution AI (Executor)
+
 - **Owner:** TBD (Claude, Copilot, or specialized agent)
 - **Responsibility:** Implement assigned tasks, write code, create documentation
 - **Input:** Clear task definition from Monitor
@@ -23,6 +25,7 @@
 - **Communication:** Feature branch + pull request + comment with reasoning
 
 ### Research AI (Strategic Planner)
+
 - **Owner:** TBD
 - **Responsibility:** Deep research, analysis, architecture decisions
 - **Input:** Research questions from Monitor
@@ -30,6 +33,7 @@
 - **Communication:** Markdown docs in `docs/` + PR comment
 
 ### Quality AI (Reviewer)
+
 - **Owner:** TBD (could be Monitor initially)
 - **Responsibility:** Code review, test validation, security check
 - **Approval:** Must sign off before merge
@@ -79,6 +83,7 @@ Each task is tracked as:
 ### Before Task Assignment
 
 Monitor AI:
+
 1. Reads all current issues and PRs
 2. Checks `docs/ai-working-notes.md` for context
 3. Verifies current branch state with `git status -sb`
@@ -87,6 +92,7 @@ Monitor AI:
 ### During Task Execution
 
 Executor AI:
+
 1. Pulls latest from main: `git pull --ff-only origin main`
 2. Creates feature branch: `git checkout -b agent/<name>/<task>/<scope>`
 3. Implements task
@@ -96,6 +102,7 @@ Executor AI:
 ### After Task Completion
 
 Monitor AI:
+
 1. Reads PR + handoff summary
 2. Reviews code and tests
 3. Checks CHANGELOG + docs updates
@@ -111,12 +118,12 @@ Monitor AI:
 
 ### Current Tasks (Stage 9 Continuation)
 
-| Task | Owner | Status | Branch | PR | Notes |
-|------|-------|--------|--------|-----|-------|
-| Library retrieval optimization | TBD | TODO | - | - | Search performance, caching |
-| Integration test suite | TBD | TODO | - | - | TestContainers for Notion, Drive, Gmail |
-| Deployment readiness | TBD | TODO | - | - | Choose hosting, validate webhook |
-| MCP server proof-of-concept | TBD | TODO | - | - | library_search as first MCP tool |
+| Task                           | Owner | Status | Branch | PR  | Notes                                   |
+| ------------------------------ | ----- | ------ | ------ | --- | --------------------------------------- |
+| Library retrieval optimization | TBD   | TODO   | -      | -   | Search performance, caching             |
+| Integration test suite         | TBD   | TODO   | -      | -   | TestContainers for Notion, Drive, Gmail |
+| Deployment readiness           | TBD   | TODO   | -      | -   | Choose hosting, validate webhook        |
+| MCP server proof-of-concept    | TBD   | TODO   | -      | -   | library_search as first MCP tool        |
 
 ### How to Claim a Task
 
@@ -131,6 +138,7 @@ Monitor AI:
 ## Git Discipline (Critical for Multi-AI)
 
 ### Before Starting Work
+
 ```bash
 git fetch --all --prune
 git status -sb
@@ -138,6 +146,7 @@ git status -sb
 ```
 
 ### While Working
+
 ```bash
 git add <specific files>
 git commit -m "clear message describing what changed"
@@ -145,6 +154,7 @@ git commit -m "clear message describing what changed"
 ```
 
 ### Handoff Summary (in PR)
+
 ```
 ## What Was Done
 - List each change clearly
@@ -162,6 +172,7 @@ git commit -m "clear message describing what changed"
 ```
 
 ### Merge & Cleanup
+
 ```bash
 # After Monitor approval:
 git merge --no-ff <feature-branch>
@@ -177,8 +188,10 @@ git push origin --delete <feature-branch>
 **Every AI agent, after finishing work:**
 
 1. **Update `docs/ai-working-notes.md`**
+
    ```markdown
    ### Session: [Date] [Agent Name]
+
    - What I did
    - What I discovered
    - What the next AI should know
@@ -201,16 +214,19 @@ git push origin --delete <feature-branch>
 ## Escalation Path
 
 ### For Blockers
+
 1. Document clearly in PR comments
 2. Tag Monitor AI
 3. Monitor AI investigates and proposes solution
 
 ### For Conflicts (two AIs modifying same file)
+
 1. First AI completes and merges
 2. Second AI rebases: `git pull --ff-only origin main` + resolve conflicts
 3. Monitor AI validates merged result
 
 ### For Architecture Decisions
+
 1. Create `docs/decisions/NNN-*.md` with rationale
 2. Link in PR and commit message
 3. Monitor AI approves or requests changes
@@ -236,6 +252,7 @@ git push origin --delete <feature-branch>
 **Goal:** Improve `library_search` performance with caching + indexed lookups
 
 **Subtasks:**
+
 1. Research: Analyze current search performance bottlenecks (Research AI)
 2. Design: Document optimization strategy (Monitor AI + Research AI)
 3. Implement: Update `src/core/libraries.py` with caching (Executor AI)
