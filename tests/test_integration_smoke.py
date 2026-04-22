@@ -126,6 +126,10 @@ class RouterSmokeTests(unittest.TestCase):
         self.assertEqual(text, "")
 
 
+@unittest.skipUnless(
+    os.environ.get("ENABLE_LIVE_SMOKE_TESTS", "").lower() in ("1", "true", "yes"),
+    "Set ENABLE_LIVE_SMOKE_TESTS=1 to run live integration smoke tests.",
+)
 class LiveIntegrationSmokeTests(unittest.TestCase):
     def test_live_notion_search_smoke(self) -> None:
         if not os.environ.get("NOTION_API_TOKEN"):

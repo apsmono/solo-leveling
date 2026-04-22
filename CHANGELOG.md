@@ -8,7 +8,22 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
-- 2026-04-22 09-54-38 Added `docs/SESSION-RECAP-2026-04-22.md` capturing this session's WhatsApp setup guidance, Meta legal-verification research conclusions, and the API-setup UI troubleshooting notes for later review.
+- 2026-04-22 10-14-03 Added `health` command to router — reports ✅/❌ per integration based on env var presence. Accessible via WhatsApp or any interface using trigger words: "health", "check setup", "system health", "integration status".
+- 2026-04-22 10-14-03 Added handoff secret→test mapping table and live smoke test guide to `docs/SETUP_SECRETS.md` so any new device or AI session can verify credentials end-to-end in one command.
+- 2026-04-22 10-14-03 Added master `ENABLE_LIVE_SMOKE_TESTS=1` env toggle to `tests/test_integration_smoke.py` that gates all three live integration tests as a group, replacing the previous per-test credential checks at the class level.
+- 2026-04-22 10-14-03 Added 10 new Stage 9 library test cases covering larger corpus search, empty query, no-match queries, deep-capture edge inputs, sensitive data rejection, sequential index rebuilds, bundle lookup, and summary extraction.
+- 2026-04-22 10-14-03 Added `_startup_checks()` to `src/integrations/whatsapp/handler.py` — auto-creates `library/` and `data/` mount dirs on startup and logs warnings for any unconfigured optional credential env vars.
+- 2026-04-22 10-14-03 Added Runbook section to `README.md` with local dev commands, container run recipe with expected log output, health check commands, container restart behavior, credential setup, and single-group test run commands.
+
+### Changed
+
+- 2026-04-22 10-14-03 Rewrote `src/core/scheduler.py` module docstring to document container restart behavior: reminders persist via `data/` volume mount, jobs always re-register on startup, overdue reminders fire on first scheduler tick.
+
+### Docs
+
+- 2026-04-22 10-14-03 `docs/SETUP_SECRETS.md` — extended Done checklist with `health` command verification step and added secret→test mapping table plus live smoke test invocation examples.
+
+ capturing this session's WhatsApp setup guidance, Meta legal-verification research conclusions, and the API-setup UI troubleshooting notes for later review.
 - 2026-04-22 09-54-38 Added `docs/PLAN-WITHOUT-WHATSAPP-2026-04-22.md` with a phased execution plan to keep project progress moving while WhatsApp integration is intentionally paused.
 - 2026-04-21 21-52-07 Added `.github/workflows/ci.yml` GitHub Actions pipeline that runs all 23 tests on every push and pull request to `main`. Credential-gated live tests are automatically skipped in CI (no secrets needed). Establishes a continuous safety net for regression detection without manual test runs.
 - 2026-04-21 21-52-07 Added `docs/TASK-MULTI-AI-003.md` defining the CI pipeline setup task with acceptance criteria, scope, and execution plan.

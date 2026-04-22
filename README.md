@@ -58,3 +58,80 @@ docker run --rm \
 ```
 
 The mounts matter because Stage 9 writes to `library/` and the reminder scheduler writes to `data/`.
+
+## Runbook
+
+### Local development (no Docker)
+
+```bash
+# 1. Activate virtual environment
+source .venv/bin/activate
+
+# 2. Run all tests (23 tests, 3 credential-gated skips are expected)
+python -m unittest tests.test_stage9_libraries tests.test_integration_smoke -v
+
+# 3. Start the webhook server
+uvicorn src.integrations.whatsapp.handler:app --port 8000 --reload
+```
+
+### Container run (with mounts)
+
+```bash
+docker build -t solo-leveling .
+
+docker run --rm \
+  -p 8000:8000 \
+  --env-file .env \
+  -v "$(pwd)/library:/app/library" \
+  -v "$(pwd)/data:/app/data" \
+  solo-leveling
+```
+
+**Expected startup output:**
+```
+INFO:     Started server process [1]
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000
+```
+
+Optional credential warnings at startup are expected and not fatal:
+```
+WARNING: Optional credentials not set (integrations will be skipped): ...
+```
+
+### Health check
+
+```bash
+# /docs returns 200 when the app is running
+curl http://localhost:8000/docs
+```
+
+Or use the built-in `health` command from the router:
+
+```bash
+curl -s -X POST http://localhost:8000/webhook/whatsapp \
+  -H 'Content-Type: application/json' \
+  -d '{"entry":[{"changes":[{"value":{"messages":[{"from":"<OWNER_NUMBER>","text":{"body":"health"}}]}}]}]}'
+```
+
+### Container restart behaviour
+
+- Reminders persist across restarts via the mounted `data/` volume (`data/reminders.json`).
+- If `data/` is not mounted, unsent reminders are lost on restart.
+- Scheduler jobs (due-reminders, daily-digest, library-maintenance) are re-registered on every startup.
+- Library entries in `library/` persist across restarts via the mounted `library/` volume.
+
+### Credential setup
+
+See `docs/SETUP_SECRETS.md` for the full credential checklist.
+Quick order: WhatsApp → Notion → Google Drive + Gmail → AI provider (OpenAI or Anthropic).
+
+### Run a single test group
+
+```bash
+# Stage 9 library tests only
+python -m unittest tests.test_stage9_libraries -v
+
+# Integration smoke tests only
+python -m unittest tests.test_integration_smoke -v
+```

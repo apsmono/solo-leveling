@@ -4,6 +4,28 @@ Notification scheduler for proactive reminders and digest jobs.
 Stage 6 introduces a small persistent reminder system backed by a JSON file so
 scheduled reminders survive process restarts. Jobs are executed by APScheduler
 inside the same process as the webhook server.
+
+## Container restart behaviour
+
+The scheduler is fully stateless across restarts: all reminder state lives in
+`data/reminders.json` (path controlled by REMINDER_STORE_PATH env var).
+
+On container restart:
+  - start_scheduler() is called from the lifespan hook, creating a fresh
+    BackgroundScheduler instance.
+  - process_due_reminders() is polled immediately on the first interval tick
+    and sends any reminder whose run_at timestamp has already passed.
+  - No reminder is lost as long as the `data/` mount is preserved between
+    container runs (volume bind or named Docker volume).
+
+If `data/` is NOT mounted persistently (e.g., ephemeral container), all
+unsent reminders will be lost on restart. This is expected and documented
+behaviour; mount the volume to avoid it.
+
+APScheduler jobs (due-reminders, daily-digest, library-maintenance) are
+always re-registered on startup — there is no persistent job store. The
+CronTrigger jobs use wall-clock time so they will fire on schedule whenever
+the process is running.
 """
 
 from __future__ import annotations

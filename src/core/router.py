@@ -11,6 +11,7 @@ Adding new commands:
 """
 
 import logging
+import os
 
 from src.core.scheduler import handle_library_maintenance_command, handle_reminder_command
 from src.core.libraries import handle_library_command
@@ -29,6 +30,7 @@ logger = logging.getLogger(__name__)
 INTENT_MAP: dict[str, list[str]] = {
     "help": ["help", "commands", "what can you do"],
     "status": ["status", "how are you", "ping"],
+    "health": ["health", "check setup", "system health", "integration status"],
     "library_capture": ["add to library", "add to my personal knowledge"],
     "library_search": ["search library", "find in library", "library search"],
     "library_bundle": ["library bundle", "research bundle", "open bundle", "open research"],
@@ -87,6 +89,7 @@ def _dispatch(intent: str, original_text: str) -> str:
     handlers = {
         "help": _handle_help,
         "status": _handle_status,
+        "health": _handle_health,
         "library_capture": _handle_library,
         "library_search": _handle_library,
         "library_bundle": _handle_library,
@@ -156,12 +159,37 @@ def _handle_help(_: str) -> str:
         "• remind me in 30 minutes to stretch\n"
         "• remind me tomorrow at 09:00 to review goals\n"
         "• reminders — list pending reminders\n"
+        "• health — check which integrations are configured\n"
         "• help — show this message"
     )
 
 
 def _handle_status(_: str) -> str:
     return "Brain is online and listening."
+
+
+def _handle_health(_: str) -> str:
+    checks = [
+        ("Notion", "NOTION_API_TOKEN"),
+        ("Google Drive / Gmail", "GOOGLE_CREDENTIALS_PATH"),
+        ("OpenAI", "OPENAI_API_KEY"),
+        ("Anthropic", "ANTHROPIC_API_KEY"),
+        ("WhatsApp", "WHATSAPP_TOKEN"),
+    ]
+    lines = ["System health check:\n"]
+    missing = []
+    for label, var in checks:
+        if os.environ.get(var):
+            lines.append(f"✅ {label} ({var} set)")
+        else:
+            lines.append(f"❌ {label} ({var} not set)")
+            missing.append(var)
+    if missing:
+        lines.append(f"\nMissing credentials: {', '.join(missing)}")
+        lines.append("See docs/SETUP_SECRETS.md to configure them.")
+    else:
+        lines.append("\nAll integrations configured.")
+    return "\n".join(lines)
 
 
 def _handle_library(text: str) -> str:

@@ -120,9 +120,38 @@ Verification:
 
 - [ ] `.env` exists and is filled
 - [ ] `status` works via WhatsApp
+- [ ] `health` reports correct ✅/❌ for each integration
 - [ ] `notion <query>` works
 - [ ] `email` works
 - [ ] `drive` works
 - [ ] `ask <question>` works
 - [ ] `summarise my inbox and save to notion` works
 - [ ] reminder callback works
+
+## Secret → test mapping
+
+| Secret | Verification command | Expected output |
+|--------|----------------------|-----------------|
+| `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID` | `curl http://localhost:8000/docs` | 200 OK, OpenAPI page loads |
+| `NOTION_API_TOKEN` | Send `notion brain` via WhatsApp | Returns list of Notion page titles |
+| `GOOGLE_CREDENTIALS_PATH` (service account) | Send `drive` | Returns recent Drive files |
+| `GOOGLE_CREDENTIALS_PATH` (OAuth) + `GMAIL_TOKEN_PATH` | Send `email` | Returns unread Gmail summary |
+| `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` | Send `ask what is 2+2` | Returns AI answer |
+| All credentials | Send `health` | All lines start with ✅ |
+
+## Live integration smoke tests
+
+To run the full live integration test suite after credential setup:
+
+```bash
+ENABLE_LIVE_SMOKE_TESTS=1 python -m unittest tests.test_integration_smoke -v
+```
+
+Individual credential checks:
+```bash
+# Notion only
+ENABLE_LIVE_SMOKE_TESTS=1 NOTION_API_TOKEN=<token> python -m unittest tests.test_integration_smoke.LiveIntegrationSmokeTests.test_live_notion_search_smoke -v
+
+# Drive / Gmail
+ENABLE_LIVE_SMOKE_TESTS=1 GOOGLE_CREDENTIALS_PATH=<path> python -m unittest tests.test_integration_smoke.LiveIntegrationSmokeTests.test_live_drive_list_smoke -v
+```

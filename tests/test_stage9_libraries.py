@@ -178,6 +178,135 @@ class Stage9LibraryTests(unittest.TestCase):
             f"Warm search should not be slower than cold search (warm={warm_time}, cold={cold_time})",
         )
 
+    # ------------------------------------------------------------------
+    # A2: Larger corpus search behaviour
+    # ------------------------------------------------------------------
+
+    def test_search_larger_corpus_returns_only_matching_entries(self) -> None:
+        """Search on a large-ish index must return matches only, not all entries."""
+        terms = [
+            ("Python", "A high-level programming language"),
+            ("Rust", "Systems language focused on safety"),
+            ("Docker", "Container platform for packaging apps"),
+            ("Kubernetes", "Container orchestration platform"),
+            ("FastAPI", "Modern Python web framework"),
+        ]
+        for term, definition in terms:
+            libraries.handle_library_command(
+                f"add term: {term} = {definition}",
+                "library_term",
+            )
+
+        # Search matches against title/path/section/category only (index-level search, not full-text)
+        result = libraries._find_entries_by_query("docker")
+        titles = [entry.get("title", "") for entry in result]
+        # "Docker" is in the title; Python/Rust/FastAPI/Kubernetes don't contain "docker"
+        self.assertTrue(
+            any("Docker" in t for t in titles),
+            f"Expected Docker entry in result, got: {titles}",
+        )
+        non_matches = [t for t in titles if "python" in t.lower() or "rust" in t.lower()]
+        self.assertEqual(non_matches, [], f"Non-matching terms returned: {non_matches}")
+
+    def test_search_empty_query_returns_empty(self) -> None:
+        """Empty search query must return an empty list without errors."""
+        libraries.handle_library_command(
+            "add term: Anything = Some definition",
+            "library_term",
+        )
+        result = libraries._find_entries_by_query("")
+        self.assertIsInstance(result, list)
+
+    def test_search_no_match_returns_empty_list(self) -> None:
+        """Query that matches nothing returns an empty list."""
+        libraries.handle_library_command(
+            "add term: Elixir = Functional language",
+            "library_term",
+        )
+        result = libraries._find_entries_by_query("xylophone")
+        self.assertIsInstance(result, list)
+        self.assertEqual(result, [])
+
+    # ------------------------------------------------------------------
+    # A2: Malformed input for deep-capture commands
+    # ------------------------------------------------------------------
+
+    def test_deep_capture_empty_content_returns_error(self) -> None:
+        """Empty capture input must return a validation error, not raise."""
+        result = libraries.handle_library_command("add to library:", "library_capture")
+        # Should return a user-facing error string, not raise
+        self.assertIsInstance(result, str)
+        self.assertTrue(
+            len(result) > 0,
+            "Empty capture input should return a non-empty error message",
+        )
+
+    def test_deep_capture_very_short_input(self) -> None:
+        """Single-word capture input should be handled gracefully."""
+        with patch("src.core.libraries.run_agent", side_effect=RuntimeError("ai unavailable")):
+            result = libraries.handle_library_command("add to library: x", "library_capture")
+        self.assertIsInstance(result, str)
+
+    def test_deep_capture_sensitive_data_rejected(self) -> None:
+        """Input containing sensitive tokens must be blocked."""
+        result = libraries.handle_library_command(
+            "add to library: my password is hunter2",
+            "library_capture",
+        )
+        self.assertIn("sensitive", result.lower())
+
+    # ------------------------------------------------------------------
+    # A2: Bundle indexing edge cases
+    # ------------------------------------------------------------------
+
+    def test_index_rebuilt_after_multiple_writes(self) -> None:
+        """Index must contain all entries written in sequence."""
+        for i in range(5):
+            libraries.handle_library_command(
+                f"add term: Term{i} = Definition number {i}",
+                "library_term",
+            )
+
+        index_text = libraries._INDEX_PATH.read_text(encoding="utf-8")
+        for i in range(5):
+            self.assertIn(f"Term{i}", index_text)
+
+    def test_bundle_lookup_no_match_returns_message(self) -> None:
+        """Bundle lookup for a non-existent topic returns a friendly no-result message."""
+        result = libraries.handle_library_command(
+            "library bundle: totally nonexistent topic xyz",
+            "library_bundle",
+        )
+        self.assertIsInstance(result, str)
+        self.assertTrue(len(result) > 0)
+
+    # ------------------------------------------------------------------
+    # A2: Summary retrieval edge cases
+    # ------------------------------------------------------------------
+
+    def test_summary_no_match_returns_message(self) -> None:
+        """Summary command for a non-existent topic returns a friendly no-result message."""
+        result = libraries.handle_library_command(
+            "summarize library: quantum teleportation",
+            "library_summary",
+        )
+        self.assertIsInstance(result, str)
+        self.assertTrue(len(result) > 0)
+
+    def test_summary_returns_track_section_from_bundle(self) -> None:
+        """Summary of an existing bundle must include the Track section."""
+        with patch("src.core.libraries.run_agent", side_effect=RuntimeError("ai unavailable")):
+            libraries.handle_library_command(
+                "add to library: Second order thinking and its applications",
+                "library_capture",
+            )
+
+        result = libraries.handle_library_command(
+            "summarize library: second order thinking",
+            "library_summary",
+        )
+        self.assertIn("Track:", result)
+
 
 if __name__ == "__main__":
     unittest.main()

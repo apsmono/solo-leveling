@@ -15,6 +15,7 @@ Environment variables required:
 import os
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 # FastAPI is used as the webhook server. Install with: pip install fastapi uvicorn httpx
@@ -26,9 +27,52 @@ from src.integrations.whatsapp.client import send_message
 
 logger = logging.getLogger(__name__)
 
+# ---------------------------------------------------------------------------
+# Startup checks
+# ---------------------------------------------------------------------------
+
+def _startup_checks() -> None:
+    """
+    Validate critical runtime directories and warn about optional credentials.
+    Raises RuntimeError if any required directory cannot be created.
+    """
+    required_dirs = ["library", "data"]
+    for name in required_dirs:
+        path = Path(name)
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            raise RuntimeError(
+                f"Cannot create required directory '{name}': {exc}. "
+                "Ensure the directory is writable or the volume mount is correct."
+            ) from exc
+
+    missing_optional = []
+    optional_vars = {
+        "NOTION_API_TOKEN": "Notion integration",
+        "GOOGLE_CREDENTIALS_PATH": "Google Drive / Gmail integration",
+        "OPENAI_API_KEY": "AI agent (OpenAI)",
+        "ANTHROPIC_API_KEY": "AI agent (Anthropic)",
+    }
+    for var, label in optional_vars.items():
+        if not os.environ.get(var, "").strip():
+            missing_optional.append(f"  • {var} — {label}")
+
+    if missing_optional:
+        logger.warning(
+            "Optional credentials not set (integrations will be skipped):\n%s",
+            "\n".join(missing_optional),
+        )
+
+    if not os.environ.get("WHATSAPP_OWNER_NUMBER", "").strip():
+        logger.warning(
+            "WHATSAPP_OWNER_NUMBER is not set — all inbound messages will be rejected."
+        )
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    _startup_checks()
     start_scheduler()
     yield
     shutdown_scheduler()

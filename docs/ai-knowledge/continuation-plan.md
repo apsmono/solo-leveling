@@ -2,7 +2,7 @@
 
 Current state of the project and the next steps. Update this file whenever a stage is completed or a new workstream begins.
 
-Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring) → 2026-04-18 10-22-15 (formatting standard implemented) → 2026-04-20 22-47-07 (library term pivoted to local folder `library/`) → 2026-04-20 23-38-29 (weekly maintenance flow added) → 2026-04-21 13-04-19 (MULTI-AI-002 staged after pilot completion) → 2026-04-21 19-30-19 (MULTI-AI-002 completed and validated) → 2026-04-21 21-52-07 (MULTI-AI-003 CI pipeline implemented)
+Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring) → 2026-04-18 10-22-15 (formatting standard implemented) → 2026-04-20 22-47-07 (library term pivoted to local folder `library/`) → 2026-04-20 23-38-29 (weekly maintenance flow added) → 2026-04-21 13-04-19 (MULTI-AI-002 staged after pilot completion) → 2026-04-21 19-30-19 (MULTI-AI-002 completed and validated) → 2026-04-21 21-52-07 (MULTI-AI-003 CI pipeline implemented) → 2026-04-22 10-14-03 (Phase B+A+C deployment readiness plan fully executed)
 
 ---
 
@@ -34,10 +34,10 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 ## What Is Not Done Yet
 
-- **Stage 9 — Personal Knowledge Libraries (Phase 2+):** Formatting guide is live. Next work is:
-  1. **End-to-end testing** — manual WhatsApp tests for each library command family.
-  2. **Deployment hardening** — choose a target and validate container runtime in a real environment.
-- **Tests:** Stage 9 local-library regression coverage exists in `tests/test_stage9_libraries.py`. Broader integration tests will still need mock credentials or a test `.env`.
+- **Stage 9 — Personal Knowledge Libraries (Phase 2+):** Deployment readiness hardening now complete (Phase B+A+C). Remaining work:
+  1. **End-to-end testing** — manual WhatsApp tests for each library command family (requires live credentials).
+  2. **Deployment** — choose a target host and confirm container runtime in a real environment.
+- **Tests:** 33 tests pass (3 live tests skipped until `ENABLE_LIVE_SMOKE_TESTS=1` and credentials are set).
 - **Deployment:** `Dockerfile` and `.dockerignore` now exist, but there is still no CI/CD pipeline or live server. The Meta webhook requires a public HTTPS URL. Options: Railway, Fly.io, or any VPS with a reverse proxy.
 
 ## Blocking TODO (Secrets Setup)
