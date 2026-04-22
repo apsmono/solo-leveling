@@ -46,6 +46,42 @@ class RouterSmokeTests(unittest.TestCase):
         result = router.route_command("status")
         self.assertEqual(result, "Brain is online and listening.")
 
+    def test_route_health_smoke_meta_provider(self) -> None:
+        with patch.dict(
+            os.environ,
+            {
+                "WHATSAPP_PROVIDER": "meta",
+                "NOTION_API_TOKEN": "x",
+                "GOOGLE_CREDENTIALS_PATH": "/tmp/creds.json",
+                "OPENAI_API_KEY": "x",
+                "ANTHROPIC_API_KEY": "x",
+                "META_ACCESS_TOKEN": "x",
+                "META_VERIFY_TOKEN": "x",
+                "META_PHONE_NUMBER_ID": "123",
+            },
+            clear=True,
+        ):
+            result = router.route_command("health")
+
+        self.assertIn("WhatsApp (Meta)", result)
+        self.assertIn("All integrations configured.", result)
+
+    def test_route_health_smoke_meta_provider_missing_phone_id(self) -> None:
+        with patch.dict(
+            os.environ,
+            {
+                "WHATSAPP_PROVIDER": "meta",
+                "NOTION_API_TOKEN": "x",
+                "META_ACCESS_TOKEN": "x",
+                "META_VERIFY_TOKEN": "x",
+            },
+            clear=True,
+        ):
+            result = router.route_command("health")
+
+        self.assertIn("WhatsApp (Meta)", result)
+        self.assertIn("META_PHONE_NUMBER_ID", result)
+
     def test_route_notion_smoke_with_mocked_client(self) -> None:
         with patch("src.core.router.notion.search", return_value=[{"title": "Roadmap", "type": "page", "url": "https://notion.test/page"}]):
             result = router.route_command("notion roadmap")

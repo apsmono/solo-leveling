@@ -80,6 +80,12 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Added the first completed owner weekly scorecard at `docs/scorecards/weekly-rl-okr-scorecard-2026-W17-main-brain.md`.
 - Clarified storage paths: templates stay in `docs/templates/`, filled records go in `docs/task-cards/` and `docs/scorecards/`.
 
+### 2026-04-22 — Provider-Aware Health Checks + Env Validation Progress
+
+- Updated router `health` output to use provider-specific WhatsApp credential checks (Meta vs Twilio) instead of legacy `WHATSAPP_TOKEN`.
+- Added smoke tests to lock this behavior and prevent regression.
+- Ran health check with current `.env`: Notion is configured; currently missing for full readiness are `META_PHONE_NUMBER_ID`, `GOOGLE_CREDENTIALS_PATH`, and one AI provider key (`OPENAI_API_KEY` or `ANTHROPIC_API_KEY`).
+
 ### 2026-04-21 — MULTI-AI-003 CI Pipeline Implemented
 
 - Created `.github/workflows/ci.yml`: GitHub Actions pipeline triggered on push and pull_request to `main`.

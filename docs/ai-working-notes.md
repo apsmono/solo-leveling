@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- **2026-04-22: Health command upgraded to provider-aware WhatsApp checks.** Updated `src/core/router.py` health logic to validate Meta (`META_ACCESS_TOKEN`, `META_VERIFY_TOKEN`, `META_PHONE_NUMBER_ID`) and Twilio (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER`) credentials accurately based on `WHATSAPP_PROVIDER`. Added smoke tests for health behavior and updated `docs/SETUP_SECRETS.md` mapping accordingly.
 - **2026-04-22: First live task-card and owner scorecard recorded.** Added `docs/task-cards/MULTI-AI-004-weekly-performance-kickoff-2026-04-22.md` and `docs/scorecards/weekly-rl-okr-scorecard-2026-W17-main-brain.md` so filled records now live outside template files and can be repeated weekly.
 - **2026-04-22: Prefilled weekly scorecard example added.** Added `docs/templates/weekly-rl-okr-scorecard-example-2026-W17.md` with a ready-to-use, prefilled weekly RL/OKR scorecard using the current documented team state so scoring can start immediately this week.
 - **2026-04-22: Added owner self-review and ready-to-use operating templates.** Updated `docs/ai-employer-operating-system.md` to include Main Brain self-performance evaluation and self-management metric in weekly scoring. Added `docs/templates/task-card-template.md` and `docs/templates/weekly-rl-okr-scorecard-template.md` so AI teams can execute policy immediately with no manual formatting.

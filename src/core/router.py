@@ -169,21 +169,33 @@ def _handle_status(_: str) -> str:
 
 
 def _handle_health(_: str) -> str:
+    provider = os.environ.get("WHATSAPP_PROVIDER", "meta").strip().lower()
+    if provider == "twilio":
+        whatsapp_label = "WhatsApp (Twilio)"
+        whatsapp_vars = ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_WHATSAPP_NUMBER"]
+    elif provider == "meta":
+        whatsapp_label = "WhatsApp (Meta)"
+        whatsapp_vars = ["META_ACCESS_TOKEN", "META_VERIFY_TOKEN", "META_PHONE_NUMBER_ID"]
+    else:
+        whatsapp_label = "WhatsApp"
+        whatsapp_vars = ["WHATSAPP_TOKEN"]
+
     checks = [
-        ("Notion", "NOTION_API_TOKEN"),
-        ("Google Drive / Gmail", "GOOGLE_CREDENTIALS_PATH"),
-        ("OpenAI", "OPENAI_API_KEY"),
-        ("Anthropic", "ANTHROPIC_API_KEY"),
-        ("WhatsApp", "WHATSAPP_TOKEN"),
+        ("Notion", ["NOTION_API_TOKEN"]),
+        ("Google Drive / Gmail", ["GOOGLE_CREDENTIALS_PATH"]),
+        ("OpenAI", ["OPENAI_API_KEY"]),
+        ("Anthropic", ["ANTHROPIC_API_KEY"]),
+        (whatsapp_label, whatsapp_vars),
     ]
     lines = ["System health check:\n"]
     missing = []
-    for label, var in checks:
-        if os.environ.get(var):
-            lines.append(f"✅ {label} ({var} set)")
+    for label, required_vars in checks:
+        missing_vars = [var for var in required_vars if not os.environ.get(var)]
+        if not missing_vars:
+            lines.append(f"✅ {label} ({', '.join(required_vars)} set)")
         else:
-            lines.append(f"❌ {label} ({var} not set)")
-            missing.append(var)
+            lines.append(f"❌ {label} (missing: {', '.join(missing_vars)})")
+            missing.extend(missing_vars)
     if missing:
         lines.append(f"\nMissing credentials: {', '.join(missing)}")
         lines.append("See docs/SETUP_SECRETS.md to configure them.")

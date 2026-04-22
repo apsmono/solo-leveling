@@ -132,7 +132,8 @@ Verification:
 
 | Secret | Verification command | Expected output |
 |--------|----------------------|-----------------|
-| `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID` | `curl http://localhost:8000/docs` | 200 OK, OpenAPI page loads |
+| Meta WhatsApp: `META_ACCESS_TOKEN` + `META_VERIFY_TOKEN` + `META_PHONE_NUMBER_ID` | Send `health` | `WhatsApp (Meta)` line shows ✅ |
+| Twilio WhatsApp: `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN` + `TWILIO_WHATSAPP_NUMBER` | Send `health` | `WhatsApp (Twilio)` line shows ✅ |
 | `NOTION_API_TOKEN` | Send `notion brain` via WhatsApp | Returns list of Notion page titles |
 | `GOOGLE_CREDENTIALS_PATH` (service account) | Send `drive` | Returns recent Drive files |
 | `GOOGLE_CREDENTIALS_PATH` (OAuth) + `GMAIL_TOKEN_PATH` | Send `email` | Returns unread Gmail summary |
