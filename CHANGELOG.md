@@ -8,6 +8,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-22 10-51-38 Added `docs/ai-employer-operating-system.md` as the canonical AI employer policy covering role-branch-authority governance, unified task schema, RL1-RL5 responsibility levels, OKR scoring formulas, responsibility-level testing thresholds, and revenue-impact assignment rules.
+- 2026-04-22 10-51-38 Added `docs/decisions/003-ai-employer-governance-model.md` to formalize adoption of the new governance and valuation model.
 - 2026-04-22 10-14-03 Added `health` command to router — reports ✅/❌ per integration based on env var presence. Accessible via WhatsApp or any interface using trigger words: "health", "check setup", "system health", "integration status".
 - 2026-04-22 10-14-03 Added handoff secret→test mapping table and live smoke test guide to `docs/SETUP_SECRETS.md` so any new device or AI session can verify credentials end-to-end in one command.
 - 2026-04-22 10-14-03 Added master `ENABLE_LIVE_SMOKE_TESTS=1` env toggle to `tests/test_integration_smoke.py` that gates all three live integration tests as a group, replacing the previous per-test credential checks at the class level.
@@ -21,6 +23,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-22 10-51-38 Updated `docs/ai-team-coordination.md` to operationalize the new governance model and clarify branch flow, escalation, and monitor checklist.
+- 2026-04-22 10-51-38 Updated `docs/README.md`, `AI_CONTEXT.md`, and `docs/ai-working-notes.md` so discoverability, active priorities, and cross-session memory reflect the new employer/OKR system.
 - 2026-04-22 10-14-03 `docs/SETUP_SECRETS.md` — extended Done checklist with `health` command verification step and added secret→test mapping table plus live smoke test invocation examples.
 
  capturing this session's WhatsApp setup guidance, Meta legal-verification research conclusions, and the API-setup UI troubleshooting notes for later review.

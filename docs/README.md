@@ -40,6 +40,7 @@ Smoke suite behavior:
 ## Decisions
 
 - `decisions/001-command-center-scope.md` — decision to redefine the repo as the central brain and command center.
+- `decisions/003-ai-employer-governance-model.md` — decision to adopt role-branch-authority governance with OKR-based responsibility valuation.
 - `decision-log-template.md` — reusable template for future decision records.
 
 ## Planning Documents
@@ -52,6 +53,8 @@ Smoke suite behavior:
 - `review-rhythm.md` — review cadence and checkpoint questions.
 - `AI_CHANGELOG_POLICY.md` — changelog format, timestamp standard, and maintenance rules.
 - `SETUP_SECRETS.md` — step-by-step credentials and service setup checklist for local runtime.
+- `ai-team-coordination.md` — operational coordination flow for multi-AI execution lifecycle, branch flow, and escalation.
+- `ai-employer-operating-system.md` — canonical employer governance model (OKR system, responsibility-level testing, scoring, assignment policy).
 
 ## AI Knowledge Base
 

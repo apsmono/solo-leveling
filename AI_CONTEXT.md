@@ -9,7 +9,7 @@ This repository is the central brain for the owner's personal operating system: 
 - Phase: Stage 8 complete; Stage 9 local-library pivot active (library means folder `library/`)
 - Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, formatting enforcement code, deep research-bundle capture flow for "add to library", executable Stage 9 library tests, and weekly library maintenance commands/scheduler support
 - Current work: Stage 9 captures and lookups now run against local markdown entries under `library/`, including indexed search, bundle lookup, summary retrieval for research bundles, regression coverage in `tests/test_stage9_libraries.py`, and weekly maintenance summaries through the scheduler layer
-- Primary need: continue Stage 9 improvements with filesystem-first workflows (manual WhatsApp tests, deployment target choice, broader integration test coverage)
+- Primary need: continue Stage 9 improvements with filesystem-first workflows (manual WhatsApp tests, deployment target choice, broader integration test coverage) while operating under the AI employer governance model for branch authority, OKR tracking, and responsibility-level assignment
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth
@@ -52,7 +52,7 @@ As the project expands, prefer this structure:
 1. ~~Expand Stage 8 from starter workflow to multiple robust workflow chains~~ **DONE (3 workflows implemented)**
 2. Complete credential setup using `docs/SETUP_SECRETS.md` so integrations can run end-to-end.
 3. **ACTIVE: Implement Stage 9 — Personal Knowledge Libraries command layer** (`library/` folder is canonical storage; all handlers and plans must be local-library-first)
-4. **ACTIVE: Multi-AI Team Execution** — MULTI-AI-001 and MULTI-AI-002 are complete. Next coordinated workstream is deployment readiness (candidate MULTI-AI-003) after credentials are ready.
+4. **ACTIVE: Multi-AI Team Execution** — governance upgraded with role-branch-authority policy, responsibility-level testing, and OKR valuation in `docs/ai-employer-operating-system.md`; upcoming coordinated tasks must use this model.
 5. Choose a deployment target (Railway, Fly.io, or VPS) and validate the new container runtime so the webhook is publicly reachable.
 6. Add `tests/` with at least one integration smoke test per service.
 

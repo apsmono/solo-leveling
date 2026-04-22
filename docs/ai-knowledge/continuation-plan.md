@@ -54,6 +54,16 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 ## Latest Session Notes
 
+### 2026-04-22 — AI Employer Governance System Adopted
+
+- Added `docs/ai-employer-operating-system.md` as canonical governance for multi-AI execution.
+- Formalized role-branch-authority model and merge flow (`agent/*` -> `lead/*` -> `program/*` -> `main`).
+- Defined unified task schema with objective/KR and revenue linkage.
+- Introduced responsibility-level framework (`RL1` to `RL5`) with weighted testing and pass thresholds.
+- Added OKR valuation formulas and cycle scoring policy for assignment/promotion decisions.
+- Added decision record `docs/decisions/003-ai-employer-governance-model.md`.
+- Refactored `docs/ai-team-coordination.md` into operational guidance aligned to the governance model.
+
 ### 2026-04-21 — MULTI-AI-003 CI Pipeline Implemented
 
 - Created `.github/workflows/ci.yml`: GitHub Actions pipeline triggered on push and pull_request to `main`.
