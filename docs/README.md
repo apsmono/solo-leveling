@@ -62,6 +62,13 @@ Smoke suite behavior:
 - `ai-team-coordination.md` — operational coordination flow for multi-AI execution lifecycle, branch flow, and escalation.
 - `ai-employer-operating-system.md` — canonical employer governance model (OKR system, responsibility-level testing, scoring, assignment policy).
 
+## Operational Records (Filled, Non-Template)
+
+- `task-cards/` — completed task cards for real execution work (copy from template, then fill).
+- `scorecards/` — weekly RL/OKR scorecards and owner self-evaluation records.
+- `task-cards/MULTI-AI-004-weekly-performance-kickoff-2026-04-22.md` — first filled task-card example.
+- `scorecards/weekly-rl-okr-scorecard-2026-W17-main-brain.md` — first filled owner scorecard record.
+
 ## AI Knowledge Base
 
 Split into focused files inside `docs/ai-knowledge/`. Entry point: `docs/ai-working-notes.md`.

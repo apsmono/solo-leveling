@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-22 11-14-57 Added first filled operational governance records: `docs/task-cards/MULTI-AI-004-weekly-performance-kickoff-2026-04-22.md` and `docs/scorecards/weekly-rl-okr-scorecard-2026-W17-main-brain.md`, enabling immediate weekly owner evaluation and non-template task tracking.
 - 2026-04-22 11-09-04 Added `docs/templates/weekly-rl-okr-scorecard-example-2026-W17.md`, a prefilled weekly scorecard example based on current documented team/project state so scoring can start immediately with no manual setup.
 - 2026-04-22 11-00-50 Added `docs/templates/task-card-template.md` and `docs/templates/weekly-rl-okr-scorecard-template.md` as ready-to-use execution templates for task assignment, validation handoff, weekly RL testing, OKR tracking, and owner self-review.
 - 2026-04-22 10-51-38 Added `docs/ai-employer-operating-system.md` as the canonical AI employer policy covering role-branch-authority governance, unified task schema, RL1-RL5 responsibility levels, OKR scoring formulas, responsibility-level testing thresholds, and revenue-impact assignment rules.
@@ -25,6 +26,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-22 11-14-57 Updated `docs/README.md`, `docs/ai-working-notes.md`, and `docs/ai-knowledge/continuation-plan.md` to define canonical storage paths for filled records: `docs/task-cards/` and `docs/scorecards/`.
 - 2026-04-22 11-09-04 Updated `docs/README.md`, `docs/ai-working-notes.md`, and `docs/ai-knowledge/continuation-plan.md` to register the new prefilled weekly scorecard example in the standard workflow.
 - 2026-04-22 11-00-50 Updated `docs/ai-employer-operating-system.md` to include Main Brain self-performance scoring (`Owner_cycle`) and self-management measurement criteria in weekly evaluation.
 - 2026-04-22 11-00-50 Updated `docs/README.md`, `docs/ai-working-notes.md`, and `docs/ai-knowledge/continuation-plan.md` to register and operationalize the new templates and owner self-review workflow.
