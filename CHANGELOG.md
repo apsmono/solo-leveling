@@ -8,6 +8,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-22 09-54-38 Added `docs/SESSION-RECAP-2026-04-22.md` capturing this session's WhatsApp setup guidance, Meta legal-verification research conclusions, and the API-setup UI troubleshooting notes for later review.
+- 2026-04-22 09-54-38 Added `docs/PLAN-WITHOUT-WHATSAPP-2026-04-22.md` with a phased execution plan to keep project progress moving while WhatsApp integration is intentionally paused.
 - 2026-04-21 21-52-07 Added `.github/workflows/ci.yml` GitHub Actions pipeline that runs all 23 tests on every push and pull request to `main`. Credential-gated live tests are automatically skipped in CI (no secrets needed). Establishes a continuous safety net for regression detection without manual test runs.
 - 2026-04-21 21-52-07 Added `docs/TASK-MULTI-AI-003.md` defining the CI pipeline setup task with acceptance criteria, scope, and execution plan.
 - 2026-04-21 19-30-19 Added `tests/test_integration_smoke.py` as a credential-aware integration smoke suite with router mocks, workflow and AI guardrails, optional live Notion/Drive/Gmail checks, and explicit skip messaging for missing credentials.
