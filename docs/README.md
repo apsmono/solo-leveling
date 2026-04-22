@@ -58,6 +58,7 @@ Smoke suite behavior:
 
 - `templates/task-card-template.md` — structured task definition template with objective/KR linkage, RL assignment, validation gate, and handoff section.
 - `templates/weekly-rl-okr-scorecard-template.md` — weekly scoring template for KR progress, AI RL evaluation, owner self-review, and assignment-policy updates.
+- `templates/weekly-rl-okr-scorecard-example-2026-W17.md` — prefilled example scorecard using current documented team/project state for immediate weekly scoring kickoff.
 - `ai-team-coordination.md` — operational coordination flow for multi-AI execution lifecycle, branch flow, and escalation.
 - `ai-employer-operating-system.md` — canonical employer governance model (OKR system, responsibility-level testing, scoring, assignment policy).
 

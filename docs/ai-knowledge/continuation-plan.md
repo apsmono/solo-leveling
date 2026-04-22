@@ -70,6 +70,10 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Added `docs/templates/task-card-template.md` for immediate standardized task creation.
 - Added `docs/templates/weekly-rl-okr-scorecard-template.md` for weekly KR tracking, RL evaluation, owner self-review, and assignment decisions.
 
+### 2026-04-22 — Weekly Scorecard Example Added
+
+- Added `docs/templates/weekly-rl-okr-scorecard-example-2026-W17.md` as a prefilled, ready-to-use example aligned to current documented project/team state.
+
 ### 2026-04-21 — MULTI-AI-003 CI Pipeline Implemented
 
 - Created `.github/workflows/ci.yml`: GitHub Actions pipeline triggered on push and pull_request to `main`.
