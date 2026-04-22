@@ -24,6 +24,10 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 - 2026-04-22 10-14-03 Added `_startup_checks()` to `src/integrations/whatsapp/handler.py` — auto-creates `library/` and `data/` mount dirs on startup and logs warnings for any unconfigured optional credential env vars.
 - 2026-04-22 10-14-03 Added Runbook section to `README.md` with local dev commands, container run recipe with expected log output, health check commands, container restart behavior, credential setup, and single-group test run commands.
 
+### Fixed
+
+- 2026-04-22 12-32-09 Fixed integration tests not loading `.env` file automatically. Added `dotenv.load_dotenv()` call at module level in `tests/test_integration_smoke.py` so all three live smoke tests (Drive, Gmail, Notion) now execute correctly without requiring explicit environment variable passing. All 3 tests now pass: Drive ✅, Gmail ✅, Notion ✅.
+
 ### Changed
 
 - 2026-04-22 10-14-03 Rewrote `src/core/scheduler.py` module docstring to document container restart behavior: reminders persist via `data/` volume mount, jobs always re-register on startup, overdue reminders fire on first scheduler tick.
