@@ -5,7 +5,8 @@ Provides read and write access to Google Drive files and folders.
 Uses the Google Drive API v3 via a service account or OAuth2 credentials.
 
 Environment variables required:
-    GOOGLE_CREDENTIALS_PATH  — path to service_account.json or oauth2_credentials.json
+    GOOGLE_DRIVE_CREDENTIALS_PATH  — path to service_account.json
+    GOOGLE_CREDENTIALS_PATH        — legacy fallback path
 
 Usage:
     from src.integrations.gdrive.client import list_files, read_doc, create_doc
@@ -31,11 +32,15 @@ SCOPES = [
 
 def _service():
     """Build and return an authenticated Google Drive API service."""
-    creds_path = os.environ.get("GOOGLE_CREDENTIALS_PATH")
+    creds_path = (
+        os.environ.get("GOOGLE_DRIVE_CREDENTIALS_PATH")
+        or os.environ.get("GOOGLE_CREDENTIALS_PATH")
+    )
     if not creds_path:
         raise EnvironmentError(
-            "GOOGLE_CREDENTIALS_PATH is not set. "
-            "Download a service account key from Google Cloud Console and set the path in .env."
+            "GOOGLE_DRIVE_CREDENTIALS_PATH is not set. "
+            "Download a service account key from Google Cloud Console and set the path in .env. "
+            "GOOGLE_CREDENTIALS_PATH is still supported as a legacy fallback."
         )
     creds = service_account.Credentials.from_service_account_file(creds_path, scopes=SCOPES)
     return build("drive", "v3", credentials=creds)

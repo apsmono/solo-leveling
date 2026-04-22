@@ -50,7 +50,8 @@ def _startup_checks() -> None:
     missing_optional = []
     optional_vars = {
         "NOTION_API_TOKEN": "Notion integration",
-        "GOOGLE_CREDENTIALS_PATH": "Google Drive / Gmail integration",
+        "GOOGLE_DRIVE_CREDENTIALS_PATH": "Google Drive integration",
+        "GMAIL_CREDENTIALS_PATH": "Gmail integration",
         "OPENAI_API_KEY": "AI agent (OpenAI)",
         "ANTHROPIC_API_KEY": "AI agent (Anthropic)",
     }

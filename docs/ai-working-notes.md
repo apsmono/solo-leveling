@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- **2026-04-22: Split Google credential paths implemented.** Added `GOOGLE_DRIVE_CREDENTIALS_PATH` for Drive service-account auth and `GMAIL_CREDENTIALS_PATH` for Gmail OAuth auth, while keeping `GOOGLE_CREDENTIALS_PATH` as a legacy fallback. Verified full regression suite passes and current `.env` supports a successful live Notion smoke test. Remaining missing runtime values are Drive/Gmail credential paths, `META_PHONE_NUMBER_ID`, and one AI provider key.
 - **2026-04-22: Health command upgraded to provider-aware WhatsApp checks.** Updated `src/core/router.py` health logic to validate Meta (`META_ACCESS_TOKEN`, `META_VERIFY_TOKEN`, `META_PHONE_NUMBER_ID`) and Twilio (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER`) credentials accurately based on `WHATSAPP_PROVIDER`. Added smoke tests for health behavior and updated `docs/SETUP_SECRETS.md` mapping accordingly.
 - **2026-04-22: First live task-card and owner scorecard recorded.** Added `docs/task-cards/MULTI-AI-004-weekly-performance-kickoff-2026-04-22.md` and `docs/scorecards/weekly-rl-okr-scorecard-2026-W17-main-brain.md` so filled records now live outside template files and can be repeated weekly.
 - **2026-04-22: Prefilled weekly scorecard example added.** Added `docs/templates/weekly-rl-okr-scorecard-example-2026-W17.md` with a ready-to-use, prefilled weekly RL/OKR scorecard using the current documented team state so scoring can start immediately this week.

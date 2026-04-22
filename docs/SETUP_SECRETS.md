@@ -62,12 +62,14 @@ Verification:
 
 Required keys:
 
-- `GOOGLE_CREDENTIALS_PATH`
+- `GOOGLE_DRIVE_CREDENTIALS_PATH`
+- `GMAIL_CREDENTIALS_PATH`
 - `GMAIL_TOKEN_PATH` (default `.gmail_token.json` is fine)
 
 Notes:
 
-- Gmail requires OAuth2 user credentials.
+- Google Drive uses a service account JSON.
+- Gmail requires OAuth2 user credentials (`Desktop app`).
 - First Gmail call opens browser consent flow and creates token cache.
 
 Verification:
@@ -135,8 +137,8 @@ Verification:
 | Meta WhatsApp: `META_ACCESS_TOKEN` + `META_VERIFY_TOKEN` + `META_PHONE_NUMBER_ID` | Send `health` | `WhatsApp (Meta)` line shows ✅ |
 | Twilio WhatsApp: `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN` + `TWILIO_WHATSAPP_NUMBER` | Send `health` | `WhatsApp (Twilio)` line shows ✅ |
 | `NOTION_API_TOKEN` | Send `notion brain` via WhatsApp | Returns list of Notion page titles |
-| `GOOGLE_CREDENTIALS_PATH` (service account) | Send `drive` | Returns recent Drive files |
-| `GOOGLE_CREDENTIALS_PATH` (OAuth) + `GMAIL_TOKEN_PATH` | Send `email` | Returns unread Gmail summary |
+| `GOOGLE_DRIVE_CREDENTIALS_PATH` (service account) | Send `drive` | Returns recent Drive files |
+| `GMAIL_CREDENTIALS_PATH` (OAuth Desktop app) + `GMAIL_TOKEN_PATH` | Send `email` | Returns unread Gmail summary |
 | `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` | Send `ask what is 2+2` | Returns AI answer |
 | All credentials | Send `health` | All lines start with ✅ |
 
@@ -154,5 +156,8 @@ Individual credential checks:
 ENABLE_LIVE_SMOKE_TESTS=1 NOTION_API_TOKEN=<token> python -m unittest tests.test_integration_smoke.LiveIntegrationSmokeTests.test_live_notion_search_smoke -v
 
 # Drive / Gmail
-ENABLE_LIVE_SMOKE_TESTS=1 GOOGLE_CREDENTIALS_PATH=<path> python -m unittest tests.test_integration_smoke.LiveIntegrationSmokeTests.test_live_drive_list_smoke -v
+ENABLE_LIVE_SMOKE_TESTS=1 GOOGLE_DRIVE_CREDENTIALS_PATH=<path> python -m unittest tests.test_integration_smoke.LiveIntegrationSmokeTests.test_live_drive_list_smoke -v
+
+# Gmail only
+ENABLE_LIVE_SMOKE_TESTS=1 GMAIL_CREDENTIALS_PATH=<path> python -m unittest tests.test_integration_smoke.LiveIntegrationSmokeTests.test_live_gmail_list_smoke -v
 ```

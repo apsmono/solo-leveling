@@ -8,8 +8,9 @@ Write access (drafts, send) is intentionally excluded from this client.
 Add it only when explicitly required and log the decision in docs/decisions/.
 
 Environment variables required:
-    GOOGLE_CREDENTIALS_PATH  — path to OAuth2 credentials JSON
+    GMAIL_CREDENTIALS_PATH   — path to OAuth2 credentials JSON
                                (service accounts do not work for Gmail; OAuth2 required)
+    GOOGLE_CREDENTIALS_PATH  — legacy fallback path
 
 Usage:
     from src.integrations.gmail.client import list_unread, get_message, search_messages
@@ -45,11 +46,15 @@ def _service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            creds_path = os.environ.get("GOOGLE_CREDENTIALS_PATH")
+            creds_path = (
+                os.environ.get("GMAIL_CREDENTIALS_PATH")
+                or os.environ.get("GOOGLE_CREDENTIALS_PATH")
+            )
             if not creds_path:
                 raise EnvironmentError(
-                    "GOOGLE_CREDENTIALS_PATH is not set. "
-                    "Download OAuth2 credentials from Google Cloud Console and set the path in .env."
+                    "GMAIL_CREDENTIALS_PATH is not set. "
+                    "Download OAuth2 credentials from Google Cloud Console and set the path in .env. "
+                    "GOOGLE_CREDENTIALS_PATH is still supported as a legacy fallback."
                 )
             flow = InstalledAppFlow.from_client_secrets_file(creds_path, SCOPES)
             creds = flow.run_local_server(port=0)

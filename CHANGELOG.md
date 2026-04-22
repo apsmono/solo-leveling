@@ -8,6 +8,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-22 12-02-12 Added separate Google credential env support: `GOOGLE_DRIVE_CREDENTIALS_PATH` for Drive service-account auth and `GMAIL_CREDENTIALS_PATH` for Gmail OAuth auth, while keeping `GOOGLE_CREDENTIALS_PATH` as a backward-compatible fallback.
+- 2026-04-22 12-02-12 Added smoke/test coverage and docs updates for the split Google credential model; current live validation confirms Notion credentials work with the active `.env`.
 - 2026-04-22 11-28-51 Added provider-aware health validation in router so WhatsApp checks now follow `WHATSAPP_PROVIDER`: Meta requires `META_ACCESS_TOKEN`, `META_VERIFY_TOKEN`, `META_PHONE_NUMBER_ID`; Twilio requires `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER`.
 - 2026-04-22 11-28-51 Added router smoke coverage for health command provider behavior in `tests/test_integration_smoke.py` (`test_route_health_smoke_meta_provider` and missing-meta-phone-id guard).
 - 2026-04-22 11-14-57 Added first filled operational governance records: `docs/task-cards/MULTI-AI-004-weekly-performance-kickoff-2026-04-22.md` and `docs/scorecards/weekly-rl-okr-scorecard-2026-W17-main-brain.md`, enabling immediate weekly owner evaluation and non-template task tracking.

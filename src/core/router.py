@@ -12,6 +12,7 @@ Adding new commands:
 
 import logging
 import os
+from pathlib import Path
 
 from src.core.scheduler import handle_library_maintenance_command, handle_reminder_command
 from src.core.libraries import handle_library_command
@@ -180,9 +181,25 @@ def _handle_health(_: str) -> str:
         whatsapp_label = "WhatsApp"
         whatsapp_vars = ["WHATSAPP_TOKEN"]
 
+    gmail_token_path = os.environ.get("GMAIL_TOKEN_PATH", ".gmail_token.json")
+    gmail_ready = any(
+        [
+            os.environ.get("GMAIL_CREDENTIALS_PATH"),
+            os.environ.get("GOOGLE_CREDENTIALS_PATH"),
+            Path(gmail_token_path).exists(),
+        ]
+    )
+    drive_ready = any(
+        [
+            os.environ.get("GOOGLE_DRIVE_CREDENTIALS_PATH"),
+            os.environ.get("GOOGLE_CREDENTIALS_PATH"),
+        ]
+    )
+
     checks = [
         ("Notion", ["NOTION_API_TOKEN"]),
-        ("Google Drive / Gmail", ["GOOGLE_CREDENTIALS_PATH"]),
+        ("Google Drive", [] if drive_ready else ["GOOGLE_DRIVE_CREDENTIALS_PATH"]),
+        ("Gmail", [] if gmail_ready else ["GMAIL_CREDENTIALS_PATH or GMAIL_TOKEN_PATH"]),
         ("OpenAI", ["OPENAI_API_KEY"]),
         ("Anthropic", ["ANTHROPIC_API_KEY"]),
         (whatsapp_label, whatsapp_vars),

@@ -84,7 +84,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 - Updated router `health` output to use provider-specific WhatsApp credential checks (Meta vs Twilio) instead of legacy `WHATSAPP_TOKEN`.
 - Added smoke tests to lock this behavior and prevent regression.
-- Ran health check with current `.env`: Notion is configured; currently missing for full readiness are `META_PHONE_NUMBER_ID`, `GOOGLE_CREDENTIALS_PATH`, and one AI provider key (`OPENAI_API_KEY` or `ANTHROPIC_API_KEY`).
+- Ran health check with current `.env`: Notion is configured and live Notion smoke test passes. Current missing items for fuller readiness are `META_PHONE_NUMBER_ID`, `GOOGLE_DRIVE_CREDENTIALS_PATH`, `GMAIL_CREDENTIALS_PATH` or `GMAIL_TOKEN_PATH`, and one AI provider key (`OPENAI_API_KEY` or `ANTHROPIC_API_KEY`).
 
 ### 2026-04-21 — MULTI-AI-003 CI Pipeline Implemented
 
@@ -162,7 +162,9 @@ Full list of all variables used across the codebase. Template in `.env.example`.
 | `TWILIO_WHATSAPP_NUMBER`     | whatsapp/client             | Yes (if twilio)                          |
 | `NOTION_API_TOKEN`           | notion/client               | Yes (for Notion)                         |
 | `NOTION_WORKFLOW_PARENT_ID`  | core/workflows              | Yes (for Stage 8 Notion output)          |
-| `GOOGLE_CREDENTIALS_PATH`    | gdrive/client, gmail/client | Yes (for Drive/Gmail)                    |
+| `GOOGLE_DRIVE_CREDENTIALS_PATH` | gdrive/client            | Yes (for Drive)                          |
+| `GMAIL_CREDENTIALS_PATH`        | gmail/client             | Yes (for Gmail OAuth client)             |
+| `GOOGLE_CREDENTIALS_PATH`       | gdrive/client, gmail/client | No (legacy fallback only)             |
 | `GMAIL_TOKEN_PATH`           | gmail/client                | No (default: .gmail_token.json)          |
 | `REMINDER_STORE_PATH`        | core/scheduler              | No (default: data/reminders.json)        |
 | `SCHEDULER_POLL_SECONDS`     | core/scheduler              | No (default: 30)                         |

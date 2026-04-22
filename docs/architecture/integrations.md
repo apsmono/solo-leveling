@@ -168,7 +168,7 @@ Email send permission requires an explicit user command with confirmation step.
 
 - `NOTION_API_TOKEN`
 - `NOTION_WORKFLOW_PARENT_ID`
-- Gmail OAuth2 credential flow (`GOOGLE_CREDENTIALS_PATH`, token generation)
+- Gmail OAuth2 credential flow (`GMAIL_CREDENTIALS_PATH`, token generation)
 
 ### Current Constraints
 

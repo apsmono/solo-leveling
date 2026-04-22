@@ -34,6 +34,14 @@ def _credential_file_kind(path_value: str | None) -> str:
     return "unknown"
 
 
+def _drive_credentials_path() -> str | None:
+    return os.environ.get("GOOGLE_DRIVE_CREDENTIALS_PATH") or os.environ.get("GOOGLE_CREDENTIALS_PATH")
+
+
+def _gmail_credentials_path() -> str | None:
+    return os.environ.get("GMAIL_CREDENTIALS_PATH") or os.environ.get("GOOGLE_CREDENTIALS_PATH")
+
+
 def _is_headless_environment() -> bool:
     return any(
         os.environ.get(key, "").strip().lower() in {"1", "true", "yes"}
@@ -52,7 +60,8 @@ class RouterSmokeTests(unittest.TestCase):
             {
                 "WHATSAPP_PROVIDER": "meta",
                 "NOTION_API_TOKEN": "x",
-                "GOOGLE_CREDENTIALS_PATH": "/tmp/creds.json",
+                "GOOGLE_DRIVE_CREDENTIALS_PATH": "/tmp/drive-creds.json",
+                "GMAIL_CREDENTIALS_PATH": "/tmp/gmail-creds.json",
                 "OPENAI_API_KEY": "x",
                 "ANTHROPIC_API_KEY": "x",
                 "META_ACCESS_TOKEN": "x",
@@ -175,10 +184,10 @@ class LiveIntegrationSmokeTests(unittest.TestCase):
         self.assertIsInstance(results, list)
 
     def test_live_drive_list_smoke(self) -> None:
-        creds_kind = _credential_file_kind(os.environ.get("GOOGLE_CREDENTIALS_PATH"))
+        creds_kind = _credential_file_kind(_drive_credentials_path())
         if creds_kind != "service_account":
             self.skipTest(
-                "Set GOOGLE_CREDENTIALS_PATH to a service-account JSON to run the live Drive smoke test."
+                "Set GOOGLE_DRIVE_CREDENTIALS_PATH to a service-account JSON to run the live Drive smoke test."
             )
 
         files = gdrive.list_files(limit=1)
@@ -186,7 +195,7 @@ class LiveIntegrationSmokeTests(unittest.TestCase):
 
     def test_live_gmail_list_smoke(self) -> None:
         token_path = Path(os.environ.get("GMAIL_TOKEN_PATH", ".gmail_token.json"))
-        creds_kind = _credential_file_kind(os.environ.get("GOOGLE_CREDENTIALS_PATH"))
+        creds_kind = _credential_file_kind(_gmail_credentials_path())
         allow_interactive = os.environ.get("ALLOW_INTERACTIVE_OAUTH_SMOKE", "").strip().lower() in {"1", "true", "yes"}
 
         if token_path.exists():
@@ -196,7 +205,7 @@ class LiveIntegrationSmokeTests(unittest.TestCase):
 
         if creds_kind != "oauth_client":
             self.skipTest(
-                "Set GOOGLE_CREDENTIALS_PATH to OAuth client credentials or provide GMAIL_TOKEN_PATH to run the live Gmail smoke test."
+                "Set GMAIL_CREDENTIALS_PATH to OAuth client credentials or provide GMAIL_TOKEN_PATH to run the live Gmail smoke test."
             )
 
         if _is_headless_environment() and not allow_interactive:

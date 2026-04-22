@@ -41,7 +41,7 @@ Use this checklist whenever you want to re-check Notion setup quickly.
 
 ## Google Drive (google-api-python-client)
 
-- Auth: service account JSON (`GOOGLE_CREDENTIALS_PATH`).
+- Auth: service account JSON (`GOOGLE_DRIVE_CREDENTIALS_PATH`; `GOOGLE_CREDENTIALS_PATH` remains legacy fallback).
 - **Service accounts do NOT work for Gmail** — Gmail requires OAuth2 user credentials (separate pattern below).
 - `files().export()` only works for Google Docs/Sheets/Slides; binary files need `files().get_media()`.
 - To create a Google Doc with content: create an empty doc first, then update with `MediaInMemoryUpload`.
@@ -50,6 +50,7 @@ Use this checklist whenever you want to re-check Notion setup quickly.
 ## Gmail (Google OAuth2)
 
 - **Requires OAuth2, not a service account.** Gmail API acts on behalf of a user and cannot be accessed by a service account unless domain-wide delegation is configured (complex, not done here).
+- Preferred env var: `GMAIL_CREDENTIALS_PATH` (`GOOGLE_CREDENTIALS_PATH` remains legacy fallback).
 - First run opens a browser for user authorization; the token is saved to `.gmail_token.json` (in `.gitignore`).
 - `.gmail_token.json` must never be committed — it grants full read access to the inbox.
 - `messages().list()` returns only `{id, threadId}`; always call `messages().get()` for actual content.
