@@ -64,6 +64,12 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - Added decision record `docs/decisions/003-ai-employer-governance-model.md`.
 - Refactored `docs/ai-team-coordination.md` into operational guidance aligned to the governance model.
 
+### 2026-04-22 — Owner Self-Review + Execution Templates Added
+
+- Added owner self-performance evaluation to `docs/ai-employer-operating-system.md` so the Main Brain can score personal leadership execution each cycle.
+- Added `docs/templates/task-card-template.md` for immediate standardized task creation.
+- Added `docs/templates/weekly-rl-okr-scorecard-template.md` for weekly KR tracking, RL evaluation, owner self-review, and assignment decisions.
+
 ### 2026-04-21 — MULTI-AI-003 CI Pipeline Implemented
 
 - Created `.github/workflows/ci.yml`: GitHub Actions pipeline triggered on push and pull_request to `main`.

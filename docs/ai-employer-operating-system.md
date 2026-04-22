@@ -156,6 +156,23 @@ $$AI_{cycle} = 0.40 \times Delivery + 0.25 \times Quality + 0.20 \times Collabor
 
 All component scores are normalized to `[0, 1]`.
 
+## Owner self-performance evaluation
+
+The Main Brain (owner/employer) is also evaluated each cycle using the same score components plus a self-management score.
+
+Owner cycle score:
+
+$$Owner_{cycle} = 0.30 \times Delivery + 0.20 \times Quality + 0.15 \times Collaboration + 0.15 \times RevenueImpact + 0.20 \times SelfManagement$$
+
+`SelfManagement` measures:
+
+1. Objective clarity and prioritization quality
+2. Assignment fairness and workload realism
+3. Decision speed on blockers and escalations
+4. Consistency of review cadence and follow-through
+
+This enables explicit self-review by the owner and keeps leadership performance measurable.
+
 ---
 
 ## 5) Responsibility-Level Testing System
@@ -172,6 +189,7 @@ Every AI is tested against these keys:
 6. Risk handling
 7. Policy compliance (branch, authority, security)
 8. Business relevance to OKR/revenue
+9. Self-management quality (owner role only)
 
 ## Test protocol by level
 
@@ -217,6 +235,18 @@ Recommended default weights:
 - Risk handling: 0.10
 - Policy compliance: 0.10
 - Business relevance: 0.10
+
+Owner-specific weight profile:
+
+- Requirement accuracy: 0.10
+- Technical quality: 0.15
+- Test reliability: 0.10
+- Documentation traceability: 0.10
+- Handoff quality: 0.10
+- Risk handling: 0.10
+- Policy compliance: 0.10
+- Business relevance: 0.10
+- Self-management quality: 0.15
 
 ---
 
@@ -294,6 +324,7 @@ This ensures task assignment is evidence-based and tied to project earnings goal
 
 1. Daily: branch + progress + blocker review
 2. Weekly: KR score update and RL evaluation
+   - Includes explicit owner self-review score entry
 3. Monthly: authority adjustments and workload rebalance
 4. Quarterly: objective reset and policy tuning
 

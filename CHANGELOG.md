@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-22 11-00-50 Added `docs/templates/task-card-template.md` and `docs/templates/weekly-rl-okr-scorecard-template.md` as ready-to-use execution templates for task assignment, validation handoff, weekly RL testing, OKR tracking, and owner self-review.
 - 2026-04-22 10-51-38 Added `docs/ai-employer-operating-system.md` as the canonical AI employer policy covering role-branch-authority governance, unified task schema, RL1-RL5 responsibility levels, OKR scoring formulas, responsibility-level testing thresholds, and revenue-impact assignment rules.
 - 2026-04-22 10-51-38 Added `docs/decisions/003-ai-employer-governance-model.md` to formalize adoption of the new governance and valuation model.
 - 2026-04-22 10-14-03 Added `health` command to router — reports ✅/❌ per integration based on env var presence. Accessible via WhatsApp or any interface using trigger words: "health", "check setup", "system health", "integration status".
@@ -23,6 +24,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-22 11-00-50 Updated `docs/ai-employer-operating-system.md` to include Main Brain self-performance scoring (`Owner_cycle`) and self-management measurement criteria in weekly evaluation.
+- 2026-04-22 11-00-50 Updated `docs/README.md`, `docs/ai-working-notes.md`, and `docs/ai-knowledge/continuation-plan.md` to register and operationalize the new templates and owner self-review workflow.
 - 2026-04-22 10-51-38 Updated `docs/ai-team-coordination.md` to operationalize the new governance model and clarify branch flow, escalation, and monitor checklist.
 - 2026-04-22 10-51-38 Updated `docs/README.md`, `AI_CONTEXT.md`, and `docs/ai-working-notes.md` so discoverability, active priorities, and cross-session memory reflect the new employer/OKR system.
 - 2026-04-22 10-14-03 `docs/SETUP_SECRETS.md` — extended Done checklist with `health` command verification step and added secret→test mapping table plus live smoke test invocation examples.

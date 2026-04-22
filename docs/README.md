@@ -53,6 +53,11 @@ Smoke suite behavior:
 - `review-rhythm.md` — review cadence and checkpoint questions.
 - `AI_CHANGELOG_POLICY.md` — changelog format, timestamp standard, and maintenance rules.
 - `SETUP_SECRETS.md` — step-by-step credentials and service setup checklist for local runtime.
+
+## Ready-to-Use Templates
+
+- `templates/task-card-template.md` — structured task definition template with objective/KR linkage, RL assignment, validation gate, and handoff section.
+- `templates/weekly-rl-okr-scorecard-template.md` — weekly scoring template for KR progress, AI RL evaluation, owner self-review, and assignment-policy updates.
 - `ai-team-coordination.md` — operational coordination flow for multi-AI execution lifecycle, branch flow, and escalation.
 - `ai-employer-operating-system.md` — canonical employer governance model (OKR system, responsibility-level testing, scoring, assignment policy).
 
