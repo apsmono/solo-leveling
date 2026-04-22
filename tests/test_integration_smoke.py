@@ -6,6 +6,11 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
+from dotenv import load_dotenv
+
+# Load .env file at module level so environment variables are available for all tests
+load_dotenv()
+
 from src.agents import dispatcher
 from src.core import router, workflows
 from src.integrations.gmail import client as gmail
