@@ -240,6 +240,47 @@ Short answer: Yes, technically viable for development and light production if yo
 - Use Mac mini M4 for local development, pre-production, and optional backup-host experiments.
 - Use managed cloud host for primary production webhook reliability.
 
+## Railway Acceptable Use Policy Compliance Check
+
+Last reviewed: 2026-04-23 10-47-47 (source: railway.com/legal/acceptable-use)
+
+### Relevant policy clause
+
+> "running bots or scrapers that violate applicable terms of service"
+> "send unsolicited bulk messages through any communication channel"
+> "gain unauthorized access to systems or data, distribute malware, operate attack infrastructure"
+
+The term "mirrors/userbots" does not appear verbatim in Railway's current policy. The bot
+restriction only applies to bots that violate another service's terms or scrape at scale.
+
+### Project compliance assessment
+
+| Dimension | This project | Risk |
+|---|---|---|
+| Uses official Meta WhatsApp Cloud API (webhook-based) | Yes | None |
+| Runs as a persistent always-on process | Yes — FastAPI webhook | None — this is normal Railway usage |
+| Is it a userbot? | No — uses official business-number API, not a hijacked user account | None |
+| Scrapes any service | No — reads Gmail/Drive via approved OAuth, Notion via API token | None |
+| Sends unsolicited bulk messages | No — only responds to owner's own messages | None |
+| Self-contained personal automation for a single owner | Yes | Clearly allowed |
+
+### What "userbot" means in policy context
+
+A userbot logs into WhatsApp (or Telegram, Discord, etc.) **as a human user account** using
+reverse-engineered unofficial clients. These are prohibited because they violate Meta/WhatsApp user
+ToS and scrape data outside the official API path.
+
+This project uses the Meta Cloud API with a registered business number and an approved webhook
+flow. This is the official API Meta provides for automation. It is not a userbot.
+
+### Verdict
+
+**This project does not conflict with Railway's Acceptable Use Policy.**
+
+One ongoing obligation: ensure Gmail OAuth only requests `gmail.readonly` scope and never
+requests write permissions beyond what is explicitly needed. This keeps the project compliant
+with both Railway's policies and Gmail's OAuth scope requirements.
+
 ## Domain Name Consideration
 
 Question: Is domain setup needed?

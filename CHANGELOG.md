@@ -36,6 +36,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-23 10-47-47 Added Railway Acceptable Use Policy compliance review to `docs/research/deployment-hosting-2026-04-23.md`: confirmed project use of official Meta Cloud API webhook is not a userbot violation; includes per-dimension compliance table and ongoing Gmail OAuth scope obligation.
 - 2026-04-23 10-43-09 Expanded `docs/research/deployment-hosting-2026-04-23.md` with an execution-level Railway/Fly.io deep dive: detailed setup flows, architecture notes, side-by-side comparison matrix, and immediate decision guidance for deployment-day selection.
 - 2026-04-23 10-33-27 Updated `AGENTS.md` and `.github/copilot-instructions.md` with explicit approval-gate rules for policy/process updates and mandatory `docs/research/` recording for substantial research outputs.
 - 2026-04-23 10-33-27 Updated `docs/README.md` and `docs/ai-working-notes.md` to register the new research records and governance decision for cross-session continuity.
