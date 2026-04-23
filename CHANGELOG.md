@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-23 13-25-11 Added `docs/DEPLOYMENT_STATUS.md`: comprehensive Railway deployment checklist covering repository readiness, 7-phase setup sequence (project setup, env vars, first deploy, verification, Meta webhook, volumes, operations), credential inventory, and staging/prod decision rationale. Links all relevant runbooks and governance docs for operator clarity.
 - 2026-04-23 13-23-12 Added lightweight "Release Checklist" section to `docs/ai-team-coordination.md` to gate `development` → `main` releases with actionable pre-merge criteria (tests passing, changelog updated, docs current, no regressions, clean branch, CI validated) and release PR format guidance.
 - 2026-04-23 13-19-29 Added remote `development` branch as the shared staging/integration branch. Team flow is now explicit: `main` for production release, `development` for integration, and `agent/lead/program` branches for scoped implementation.
 - 2026-04-23 12-58-55 Added inline Google credential support for Railway-style env vars: Drive now accepts `GOOGLE_DRIVE_CREDENTIALS_JSON` (with `GOOGLE_CREDENTIALS_JSON` legacy fallback), and Gmail now accepts `GMAIL_CREDENTIALS_JSON` (with `GOOGLE_CREDENTIALS_JSON` legacy fallback). Path-based variables remain supported.
