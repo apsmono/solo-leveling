@@ -1,6 +1,6 @@
 # Railway Deployment Status
 
-**Last Updated:** 2026-04-23  
+**Last Updated:** 2026-04-23
 **Status:** Ready for staging deploy (development branch) and production deploy (main branch)
 
 ---

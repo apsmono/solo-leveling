@@ -1,6 +1,6 @@
 # Railway Deployment & Health Check Workflow
 
-**Date:** 2026-04-23  
+**Date:** 2026-04-23
 **Purpose:** Step-by-step guide from code -> deployed on Railway -> health verified
 
 ---
