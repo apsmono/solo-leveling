@@ -1,7 +1,7 @@
 # AI Team Coordination Plan
 
 Date Created: 2026-04-21
-Last Updated: 2026-04-22
+Last Updated: 2026-04-23
 Status: Active
 Monitor AI: GitHub Copilot (program coordinator and quality gate)
 Team Model: Async multi-agent execution with role-branch-authority controls
@@ -109,12 +109,29 @@ Before creating a release PR from `development` to `main`, confirm:
 4. **No regressions** — Integration smoke tests pass; no new config or secret requirements introduced
 5. **Branch clean** — No uncommitted changes; `git status` shows clean working tree
 6. **CI validated** — GitHub Actions pipeline passed on `development`; confirm no pending checks
+7. **Version selected** — Next semantic version agreed (`vMAJOR.MINOR.PATCH`)
+8. **Tag prepared** — Annotated tag message drafted for release summary
 
 Release PR itself:
 
 - Title: `Release: <version or date>` (e.g., `Release: 2026-04-23`)
 - Description: Link to staging test results, list of features/fixes, and any operator notes
 - Approval: Monitor AI sign-off required before merging
+
+After merge to `main`:
+
+1. Create annotated tag on merged `main` commit:
+   - `git tag -a vX.Y.Z -m "Release vX.Y.Z: <summary>"`
+2. Push release tag:
+   - `git push origin vX.Y.Z`
+3. Verify tag presence:
+   - `git tag -l | grep '^v'`
+
+Semantic version guidance:
+
+- `MAJOR`: breaking changes, architecture resets, or incompatible workflow shifts
+- `MINOR`: new features, capabilities, or integrations that are backward compatible
+- `PATCH`: fixes, docs/process improvements, and safe refinements without feature expansion
 
 ---
 

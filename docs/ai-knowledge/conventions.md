@@ -12,6 +12,19 @@ Standards established in this repository that all contributors (human and AI) mu
 - Never paste raw git log output — write impact, not implementation noise.
 - Full policy: `docs/AI_CHANGELOG_POLICY.md`.
 
+## Git Tag Versioning (Main Releases)
+
+- Production releases on `main` use annotated semantic tags: `vMAJOR.MINOR.PATCH`.
+- Tag immediately after `development -> main` release merge.
+- Commands:
+	- `git tag -a vX.Y.Z -m "Release vX.Y.Z: <summary>"`
+	- `git push origin vX.Y.Z`
+- Version bump rules:
+	- `MAJOR`: breaking changes or major architectural shifts
+	- `MINOR`: new backward-compatible capabilities
+	- `PATCH`: fixes, docs/process improvements, and non-breaking refinements
+- Keep tag summary aligned with the top `CHANGELOG.md` entries for the same release.
+
 ## Documentation Updates
 
 Every meaningful change must update the nearest source-of-truth file in the same change:
