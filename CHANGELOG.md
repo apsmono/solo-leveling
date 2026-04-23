@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-23 13-19-29 Added remote `development` branch as the shared staging/integration branch. Team flow is now explicit: `main` for production release, `development` for integration, and `agent/lead/program` branches for scoped implementation.
 - 2026-04-23 12-58-55 Added inline Google credential support for Railway-style env vars: Drive now accepts `GOOGLE_DRIVE_CREDENTIALS_JSON` (with `GOOGLE_CREDENTIALS_JSON` legacy fallback), and Gmail now accepts `GMAIL_CREDENTIALS_JSON` (with `GOOGLE_CREDENTIALS_JSON` legacy fallback). Path-based variables remain supported.
 - 2026-04-23 12-58-55 Added inline-credential regression tests in `tests/test_integration_smoke.py` (`InlineCredentialSupportTests`) to validate Drive/Gmail JSON env loading paths without file mounts.
 - 2026-04-23 11-02-18 Added GMAIL_ENABLED feature flag: set to false in .env disables all Gmail routes with an informative message without removing credentials. Guard wired in router, workflow detection, and health check. Dotenv bootstrapped in config.py and handler.py. All 35 tests pass.
@@ -37,11 +38,13 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-23 13-19-29 Updated `.github/workflows/ci.yml` to run on both `development` and `main` for pushes and pull requests, enabling CI coverage for staging before production release.
 - 2026-04-23 12-58-55 Removed Dockerfile `VOLUME` directive because Railway bans the `VOLUME` keyword; persistence is now expected to be configured in Railway Volumes at deploy time.
 - 2026-04-22 10-14-03 Rewrote `src/core/scheduler.py` module docstring to document container restart behavior: reminders persist via `data/` volume mount, jobs always re-register on startup, overdue reminders fire on first scheduler tick.
 
 ### Docs
 
+- 2026-04-23 13-19-29 Updated `docs/ai-employer-operating-system.md` and `docs/ai-team-coordination.md` to formalize branching policy: `main` as production (release-only), `development` as staging/integration, and release flow `agent/lead/program -> development -> main`.
 - 2026-04-23 12-58-55 Updated `docs/research/railway-setup-runbook-2026-04-23.md` to reflect that inline JSON credential env vars are now implemented (no extra code session required).
 - 2026-04-23 10-47-47 Added Railway Acceptable Use Policy compliance review to `docs/research/deployment-hosting-2026-04-23.md`: confirmed project use of official Meta Cloud API webhook is not a userbot violation; includes per-dimension compliance table and ongoing Gmail OAuth scope obligation.
 - 2026-04-23 10-43-09 Expanded `docs/research/deployment-hosting-2026-04-23.md` with an execution-level Railway/Fly.io deep dive: detailed setup flows, architecture notes, side-by-side comparison matrix, and immediate decision guidance for deployment-day selection.

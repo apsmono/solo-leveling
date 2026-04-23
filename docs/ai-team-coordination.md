@@ -57,17 +57,21 @@ Required transitions:
 
 ## Branch System (Operational)
 
-1. Program branch: `program/<okr-cycle>/<initiative>`
-2. Lead branch: `lead/<domain>/<initiative>`
-3. Task branch: `agent/<agent-name>/<task-slug>/<scope>`
+1. Production branch: `main`
+2. Development branch: `development`
+3. Program branch: `program/<okr-cycle>/<initiative>`
+4. Lead branch: `lead/<domain>/<initiative>`
+5. Task branch: `agent/<agent-name>/<task-slug>/<scope>`
 
 Allowed merge flow:
 
-1. `agent/*` -> `lead/*` or `program/*`
-2. `lead/*` -> `program/*`
-3. `program/*` -> `main`
+1. `agent/*` -> `lead/*`, `program/*`, or `development`
+2. `lead/*` -> `program/*` or `development`
+3. `program/*` -> `development`
+4. `development` -> `main` (release PR only)
 
 No task work should be implemented directly on `main`.
+No direct push to `main` or `development` for feature work; use PRs.
 
 ---
 
