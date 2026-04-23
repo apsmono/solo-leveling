@@ -123,7 +123,8 @@ class RouterSmokeTests(unittest.TestCase):
         self.assertEqual(result, "No files found in Google Drive.")
 
     def test_route_gmail_smoke_with_mocked_client(self) -> None:
-        with patch("src.core.router.gmail.inbox_summary", return_value="You have 1 unread email(s):"):
+        with patch("src.core.router.gmail.inbox_summary", return_value="You have 1 unread email(s):"), \
+             patch.dict(os.environ, {"GMAIL_ENABLED": "true"}):
             result = router.route_command("email")
 
         self.assertEqual(result, "You have 1 unread email(s):")

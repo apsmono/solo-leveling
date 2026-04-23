@@ -46,11 +46,6 @@ Smoke suite behavior:
 
 ## Research
 
-- `research/ai-key-providers-2026-04-23.md` — comparison of 20 AI API-key providers with budget tiers, suitability analysis, and key setup instructions.
-- `research/deployment-hosting-2026-04-23.md` — comparison of 20 hosting options with budget tiers, setup instructions, Mac mini hosting viability, and domain strategy guidance.
-
-## Planning Documents
-
 - `personal-knowledge-system-design.md` — research on self-development strategies, Stage 9 library structure, integration plan, and implementation roadmap. Parts of this file are historical and should be read together with the local-library rules in `AI_CONTEXT.md`.
 - `personal-library-implementation-checklist.md` — step-by-step guide for the current local `library/` workflow, command testing, indexing/retrieval, and Stage 9 enhancement roadmap. Historical Notion schema notes are retained there only as reference.
 - `self-development-system.md` — personal growth operating model.
@@ -101,3 +96,10 @@ Split into focused files inside `docs/ai-knowledge/`. Entry point: `docs/ai-work
 2. For major decisions: create a new file in `decisions/` from the template.
 3. For strategy or habit changes: update the relevant planning doc.
 4. Always: update `CHANGELOG.md` with the meaningful outcome.
+
+## Research
+
+- `research/ai-key-providers-2026-04-23.md` — 20 AI API-key providers with budget tiers, suitability analysis, and key setup instructions.
+- `research/deployment-hosting-2026-04-23.md` — 20 hosting options with budget tiers, setup instructions, Mac mini viability, Railway AUP compliance, and domain strategy.
+- `research/railway-setup-runbook-2026-04-23.md` — step-by-step Railway deployment guide: project setup, env vars, credential file strategy, webhook registration, volume persistence, and operations checklist.
+- `research/payment-method-indonesia-2026-04-23.md` — virtual credit card and no-CC workarounds for Indonesia (Jenius, Jago, Wise, Revolut, free-credit fallbacks).

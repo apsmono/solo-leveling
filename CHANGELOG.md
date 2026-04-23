@@ -8,6 +8,9 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-23 11-02-18 Added GMAIL_ENABLED feature flag: set to false in .env disables all Gmail routes with an informative message without removing credentials. Guard wired in router, workflow detection, and health check. Dotenv bootstrapped in config.py and handler.py. All 35 tests pass.
+- 2026-04-23 11-02-18 Added docs/research/railway-setup-runbook-2026-04-23.md: 7-part Railway deployment guide covering GitHub connection, env var setup, credential JSON strategy, Meta webhook registration, volume persistence, operations checklist, and key gotchas.
+- 2026-04-23 11-02-18 Added docs/research/payment-method-indonesia-2026-04-23.md: virtual card and no-CC options for Indonesia including Jenius e-Card (recommended), Jago, Wise, Revolut, and Railway free-credit workaround. Estimated monthly cost ~5-10 USD.
 - 2026-04-23 10-33-27 Added durable research outputs under `docs/research/`: `ai-key-providers-2026-04-23.md` (20 AI key providers with tiering, suitability, and key setup instructions) and `deployment-hosting-2026-04-23.md` (20 hosting options with tiering, setup guides, Mac mini M4 hosting viability, and domain strategy analysis).
 - 2026-04-23 10-33-27 Added decision record `docs/decisions/004-research-recording-and-approval-gate.md` to formalize explicit owner approval before policy execution and mandatory durable research recording.
 - 2026-04-22 12-02-12 Added separate Google credential env support: `GOOGLE_DRIVE_CREDENTIALS_PATH` for Drive service-account auth and `GMAIL_CREDENTIALS_PATH` for Gmail OAuth auth, while keeping `GOOGLE_CREDENTIALS_PATH` as a backward-compatible fallback.

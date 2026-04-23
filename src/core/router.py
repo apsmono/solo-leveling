@@ -70,7 +70,8 @@ def _detect_intent(text: str) -> str:
     # Stage 8 compound workflow detection should run before keyword map because
     # terms like "notion", "inbox", "drive" also match single-step intents.
     # Detect inbox-to-notion, inbox-to-drive, notion-to-drive workflows
-    if any(token in lower for token in ("inbox", "gmail", "email")) and any(token in lower for token in ("summarise", "summarize", "summary")) and any(token in lower for token in ("save to", "save")):
+    # Gmail-dependent workflows are skipped when Gmail is disabled.
+    if _gmail_enabled() and any(token in lower for token in ("inbox", "gmail", "email")) and any(token in lower for token in ("summarise", "summarize", "summary")) and any(token in lower for token in ("save to", "save")):
         return "workflow"
 
     if ("query notion" in lower or "notion query" in lower) and ("export to drive" in lower or ("export" in lower and "drive" in lower)):
@@ -199,7 +200,7 @@ def _handle_health(_: str) -> str:
     checks = [
         ("Notion", ["NOTION_API_TOKEN"]),
         ("Google Drive", [] if drive_ready else ["GOOGLE_DRIVE_CREDENTIALS_PATH"]),
-        ("Gmail", [] if gmail_ready else ["GMAIL_CREDENTIALS_PATH or GMAIL_TOKEN_PATH"]),
+        ("Gmail (disabled)" if not _gmail_enabled() else "Gmail", [] if (not _gmail_enabled() or gmail_ready) else ["GMAIL_CREDENTIALS_PATH or GMAIL_TOKEN_PATH"]),
         ("OpenAI", ["OPENAI_API_KEY"]),
         ("Anthropic", ["ANTHROPIC_API_KEY"]),
         (whatsapp_label, whatsapp_vars),
@@ -264,7 +265,15 @@ def _handle_gdrive_list(text: str) -> str:
 
 
 def _handle_gmail_summary(text: str) -> str:
+    if not _gmail_enabled():
+        return "Gmail is currently disabled. Set GMAIL_ENABLED=true in .env to re-enable it."
     return gmail.inbox_summary(limit=5)
+
+
+def _gmail_enabled() -> bool:
+    """Return True unless Gmail has been explicitly disabled via GMAIL_ENABLED=false."""
+    val = os.environ.get("GMAIL_ENABLED", "true").strip().lower()
+    return val not in ("false", "0", "no", "off")
 
 
 def _handle_ask_ai(text: str) -> str:

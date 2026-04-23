@@ -18,6 +18,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # FastAPI is used as the webhook server. Install with: pip install fastapi uvicorn httpx
 from fastapi import FastAPI, Request, Response, HTTPException
 

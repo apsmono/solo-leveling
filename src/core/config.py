@@ -9,6 +9,12 @@ Never hardcode secrets here or anywhere else in this repository.
 
 import os
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 def _get_int(key: str, default: int) -> int:
     value = os.environ.get(key)
