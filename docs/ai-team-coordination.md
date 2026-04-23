@@ -57,17 +57,21 @@ Required transitions:
 
 ## Branch System (Operational)
 
-1. Program branch: `program/<okr-cycle>/<initiative>`
-2. Lead branch: `lead/<domain>/<initiative>`
-3. Task branch: `agent/<agent-name>/<task-slug>/<scope>`
+1. Production branch: `main`
+2. Development branch: `development`
+3. Program branch: `program/<okr-cycle>/<initiative>`
+4. Lead branch: `lead/<domain>/<initiative>`
+5. Task branch: `agent/<agent-name>/<task-slug>/<scope>`
 
 Allowed merge flow:
 
-1. `agent/*` -> `lead/*` or `program/*`
-2. `lead/*` -> `program/*`
-3. `program/*` -> `main`
+1. `agent/*` -> `lead/*`, `program/*`, or `development`
+2. `lead/*` -> `program/*` or `development`
+3. `program/*` -> `development`
+4. `development` -> `main` (release PR only)
 
 No task work should be implemented directly on `main`.
+No direct push to `main` or `development` for feature work; use PRs.
 
 ---
 
@@ -92,6 +96,25 @@ Each task must include:
 3. Confirm scope-risk fit against assigned RL
 4. Ensure test and docs evidence is complete
 5. Update continuity docs after merge
+
+---
+
+## Release Checklist (development → main gate)
+
+Before creating a release PR from `development` to `main`, confirm:
+
+1. **Tests pass** — Full test suite green (`python -m unittest discover -v` or equivalent)
+2. **Changelog updated** — All changes recorded in `CHANGELOG.md` with timestamp
+3. **Docs current** — `ai-working-notes.md`, governance docs, and relevant `.md` files reflect actual state
+4. **No regressions** — Integration smoke tests pass; no new config or secret requirements introduced
+5. **Branch clean** — No uncommitted changes; `git status` shows clean working tree
+6. **CI validated** — GitHub Actions pipeline passed on `development`; confirm no pending checks
+
+Release PR itself:
+
+- Title: `Release: <version or date>` (e.g., `Release: 2026-04-23`)
+- Description: Link to staging test results, list of features/fixes, and any operator notes
+- Approval: Monitor AI sign-off required before merging
 
 ---
 

@@ -8,6 +8,18 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-23 13-41-44 Releasing development → main: 6 commits encompassing Railway deployment docs, health verification guide, deployment workflow, live status report, release checklist, and CI dual-branch wiring.
+- 2026-04-23 13-38-36 Added `docs/RAILWAY_LIVE_STATUS.md`: live production deployment status report verifying Railway instance `https://solo-leveling-production-36c8.up.railway.app` is running (HTTP 200, FastAPI responding, webhook endpoint active, authorization checks working). Documents test results, validation checklist, and next steps for confirming full integration health via WhatsApp or local testing.
+
+### Changed
+
+- 2026-04-23 13-38-36 **PRODUCTION DEPLOYMENT CONFIRMED LIVE:** Brain is running on Railway at `https://solo-leveling-production-36c8.up.railway.app`. All server connectivity tests pass; webhook endpoint active with security validation; ready for WhatsApp integration testing.
+
+- 2026-04-23 13-29-58 Added `docs/RAILWAY_DEPLOYMENT_WORKFLOW.md`: end-to-end deployment guide from local validation through Railway live health verification; 6-phase workflow (Pre-deployment, Deploy, Health verify, Persistence volumes, Meta webhook, Staging setup) with step-by-step instructions, curl examples, WhatsApp testing commands, and troubleshooting matrix. Enables operators to go from code → deployed + live + verified in ~30-45 minutes.
+- 2026-04-23 13-26-46 Added `docs/RAILWAY_HEALTH_VERIFICATION.md`: comprehensive health check guide covering local testing via Python, FastAPI endpoint validation, integration status breakdown (critical vs. optional), pre-Railway checklist, post-Railway WhatsApp testing, troubleshooting matrix, and reference to health handler source code. Enables operators to validate environment variables and credential setup before and after Railway deployment.
+- 2026-04-23 13-25-11 Added `docs/DEPLOYMENT_STATUS.md`: comprehensive Railway deployment checklist covering repository readiness, 7-phase setup sequence (project setup, env vars, first deploy, verification, Meta webhook, volumes, operations), credential inventory, and staging/prod decision rationale. Links all relevant runbooks and governance docs for operator clarity.
+- 2026-04-23 13-23-12 Added lightweight "Release Checklist" section to `docs/ai-team-coordination.md` to gate `development` → `main` releases with actionable pre-merge criteria (tests passing, changelog updated, docs current, no regressions, clean branch, CI validated) and release PR format guidance.
+- 2026-04-23 13-19-29 Added remote `development` branch as the shared staging/integration branch. Team flow is now explicit: `main` for production release, `development` for integration, and `agent/lead/program` branches for scoped implementation.
 - 2026-04-23 12-58-55 Added inline Google credential support for Railway-style env vars: Drive now accepts `GOOGLE_DRIVE_CREDENTIALS_JSON` (with `GOOGLE_CREDENTIALS_JSON` legacy fallback), and Gmail now accepts `GMAIL_CREDENTIALS_JSON` (with `GOOGLE_CREDENTIALS_JSON` legacy fallback). Path-based variables remain supported.
 - 2026-04-23 12-58-55 Added inline-credential regression tests in `tests/test_integration_smoke.py` (`InlineCredentialSupportTests`) to validate Drive/Gmail JSON env loading paths without file mounts.
 - 2026-04-23 11-02-18 Added GMAIL_ENABLED feature flag: set to false in .env disables all Gmail routes with an informative message without removing credentials. Guard wired in router, workflow detection, and health check. Dotenv bootstrapped in config.py and handler.py. All 35 tests pass.
@@ -37,11 +49,13 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Changed
 
+- 2026-04-23 13-19-29 Updated `.github/workflows/ci.yml` to run on both `development` and `main` for pushes and pull requests, enabling CI coverage for staging before production release.
 - 2026-04-23 12-58-55 Removed Dockerfile `VOLUME` directive because Railway bans the `VOLUME` keyword; persistence is now expected to be configured in Railway Volumes at deploy time.
 - 2026-04-22 10-14-03 Rewrote `src/core/scheduler.py` module docstring to document container restart behavior: reminders persist via `data/` volume mount, jobs always re-register on startup, overdue reminders fire on first scheduler tick.
 
 ### Docs
 
+- 2026-04-23 13-19-29 Updated `docs/ai-employer-operating-system.md` and `docs/ai-team-coordination.md` to formalize branching policy: `main` as production (release-only), `development` as staging/integration, and release flow `agent/lead/program -> development -> main`.
 - 2026-04-23 12-58-55 Updated `docs/research/railway-setup-runbook-2026-04-23.md` to reflect that inline JSON credential env vars are now implemented (no extra code session required).
 - 2026-04-23 10-47-47 Added Railway Acceptable Use Policy compliance review to `docs/research/deployment-hosting-2026-04-23.md`: confirmed project use of official Meta Cloud API webhook is not a userbot violation; includes per-dimension compliance table and ongoing Gmail OAuth scope obligation.
 - 2026-04-23 10-43-09 Expanded `docs/research/deployment-hosting-2026-04-23.md` with an execution-level Railway/Fly.io deep dive: detailed setup flows, architecture notes, side-by-side comparison matrix, and immediate decision guidance for deployment-day selection.

@@ -30,25 +30,31 @@ This document defines how the AI employer layer manages a multi-AI company model
 
 ### Branch authority model
 
-1. `main`
+1. `main` (production)
    - Authority: Main Brain + Monitor AI only
-   - Rule: no direct task implementation; merge-only after validation
-2. `program/<okr-cycle>/<initiative>`
+   - Rule: release-only branch; no direct task implementation
+   - Deployment target: Railway production service
+2. `development` (staging/integration)
+   - Authority: Monitor AI + approved Leads
+   - Rule: integration branch for validated features before release
+   - Deployment target: Railway development/staging service
+3. `program/<okr-cycle>/<initiative>`
    - Authority: Monitor AI
    - Purpose: integrate multiple approved task branches for one OKR initiative
-3. `lead/<domain>/<initiative>`
+4. `lead/<domain>/<initiative>`
    - Authority: Lead AI
    - Purpose: coordinate related task branches in one domain
-4. `agent/<agent-name>/<task-slug>/<scope>`
+5. `agent/<agent-name>/<task-slug>/<scope>`
    - Authority: assigned Specialist AI
    - Purpose: single-task execution branch with full traceability
 
 ### Merge policy
 
-1. `agent/*` can merge only into `lead/*` or `program/*`
-2. `lead/*` can merge only into `program/*`
-3. `program/*` can merge into `main` after Monitor AI validation
-4. Every merge requires:
+1. `agent/*` can merge only into `lead/*`, `program/*`, or `development`
+2. `lead/*` can merge into `program/*` or `development`
+3. `program/*` merges into `development` after Monitor AI validation
+4. `development` merges into `main` only via release pull request
+5. Every merge requires:
    - acceptance criteria check
    - test evidence
    - docs/changelog update
