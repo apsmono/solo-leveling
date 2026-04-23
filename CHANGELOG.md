@@ -55,6 +55,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-23 14-56-07 Updated `AI_INSTALLATION.md` with researched change-record guidance for multi-AI workflows: recommends layered record model (git commits + curated changelog + continuity notes + decisions), plus explicit read-before-work and write-after-work protocol for consistent cross-AI collaboration.
 - 2026-04-23 13-19-29 Updated `docs/ai-employer-operating-system.md` and `docs/ai-team-coordination.md` to formalize branching policy: `main` as production (release-only), `development` as staging/integration, and release flow `agent/lead/program -> development -> main`.
 - 2026-04-23 12-58-55 Updated `docs/research/railway-setup-runbook-2026-04-23.md` to reflect that inline JSON credential env vars are now implemented (no extra code session required).
 - 2026-04-23 10-47-47 Added Railway Acceptable Use Policy compliance review to `docs/research/deployment-hosting-2026-04-23.md`: confirmed project use of official Meta Cloud API webhook is not a userbot violation; includes per-dimension compliance table and ongoing Gmail OAuth scope obligation.

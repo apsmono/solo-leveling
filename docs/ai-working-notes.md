@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- **2026-04-23: AI installation guidance upgraded for cross-AI change records.** `AI_INSTALLATION.md` now documents a layered change-record model (git commits + `CHANGELOG.md` + session notes + decisions), and introduces explicit read-before-work / write-after-work protocol so multiple AI tools can maintain consistent repository context quality.
 - **2026-04-23: Branch workflow formalized (`main` production, `development` staging).** Created and published remote `development` branch, updated CI to run on both branches, and updated governance docs to enforce release flow: `agent/lead/program -> development -> main` via release PR.
 - **2026-04-23: Inline credential support implemented for Railway.** `src/integrations/gdrive/client.py` now supports `GOOGLE_DRIVE_CREDENTIALS_JSON` (legacy fallback `GOOGLE_CREDENTIALS_JSON`) via `from_service_account_info`, and `src/integrations/gmail/client.py` now supports `GMAIL_CREDENTIALS_JSON` (legacy fallback `GOOGLE_CREDENTIALS_JSON`) via `InstalledAppFlow.from_client_config`. File-path env vars remain supported.
 - **2026-04-23: Railway Dockerfile policy fix applied.** Removed `VOLUME` from `Dockerfile` because Railway bans the keyword; persistence must be configured using Railway Volumes in dashboard.
