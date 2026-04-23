@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- **2026-04-23: Changelog now includes a lightweight versioned release template.** Added a reusable `## [vX.Y.Z] - YYYY-MM-DD` section pattern to `CHANGELOG.md` so each future tag release can move completed `Unreleased` entries into a consistent release-notes block without rewriting entry timestamps.
 - **2026-04-23: Main release tagging standardized with SemVer.** Adopted annotated git-tag policy for production releases on `main` using `vMAJOR.MINOR.PATCH`, with tag creation immediately after `development -> main` merges. Updated governance docs and recorded decision in `docs/decisions/005-main-branch-semver-tagging.md`.
 - **2026-04-23: AI installation guidance upgraded for cross-AI change records.** `AI_INSTALLATION.md` now documents a layered change-record model (git commits + `CHANGELOG.md` + session notes + decisions), and introduces explicit read-before-work / write-after-work protocol so multiple AI tools can maintain consistent repository context quality.
 - **2026-04-23: Branch workflow formalized (`main` production, `development` staging).** Created and published remote `development` branch, updated CI to run on both branches, and updated governance docs to enforce release flow: `agent/lead/program -> development -> main` via release PR.
