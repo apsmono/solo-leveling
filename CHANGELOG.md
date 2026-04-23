@@ -8,6 +8,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-23 13-26-46 Added `docs/RAILWAY_HEALTH_VERIFICATION.md`: comprehensive health check guide covering local testing via Python, FastAPI endpoint validation, integration status breakdown (critical vs. optional), pre-Railway checklist, post-Railway WhatsApp testing, troubleshooting matrix, and reference to health handler source code. Enables operators to validate environment variables and credential setup before and after Railway deployment.
 - 2026-04-23 13-25-11 Added `docs/DEPLOYMENT_STATUS.md`: comprehensive Railway deployment checklist covering repository readiness, 7-phase setup sequence (project setup, env vars, first deploy, verification, Meta webhook, volumes, operations), credential inventory, and staging/prod decision rationale. Links all relevant runbooks and governance docs for operator clarity.
 - 2026-04-23 13-23-12 Added lightweight "Release Checklist" section to `docs/ai-team-coordination.md` to gate `development` → `main` releases with actionable pre-merge criteria (tests passing, changelog updated, docs current, no regressions, clean branch, CI validated) and release PR format guidance.
 - 2026-04-23 13-19-29 Added remote `development` branch as the shared staging/integration branch. Team flow is now explicit: `main` for production release, `development` for integration, and `agent/lead/program` branches for scoped implementation.
