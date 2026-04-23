@@ -71,12 +71,13 @@ Note on Google credentials files: these are JSON files, not plain values. See Pa
 
 Google Drive and Gmail use JSON credential files, not plain strings. Railway does not natively mount secret files. Options:
 
-**Option A (recommended for now): inline JSON as env var**
+**Option A (recommended for now): inline JSON as env vars (supported now)**
 1. Open your `service_account.json` file
 2. Copy the entire JSON content in one line (minified)
 3. Add as Railway variable: `GOOGLE_DRIVE_CREDENTIALS_JSON=<minified json>`
-4. Update `src/integrations/gdrive/client.py` to read from this env var when the file path is not found
-5. This avoids any file-mounting complexity
+4. For Gmail (when re-enabled), add: `GMAIL_CREDENTIALS_JSON=<minified oauth client json>`
+5. This project now reads these env vars directly and falls back to file paths when needed
+6. This avoids any file-mounting complexity for credential files
 
 **Option B: Volume-mounted file (when Railway supports it in your plan)**
 1. Create a Railway volume
@@ -84,7 +85,7 @@ Google Drive and Gmail use JSON credential files, not plain strings. Railway doe
 3. Upload credential files into the volume
 4. Set `GOOGLE_DRIVE_CREDENTIALS_PATH=/app/.credentials/google/service_account.json`
 
-For now, Option A is the right path. We will implement this in the next code session.
+Option A is production-ready in this repository.
 
 ### Step 5 — First deploy
 

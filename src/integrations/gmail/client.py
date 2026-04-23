@@ -10,7 +10,9 @@ Add it only when explicitly required and log the decision in docs/decisions/.
 Environment variables required:
     GMAIL_CREDENTIALS_PATH   — path to OAuth2 credentials JSON
                                (service accounts do not work for Gmail; OAuth2 required)
+    GMAIL_CREDENTIALS_JSON   — raw OAuth2 client credentials JSON content
     GOOGLE_CREDENTIALS_PATH  — legacy fallback path
+    GOOGLE_CREDENTIALS_JSON  — legacy fallback raw JSON content
 
 Usage:
     from src.integrations.gmail.client import list_unread, get_message, search_messages
@@ -18,6 +20,7 @@ Usage:
 
 from __future__ import annotations
 
+import json
 import os
 import base64
 import logging
@@ -46,18 +49,34 @@ def _service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            creds_json = (
+                os.environ.get("GMAIL_CREDENTIALS_JSON")
+                or os.environ.get("GOOGLE_CREDENTIALS_JSON")
+            )
             creds_path = (
                 os.environ.get("GMAIL_CREDENTIALS_PATH")
                 or os.environ.get("GOOGLE_CREDENTIALS_PATH")
             )
-            if not creds_path:
+
+            if creds_json:
+                try:
+                    client_config = json.loads(creds_json)
+                except json.JSONDecodeError as e:
+                    raise EnvironmentError(
+                        "GMAIL_CREDENTIALS_JSON is set but not valid JSON."
+                    ) from e
+                flow = InstalledAppFlow.from_client_config(client_config, SCOPES)
+            elif creds_path:
+                flow = InstalledAppFlow.from_client_secrets_file(creds_path, SCOPES)
+            else:
                 raise EnvironmentError(
-                    "GMAIL_CREDENTIALS_PATH is not set. "
-                    "Download OAuth2 credentials from Google Cloud Console and set the path in .env. "
-                    "GOOGLE_CREDENTIALS_PATH is still supported as a legacy fallback."
+                    "GMAIL_CREDENTIALS_PATH/GMAIL_CREDENTIALS_JSON is not set. "
+                    "Set either an OAuth credentials file path or inline JSON in .env. "
+                    "GOOGLE_CREDENTIALS_PATH/GOOGLE_CREDENTIALS_JSON are supported as legacy fallbacks."
                 )
-            flow = InstalledAppFlow.from_client_secrets_file(creds_path, SCOPES)
+
             creds = flow.run_local_server(port=0)
+
         # Save refreshed token for next run
         with open(_TOKEN_PATH, "w") as f:
             f.write(creds.to_json())

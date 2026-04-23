@@ -4,7 +4,7 @@ import json
 import os
 from pathlib import Path
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, mock_open, Mock
 
 from dotenv import load_dotenv
 
@@ -175,6 +175,50 @@ class RouterSmokeTests(unittest.TestCase):
         sender, text = whatsapp_handler._extract_message({"entry": []})
         self.assertEqual(sender, "")
         self.assertEqual(text, "")
+
+
+class InlineCredentialSupportTests(unittest.TestCase):
+    def test_gdrive_inline_credentials_json(self) -> None:
+        with patch.dict(
+            os.environ,
+            {"GOOGLE_DRIVE_CREDENTIALS_JSON": '{"type":"service_account","client_email":"x","token_uri":"https://oauth2.googleapis.com/token","private_key":"-----BEGIN PRIVATE KEY-----\\nabc\\n-----END PRIVATE KEY-----\\n"}'},
+            clear=True,
+        ), patch("src.integrations.gdrive.client.service_account.Credentials.from_service_account_info", return_value="creds") as from_info, \
+             patch("src.integrations.gdrive.client.service_account.Credentials.from_service_account_file") as from_file, \
+             patch("src.integrations.gdrive.client.build", return_value="service") as build_mock:
+            service = gdrive._service()
+
+        self.assertEqual(service, "service")
+        from_info.assert_called_once()
+        from_file.assert_not_called()
+        build_mock.assert_called_once_with("drive", "v3", credentials="creds")
+
+    def test_gmail_inline_credentials_json(self) -> None:
+        fake_creds = Mock()
+        fake_creds.to_json.return_value = "{}"
+
+        with patch.dict(
+            os.environ,
+            {
+                "GMAIL_CREDENTIALS_JSON": '{"installed":{"client_id":"x","project_id":"p","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","client_secret":"s","redirect_uris":["http://localhost"]}}'
+            },
+            clear=True,
+        ), patch("src.integrations.gmail.client._TOKEN_PATH", "/tmp/test-gmail-token.json"), \
+             patch("src.integrations.gmail.client.os.path.exists", return_value=False), \
+             patch("src.integrations.gmail.client.InstalledAppFlow.from_client_config") as from_config, \
+             patch("src.integrations.gmail.client.InstalledAppFlow.from_client_secrets_file") as from_file, \
+             patch("src.integrations.gmail.client.build", return_value="gmail_service") as build_mock, \
+             patch("builtins.open", mock_open()):
+            flow = Mock()
+            flow.run_local_server.return_value = fake_creds
+            from_config.return_value = flow
+
+            service = gmail._service()
+
+        self.assertEqual(service, "gmail_service")
+        from_config.assert_called_once()
+        from_file.assert_not_called()
+        build_mock.assert_called_once_with("gmail", "v1", credentials=fake_creds)
 
 
 @unittest.skipUnless(

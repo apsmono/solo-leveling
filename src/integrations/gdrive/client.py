@@ -6,7 +6,9 @@ Uses the Google Drive API v3 via a service account or OAuth2 credentials.
 
 Environment variables required:
     GOOGLE_DRIVE_CREDENTIALS_PATH  — path to service_account.json
+    GOOGLE_DRIVE_CREDENTIALS_JSON  — raw service_account JSON content
     GOOGLE_CREDENTIALS_PATH        — legacy fallback path
+    GOOGLE_CREDENTIALS_JSON        — legacy fallback raw JSON content
 
 Usage:
     from src.integrations.gdrive.client import list_files, read_doc, create_doc
@@ -14,6 +16,7 @@ Usage:
 
 from __future__ import annotations
 
+import json
 import os
 import logging
 from typing import Any
@@ -32,16 +35,32 @@ SCOPES = [
 
 def _service():
     """Build and return an authenticated Google Drive API service."""
+    creds_json = (
+        os.environ.get("GOOGLE_DRIVE_CREDENTIALS_JSON")
+        or os.environ.get("GOOGLE_CREDENTIALS_JSON")
+    )
     creds_path = (
         os.environ.get("GOOGLE_DRIVE_CREDENTIALS_PATH")
         or os.environ.get("GOOGLE_CREDENTIALS_PATH")
     )
+
+    if creds_json:
+        try:
+            creds_info = json.loads(creds_json)
+        except json.JSONDecodeError as e:
+            raise EnvironmentError(
+                "GOOGLE_DRIVE_CREDENTIALS_JSON is set but not valid JSON."
+            ) from e
+        creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
+        return build("drive", "v3", credentials=creds)
+
     if not creds_path:
         raise EnvironmentError(
-            "GOOGLE_DRIVE_CREDENTIALS_PATH is not set. "
-            "Download a service account key from Google Cloud Console and set the path in .env. "
-            "GOOGLE_CREDENTIALS_PATH is still supported as a legacy fallback."
+            "GOOGLE_DRIVE_CREDENTIALS_PATH/GOOGLE_DRIVE_CREDENTIALS_JSON is not set. "
+            "Set either a service-account file path or inline JSON in .env. "
+            "GOOGLE_CREDENTIALS_PATH/GOOGLE_CREDENTIALS_JSON are supported as legacy fallbacks."
         )
+
     creds = service_account.Credentials.from_service_account_file(creds_path, scopes=SCOPES)
     return build("drive", "v3", credentials=creds)
 

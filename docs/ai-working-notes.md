@@ -23,6 +23,9 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- **2026-04-23: Inline credential support implemented for Railway.** `src/integrations/gdrive/client.py` now supports `GOOGLE_DRIVE_CREDENTIALS_JSON` (legacy fallback `GOOGLE_CREDENTIALS_JSON`) via `from_service_account_info`, and `src/integrations/gmail/client.py` now supports `GMAIL_CREDENTIALS_JSON` (legacy fallback `GOOGLE_CREDENTIALS_JSON`) via `InstalledAppFlow.from_client_config`. File-path env vars remain supported.
+- **2026-04-23: Railway Dockerfile policy fix applied.** Removed `VOLUME` from `Dockerfile` because Railway bans the keyword; persistence must be configured using Railway Volumes in dashboard.
+- **2026-04-23: Inline credential tests added and passing.** Added `InlineCredentialSupportTests` in `tests/test_integration_smoke.py`; full suite now passes: 37 tests, 3 skipped.
 - **2026-04-23: Railway Acceptable Use Policy compliance verified.** Reviewed railway.com/legal/acceptable-use — the project does not violate Railway's bot/scraper prohibition because it uses the official Meta WhatsApp Cloud API webhook (not a userbot/unofficial client), reads Gmail/Drive via approved OAuth, and only processes the owner's own messages. Analysis recorded in `docs/research/deployment-hosting-2026-04-23.md`.
 - **2026-04-23: Gmail disabled via GMAIL_ENABLED flag.** Guard added to router, config.py, and handler.py. GMAIL_ENABLED=false set in .env and .env.example. Gmail router test updated. All 35 tests pass.
 - **2026-04-23: Railway setup runbook + payment method research created.** docs/research/railway-setup-runbook-2026-04-23.md (7-part guide) and docs/research/payment-method-indonesia-2026-04-23.md (Jenius recommended, plus Jago, Wise, Revolut, and no-CC fallbacks).
