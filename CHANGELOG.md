@@ -4,6 +4,34 @@ All notable changes to this project should be documented here in a curated, huma
 
 Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
+Release section template (use when publishing a new git tag):
+
+```md
+## [vX.Y.Z] - YYYY-MM-DD
+
+### Added
+
+- YYYY-MM-DD HH-mm-ss Added ...
+
+### Changed
+
+- YYYY-MM-DD HH-mm-ss Changed ...
+
+### Fixed
+
+- YYYY-MM-DD HH-mm-ss Fixed ...
+
+### Docs
+
+- YYYY-MM-DD HH-mm-ss Updated docs ...
+
+### Decisions
+
+- YYYY-MM-DD HH-mm-ss Decision summary (link to docs/decisions/NNN-*.md)
+```
+
+Release step: move completed entries from `Unreleased` into the new version section and keep original per-entry timestamps unchanged.
+
 ## Unreleased
 
 ### Added
@@ -55,6 +83,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-23 17-20-45 Added lightweight versioned release-section template in `CHANGELOG.md` so each new main-branch tag can publish consistent release notes (`## [vX.Y.Z] - YYYY-MM-DD`) without changing original entry timestamps.
 - 2026-04-23 17-06-51 Updated `docs/ai-team-coordination.md` and `docs/ai-knowledge/conventions.md` to formalize semantic git tag versioning on `main` releases (`vMAJOR.MINOR.PATCH`), including release-gate checks, tag creation commands, and bump rules.
 - 2026-04-23 14-56-07 Updated `AI_INSTALLATION.md` with researched change-record guidance for multi-AI workflows: recommends layered record model (git commits + curated changelog + continuity notes + decisions), plus explicit read-before-work and write-after-work protocol for consistent cross-AI collaboration.
 - 2026-04-23 13-19-29 Updated `docs/ai-employer-operating-system.md` and `docs/ai-team-coordination.md` to formalize branching policy: `main` as production (release-only), `development` as staging/integration, and release flow `agent/lead/program -> development -> main`.
