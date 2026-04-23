@@ -34,6 +34,10 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ## Unreleased
 
+### Fixed
+
+- 2026-04-23 19-52-00 Corrected `docs/TASK-MULTI-AI-003.md` status from IN_PROGRESS to DONE with all 6 acceptance criteria checked. Task was completed 2026-04-21 (commit 7227075) but documentation was not updated at handoff; now synchronized with actual state (`.github/workflows/ci.yml` fully implemented, tests running green in CI).
+
 ### Added
 
 - 2026-04-23 13-41-44 Releasing development → main: 6 commits encompassing Railway deployment docs, health verification guide, deployment workflow, live status report, release checklist, and CI dual-branch wiring.

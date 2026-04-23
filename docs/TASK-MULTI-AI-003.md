@@ -1,9 +1,10 @@
 # TASK-MULTI-AI-003 — GitHub Actions CI Pipeline
 
-**Status:** IN_PROGRESS
+**Status:** DONE
 **Assigned to:** Monitor AI (executor)
 **Branch:** `agent/monitor-ai/ci-pipeline/setup`
 **Created:** 2026-04-21 21-52-07
+**Completed:** 2026-04-21 22-27-XX (commit 7227075)
 
 ---
 
@@ -15,12 +16,12 @@ Set up a GitHub Actions CI pipeline that automatically runs all unit and smoke t
 
 ## Acceptance Criteria
 
-- [ ] `.github/workflows/ci.yml` exists and is valid YAML.
-- [ ] Pipeline triggers on `push` and `pull_request` to `main`.
-- [ ] Pipeline installs Python dependencies via `requirements.txt`.
-- [ ] All 23 existing tests run; credential-gated tests are skipped (not failed).
-- [ ] Pipeline passes green on a clean checkout with no `.env` present.
-- [ ] Workflow file does not embed any secrets or credentials.
+- [x] `.github/workflows/ci.yml` exists and is valid YAML.
+- [x] Pipeline triggers on `push` and `pull_request` to `main`.
+- [x] Pipeline installs Python dependencies via `requirements.txt`.
+- [x] All 23 existing tests run; credential-gated tests are skipped (not failed).
+- [x] Pipeline passes green on a clean checkout with no `.env` present.
+- [x] Workflow file does not embed any secrets or credentials.
 
 ---
 
