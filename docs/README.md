@@ -41,7 +41,13 @@ Smoke suite behavior:
 
 - `decisions/001-command-center-scope.md` — decision to redefine the repo as the central brain and command center.
 - `decisions/003-ai-employer-governance-model.md` — decision to adopt role-branch-authority governance with OKR-based responsibility valuation.
+- `decisions/004-research-recording-and-approval-gate.md` — decision to require explicit approval before policy updates and durable recording of research outputs.
 - `decision-log-template.md` — reusable template for future decision records.
+
+## Research
+
+- `research/ai-key-providers-2026-04-23.md` — comparison of 20 AI API-key providers with budget tiers, suitability analysis, and key setup instructions.
+- `research/deployment-hosting-2026-04-23.md` — comparison of 20 hosting options with budget tiers, setup instructions, Mac mini hosting viability, and domain strategy guidance.
 
 ## Planning Documents
 

@@ -27,6 +27,18 @@ This repository is for building structured self-development and financial freedo
 - Avoid generic filler content and unsupported assumptions.
 - If code is added, document how to run, verify, and maintain it.
 
+## Approval Gate For Policy Updates
+
+- If a request includes policy/governance/process changes, pause normal execution and present suggestions first.
+- For each suggestion, state what will change and why it is needed.
+- Apply policy/governance changes only after explicit owner approval.
+- Record accepted policy/governance decisions in `docs/decisions/` and `CHANGELOG.md`.
+
+## Research Recording Rule
+
+- All substantial research outputs must be saved as durable documents under `docs/research/`.
+- Research-only sessions still require documentation updates when notable outputs are produced.
+
 ## Changelog Standard
 
 - Keep changelog entries readable by humans first.

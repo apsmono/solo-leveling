@@ -8,6 +8,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Added
 
+- 2026-04-23 10-33-27 Added durable research outputs under `docs/research/`: `ai-key-providers-2026-04-23.md` (20 AI key providers with tiering, suitability, and key setup instructions) and `deployment-hosting-2026-04-23.md` (20 hosting options with tiering, setup guides, Mac mini M4 hosting viability, and domain strategy analysis).
+- 2026-04-23 10-33-27 Added decision record `docs/decisions/004-research-recording-and-approval-gate.md` to formalize explicit owner approval before policy execution and mandatory durable research recording.
 - 2026-04-22 12-02-12 Added separate Google credential env support: `GOOGLE_DRIVE_CREDENTIALS_PATH` for Drive service-account auth and `GMAIL_CREDENTIALS_PATH` for Gmail OAuth auth, while keeping `GOOGLE_CREDENTIALS_PATH` as a backward-compatible fallback.
 - 2026-04-22 12-02-12 Added smoke/test coverage and docs updates for the split Google credential model; current live validation confirms Notion credentials work with the active `.env`.
 - 2026-04-22 11-28-51 Added provider-aware health validation in router so WhatsApp checks now follow `WHATSAPP_PROVIDER`: Meta requires `META_ACCESS_TOKEN`, `META_VERIFY_TOKEN`, `META_PHONE_NUMBER_ID`; Twilio requires `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER`.
@@ -34,6 +36,8 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-23 10-33-27 Updated `AGENTS.md` and `.github/copilot-instructions.md` with explicit approval-gate rules for policy/process updates and mandatory `docs/research/` recording for substantial research outputs.
+- 2026-04-23 10-33-27 Updated `docs/README.md` and `docs/ai-working-notes.md` to register the new research records and governance decision for cross-session continuity.
 - 2026-04-22 11-28-51 Updated `docs/SETUP_SECRETS.md` secret-to-test mapping for provider-specific WhatsApp credentials so `health` output aligns with actual Meta/Twilio runtime env keys.
 - 2026-04-22 11-14-57 Updated `docs/README.md`, `docs/ai-working-notes.md`, and `docs/ai-knowledge/continuation-plan.md` to define canonical storage paths for filled records: `docs/task-cards/` and `docs/scorecards/`.
 - 2026-04-22 11-09-04 Updated `docs/README.md`, `docs/ai-working-notes.md`, and `docs/ai-knowledge/continuation-plan.md` to register the new prefilled weekly scorecard example in the standard workflow.

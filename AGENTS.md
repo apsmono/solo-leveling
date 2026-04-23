@@ -34,6 +34,15 @@ This repository is the central brain and command center for the owner's personal
 - Never store credentials, API keys, or secrets in this repository.
 - Do not invent business claims, metrics, or roadmap items that are not documented in the repository.
 
+## Approval Gate And Research Recording Protocol
+
+- For policy/governance/process updates, pause normal execution and propose updates first.
+- For each proposed update, include the specific change and the reason it is needed.
+- Continue policy-governance execution only after explicit owner approval.
+- Record all substantial research outputs in `docs/research/` as durable files.
+- Record each accepted policy/governance decision in `docs/decisions/` and `CHANGELOG.md`.
+- If approval is not explicit, remain in proposal mode and do not apply policy changes.
+
 ## Persistent Memory Rule (IMPORTANT)
 
 The owner works across multiple devices and collaborates with multiple AI tools. Context is never guaranteed to carry over. Every AI agent that does meaningful work in this repo **must write its session knowledge back before finishing**:
