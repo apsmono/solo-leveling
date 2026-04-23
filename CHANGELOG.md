@@ -55,6 +55,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-23 17-06-51 Updated `docs/ai-team-coordination.md` and `docs/ai-knowledge/conventions.md` to formalize semantic git tag versioning on `main` releases (`vMAJOR.MINOR.PATCH`), including release-gate checks, tag creation commands, and bump rules.
 - 2026-04-23 14-56-07 Updated `AI_INSTALLATION.md` with researched change-record guidance for multi-AI workflows: recommends layered record model (git commits + curated changelog + continuity notes + decisions), plus explicit read-before-work and write-after-work protocol for consistent cross-AI collaboration.
 - 2026-04-23 13-19-29 Updated `docs/ai-employer-operating-system.md` and `docs/ai-team-coordination.md` to formalize branching policy: `main` as production (release-only), `development` as staging/integration, and release flow `agent/lead/program -> development -> main`.
 - 2026-04-23 12-58-55 Updated `docs/research/railway-setup-runbook-2026-04-23.md` to reflect that inline JSON credential env vars are now implemented (no extra code session required).
@@ -76,6 +77,10 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 - 2026-04-21 21-52-07 Added `.github/workflows/ci.yml` GitHub Actions pipeline that runs all 23 tests on every push and pull request to `main`. Credential-gated live tests are automatically skipped in CI (no secrets needed). Establishes a continuous safety net for regression detection without manual test runs.
 - 2026-04-21 21-52-07 Added `docs/TASK-MULTI-AI-003.md` defining the CI pipeline setup task with acceptance criteria, scope, and execution plan.
 - 2026-04-21 19-30-19 Added `tests/test_integration_smoke.py` as a credential-aware integration smoke suite with router mocks, workflow and AI guardrails, optional live Notion/Drive/Gmail checks, and explicit skip messaging for missing credentials.
+
+### Decisions
+
+- 2026-04-23 17-06-51 Adopted semantic git-tag release policy for `main` (`vMAJOR.MINOR.PATCH`) with annotated tags pushed after `development -> main` release merges; decision record: `docs/decisions/005-main-branch-semver-tagging.md`.
 - 2026-04-21 19-30-19 Added `.github/prompts/research-ai-task.prompt.md`, `.github/prompts/executor-ai-task.prompt.md`, and `.github/prompts/quality-ai-task.prompt.md` so additional AI collaborators can be onboarded quickly with role-specific instructions.
 - 2026-04-21 19-30-19 Added `docs/TASK-MULTI-AI-002-research.md` documenting integration entry points, credential constraints, smoke-matrix decisions, and implementation boundaries.
 - 2026-04-21 13-04-19 Added `docs/TASK-MULTI-AI-002.md` as the next Monitor-AI task definition: a credential-aware integration smoke suite covering Notion, Drive, Gmail, router flows, and execution instructions that do not break when secrets are missing.
