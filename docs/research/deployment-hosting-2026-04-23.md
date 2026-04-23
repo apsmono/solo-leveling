@@ -105,6 +105,106 @@ Top options for this repo's current maturity and constraints:
 7. Validate HTTPS endpoint and webhook verification flow.
 8. Run integration checks and confirm persistence after restart.
 
+## Detailed Deep Dive: Railway vs Fly.io
+
+This section is optimized for immediate decision-making for today's hosting setup.
+
+### Railway (Detailed)
+
+Best when you want the fastest time-to-production with minimal platform operations work.
+
+#### Recommended architecture on Railway
+
+- 1 web service running FastAPI from Dockerfile.
+- Persistent storage strategy for runtime state:
+  - Preferred: externalize critical state (for long-term) where possible.
+  - Transitional: keep mounted runtime paths for `library/` and `data/` if supported by your chosen plan/runtime mode.
+- Environment variables in Railway variable store.
+
+#### Step-by-step setup detail
+
+1. Connect GitHub repo and create project from repository.
+2. Confirm build source is Dockerfile.
+3. Set app start command if Railway does not auto-detect correctly.
+4. Configure all required env vars from `.env`.
+5. Set region closest to WhatsApp callback geography if available.
+6. Deploy and capture generated HTTPS URL.
+7. Run health check and smoke tests.
+8. Register webhook callback URL in Meta app dashboard.
+9. Trigger a test message and confirm inbound/outbound flow.
+10. Add usage/billing alert thresholds.
+
+#### Operational notes for this project
+
+- Excellent for quick deployment iteration.
+- Simplifies HTTPS and endpoint exposure.
+- Watch for cost growth if sustained workloads and logs increase.
+
+### Fly.io (Detailed)
+
+Best when you want Docker-native control with stronger control over region and runtime shape.
+
+#### Recommended architecture on Fly.io
+
+- 1 app with single machine initially.
+- Persistent volume attached in app region for `library/` and `data/`.
+- Secrets managed via Fly secrets.
+- Optional second machine/region after stability verification.
+
+#### Step-by-step setup detail
+
+1. Install Fly CLI and run `fly auth login`.
+2. Run `fly launch` in repo root and keep Dockerfile flow.
+3. Set internal port in Fly config to match app runtime.
+4. Create volume in chosen primary region.
+5. Mount volume for runtime data paths.
+6. Set env secrets with `fly secrets set`.
+7. Deploy with `fly deploy`.
+8. Run `fly status` and `fly logs` for readiness checks.
+9. Validate public HTTPS endpoint and webhook verification.
+10. Configure machine auto-start/stop policy according to uptime needs.
+
+#### Operational notes for this project
+
+- Strong fit for container-first workflows.
+- Good regional control and reliable HTTPS edge routing.
+- Storage and region planning must be done carefully from day one.
+
+## Railway vs Fly.io Comparison
+
+| Dimension | Railway | Fly.io | Better fit for this project now |
+|---|---|---|---|
+| Time to first deploy | Very fast | Fast | Railway |
+| Docker control depth | Medium | High | Fly.io |
+| Persistent storage handling | Simpler at starter level but plan-sensitive | Explicit volume model, predictable once configured | Fly.io |
+| Operational complexity | Lower | Medium | Railway |
+| Debuggability (platform tooling) | Good | Very good (`fly status/logs/ssh`) | Fly.io |
+| Cost predictability at small scale | Good | Good | Tie |
+| Cost risk at growth | Can rise with usage patterns | Can rise with machine/volume scaling | Tie |
+| Region and placement control | Moderate | Strong | Fly.io |
+| Best for non-ops-heavy owner workflow | Strong | Medium | Railway |
+| Best for long-term infra control | Medium | Strong | Fly.io |
+
+## Decision Guidance For Today
+
+Choose Railway today if your top priority is speed and low setup friction.
+
+Choose Fly.io today if your top priority is container/runtime control and explicit storage architecture.
+
+### Practical recommendation for your current phase
+
+1. Launch first production webhook on Railway for fastest validation.
+2. Keep Fly.io as your hardening/scale path once message flow stabilizes.
+3. Use one stable domain/subdomain in front of whichever host you run to reduce migration friction.
+
+## What to verify immediately after deployment
+
+1. `/docs` endpoint returns 200.
+2. Health command reports required integration keys as ready.
+3. Webhook verification succeeds in Meta dashboard.
+4. Inbound test message reaches router and returns expected response.
+5. Reminder persistence survives one container restart.
+
 ### Hetzner VPS
 
 1. Provision Ubuntu VPS instance.

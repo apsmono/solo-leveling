@@ -36,6 +36,7 @@ Timestamp rule: use local device time in the format `YYYY-MM-DD HH-mm-ss`.
 
 ### Docs
 
+- 2026-04-23 10-43-09 Expanded `docs/research/deployment-hosting-2026-04-23.md` with an execution-level Railway/Fly.io deep dive: detailed setup flows, architecture notes, side-by-side comparison matrix, and immediate decision guidance for deployment-day selection.
 - 2026-04-23 10-33-27 Updated `AGENTS.md` and `.github/copilot-instructions.md` with explicit approval-gate rules for policy/process updates and mandatory `docs/research/` recording for substantial research outputs.
 - 2026-04-23 10-33-27 Updated `docs/README.md` and `docs/ai-working-notes.md` to register the new research records and governance decision for cross-session continuity.
 - 2026-04-22 11-28-51 Updated `docs/SETUP_SECRETS.md` secret-to-test mapping for provider-specific WhatsApp credentials so `health` output aligns with actual Meta/Twilio runtime env keys.
