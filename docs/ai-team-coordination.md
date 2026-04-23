@@ -99,6 +99,25 @@ Each task must include:
 
 ---
 
+## Release Checklist (development → main gate)
+
+Before creating a release PR from `development` to `main`, confirm:
+
+1. **Tests pass** — Full test suite green (`python -m unittest discover -v` or equivalent)
+2. **Changelog updated** — All changes recorded in `CHANGELOG.md` with timestamp
+3. **Docs current** — `ai-working-notes.md`, governance docs, and relevant `.md` files reflect actual state
+4. **No regressions** — Integration smoke tests pass; no new config or secret requirements introduced
+5. **Branch clean** — No uncommitted changes; `git status` shows clean working tree
+6. **CI validated** — GitHub Actions pipeline passed on `development`; confirm no pending checks
+
+Release PR itself:
+
+- Title: `Release: <version or date>` (e.g., `Release: 2026-04-23`)
+- Description: Link to staging test results, list of features/fixes, and any operator notes
+- Approval: Monitor AI sign-off required before merging
+
+---
+
 ## Handoff Standard
 
 Every review-ready task includes:
