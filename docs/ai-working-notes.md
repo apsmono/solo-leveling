@@ -23,6 +23,7 @@ All detailed knowledge is split into focused files inside `docs/ai-knowledge/`.
 
 ## Recent note
 
+- **2026-04-23: Added research blueprint for short deployable AI context with specific per-AI execution briefs.** Created `docs/research/deployable-ai-short-context-2026-04-23.md` with evidence from OpenAI and Anthropic docs, plus copy-paste templates for: (1) short shared context, (2) per-AI task brief, and (3) orchestrator-worker-validator-release decomposition.
 - **2026-04-23: Identified and fixed documentation drift on MULTI-AI-003.** Task was completed 2026-04-21 (commit 7227075, CI pipeline fully working), but status file was never updated from IN_PROGRESS to DONE. Traced root cause: Monitor AI completed work but task document wasn't synchronized at handoff. Fixed by marking TASK-MULTI-AI-003 status DONE with all 6 acceptance criteria checked, updated CHANGELOG.md, committed as ac7e70a, released as v1.0.1 (commit fa76eef).
 - **2026-04-23: Production v1.0.0 and v1.0.1 now live on Railway.** Verified HTTP 200, FastAPI responding, webhook endpoint active. Auto-redeploy on main push confirmed working. Health check validates provider-aware WhatsApp auth (Meta vs Twilio) and confirmed Notion is configured + live.
 - **2026-04-23: Changelog now includes a lightweight versioned release template.** Added a reusable `## [vX.Y.Z] - YYYY-MM-DD` section pattern to `CHANGELOG.md` so each future tag release can move completed `Unreleased` entries into a consistent release-notes block without rewriting entry timestamps.

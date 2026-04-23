@@ -40,6 +40,7 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Added
 
+- 2026-04-23 18-38-04 Added `docs/research/deployable-ai-short-context-2026-04-23.md`: research-backed execution model for short deployable AI context plus detailed per-AI task briefs (objective, scope, editable files, commands, acceptance criteria, evidence, handoff). Includes copy-paste templates for orchestrator/worker/validator/release roles and anti-patterns to reduce ambiguity and rework.
 - 2026-04-23 13-41-44 Releasing development → main: 6 commits encompassing Railway deployment docs, health verification guide, deployment workflow, live status report, release checklist, and CI dual-branch wiring.
 - 2026-04-23 13-38-36 Added `docs/RAILWAY_LIVE_STATUS.md`: live production deployment status report verifying Railway instance `https://solo-leveling-production-36c8.up.railway.app` is running (HTTP 200, FastAPI responding, webhook endpoint active, authorization checks working). Documents test results, validation checklist, and next steps for confirming full integration health via WhatsApp or local testing.
 
