@@ -1,7 +1,7 @@
 """
 Command router — brain core.
 
-Receives a text command string from the WhatsApp handler (or any other interface),
+Receives a text command string from the API interface (or any other interface),
 parses intent, dispatches to the correct handler, and returns a reply string.
 
 Adding new commands:
@@ -171,17 +171,6 @@ def _handle_status(_: str) -> str:
 
 
 def _handle_health(_: str) -> str:
-    provider = os.environ.get("WHATSAPP_PROVIDER", "meta").strip().lower()
-    if provider == "twilio":
-        whatsapp_label = "WhatsApp (Twilio)"
-        whatsapp_vars = ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_WHATSAPP_NUMBER"]
-    elif provider == "meta":
-        whatsapp_label = "WhatsApp (Meta)"
-        whatsapp_vars = ["META_ACCESS_TOKEN", "META_VERIFY_TOKEN", "META_PHONE_NUMBER_ID"]
-    else:
-        whatsapp_label = "WhatsApp"
-        whatsapp_vars = ["WHATSAPP_TOKEN"]
-
     gmail_token_path = os.environ.get("GMAIL_TOKEN_PATH", ".gmail_token.json")
     gmail_ready = any(
         [
@@ -201,9 +190,7 @@ def _handle_health(_: str) -> str:
         ("Notion", ["NOTION_API_TOKEN"]),
         ("Google Drive", [] if drive_ready else ["GOOGLE_DRIVE_CREDENTIALS_PATH"]),
         ("Gmail (disabled)" if not _gmail_enabled() else "Gmail", [] if (not _gmail_enabled() or gmail_ready) else ["GMAIL_CREDENTIALS_PATH or GMAIL_TOKEN_PATH"]),
-        ("OpenAI", ["OPENAI_API_KEY"]),
-        ("Anthropic", ["ANTHROPIC_API_KEY"]),
-        (whatsapp_label, whatsapp_vars),
+        ("Gemini", ["GEMINI_API_KEY"]),
     ]
     lines = ["System health check:\n"]
     missing = []

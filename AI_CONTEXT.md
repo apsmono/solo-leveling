@@ -61,12 +61,12 @@ As the project expands, prefer this structure:
 | Stage | What                                                              | Status          |
 | ----- | ----------------------------------------------------------------- | --------------- |
 | 1     | Foundation — scaffold, docs, changelog policy                     | Done            |
-| 2     | Command interface baseline (WhatsApp legacy implementation)        | Done            |
+| 2     | Command interface baseline (API/CLI command server)                | Done            |
 | 3     | Notion — search, read, create page, query database                | Done            |
 | 4     | Google Drive — list, read (export), create doc, move              | Done            |
 | 5     | Gmail — list unread, search, read message, inbox summary (OAuth2) | Done            |
 | 6     | Notifications — proactive push scheduler                          | Done            |
-| 7     | AI agent orchestration — Gemini-first dispatcher with fallbacks    | Done            |
+| 7     | AI agent orchestration — Gemini dispatcher                          | Done            |
 | 8     | Multi-step workflows — chained command handler                    | Done            |
 | 9     | Personal Knowledge Libraries                                      | **In progress** |
 

@@ -45,26 +45,6 @@ def require(key: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# WhatsApp
-# ---------------------------------------------------------------------------
-WHATSAPP_PROVIDER: str = os.environ.get("WHATSAPP_PROVIDER", "meta").lower()
-WHATSAPP_OWNER_NUMBER: str = os.environ.get("WHATSAPP_OWNER_NUMBER", "")
-
-# ---------------------------------------------------------------------------
-# Meta Cloud API
-# ---------------------------------------------------------------------------
-META_PHONE_NUMBER_ID: str = os.environ.get("META_PHONE_NUMBER_ID", "")
-META_ACCESS_TOKEN: str = os.environ.get("META_ACCESS_TOKEN", "")
-META_VERIFY_TOKEN: str = os.environ.get("META_VERIFY_TOKEN", "")
-
-# ---------------------------------------------------------------------------
-# Twilio (fallback)
-# ---------------------------------------------------------------------------
-TWILIO_ACCOUNT_SID: str = os.environ.get("TWILIO_ACCOUNT_SID", "")
-TWILIO_AUTH_TOKEN: str = os.environ.get("TWILIO_AUTH_TOKEN", "")
-TWILIO_WHATSAPP_NUMBER: str = os.environ.get("TWILIO_WHATSAPP_NUMBER", "")
-
-# ---------------------------------------------------------------------------
 # Notifications / scheduler
 # ---------------------------------------------------------------------------
 REMINDER_STORE_PATH: str = os.environ.get("REMINDER_STORE_PATH", "data/reminders.json")

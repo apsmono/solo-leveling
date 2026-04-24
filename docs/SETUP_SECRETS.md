@@ -63,22 +63,11 @@ Verification:
 
 ## Step 4: AI provider (Gemini primary)
 
-Primary:
+Required:
 
 - `AGENT_PROVIDER=gemini`
 - `GEMINI_API_KEY`
 - optional `GEMINI_MODEL`
-
-Optional fallbacks:
-
-- OpenAI:
-  - `AGENT_PROVIDER=openai`
-  - `OPENAI_API_KEY`
-  - optional `OPENAI_MODEL`
-- Anthropic:
-  - `AGENT_PROVIDER=anthropic`
-  - `ANTHROPIC_API_KEY`
-  - optional `ANTHROPIC_MODEL`
 
 Verification:
 
@@ -99,24 +88,6 @@ Verification:
 1. Send `remind me in 1 minutes to test scheduler`.
 2. Confirm callback reminder is delivered.
 
-## Step 6: Optional legacy WhatsApp adapter
-
-Only configure this if you want to run WhatsApp as an interface.
-
-Required keys in `.env`:
-
-- `WHATSAPP_PROVIDER=meta`
-- `WHATSAPP_OWNER_NUMBER`
-- `META_PHONE_NUMBER_ID`
-- `META_ACCESS_TOKEN`
-- `META_VERIFY_TOKEN`
-
-Verification:
-
-1. Run `uvicorn src.integrations.whatsapp.handler:app --port 8000`
-2. Expose with ngrok and configure webhook URL in Meta.
-3. Send `status` from your owner number.
-
 ## Run order recommendation
 
 1. Notion
@@ -124,7 +95,6 @@ Verification:
 3. Drive
 4. AI agent (Gemini)
 5. Workflow and scheduler
-6. Optional WhatsApp adapter
 
 ## Done checklist
 
@@ -142,12 +112,10 @@ Verification:
 
 | Secret | Verification command | Expected output |
 |--------|----------------------|-----------------|
-| Meta WhatsApp (optional): `META_ACCESS_TOKEN` + `META_VERIFY_TOKEN` + `META_PHONE_NUMBER_ID` | Send `health` | `WhatsApp (Meta)` line shows ✅ |
-| Twilio WhatsApp (optional): `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN` + `TWILIO_WHATSAPP_NUMBER` | Send `health` | `WhatsApp (Twilio)` line shows ✅ |
 | `NOTION_API_TOKEN` | Send `notion brain` via active interface | Returns list of Notion page titles |
 | `GOOGLE_DRIVE_CREDENTIALS_PATH` (service account) | Send `drive` | Returns recent Drive files |
 | `GMAIL_CREDENTIALS_PATH` (OAuth Desktop app) + `GMAIL_TOKEN_PATH` | Send `email` | Returns unread Gmail summary |
-| `GEMINI_API_KEY` (or fallback OpenAI/Anthropic keys) | Send `ask what is 2+2` | Returns AI answer |
+| `GEMINI_API_KEY` | Send `ask what is 2+2` | Returns AI answer |
 | All credentials | Send `health` | All lines start with ✅ |
 
 ## Live integration smoke tests

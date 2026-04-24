@@ -55,7 +55,6 @@ from src.core.config import (
     LIBRARY_MAINTENANCE_MINUTE,
     REMINDER_STORE_PATH,
     SCHEDULER_POLL_SECONDS,
-    WHATSAPP_OWNER_NUMBER,
 )
 from src.core.libraries import format_library_maintenance_summary
 
@@ -139,10 +138,6 @@ def format_pending_reminders() -> str:
 
 def process_due_reminders() -> None:
     """Send any reminders whose due time has passed."""
-    if not WHATSAPP_OWNER_NUMBER:
-        logger.debug("Reminder processing skipped: WHATSAPP_OWNER_NUMBER is not set.")
-        return
-
     now = datetime.now()
     due = [
         item for item in _load_reminders()
@@ -154,14 +149,12 @@ def process_due_reminders() -> None:
     sent_ids: set[str] = set()
     for reminder in due:
         try:
-            from src.integrations.whatsapp.client import send_message
-
             body = (
                 "Reminder\n"
                 f"{reminder['message']}\n"
                 f"Due: {_format_timestamp(datetime.fromisoformat(reminder['run_at']))}"
             )
-            send_message(to=WHATSAPP_OWNER_NUMBER, body=body)
+            logger.info("Reminder due: %s", body)
             sent_ids.add(reminder["id"])
         except Exception:
             logger.exception("Failed to send reminder %s", reminder["id"])
@@ -179,20 +172,13 @@ def process_due_reminders() -> None:
 
 
 def send_daily_gmail_digest() -> None:
-    """Send a proactive inbox summary if the daily digest is enabled."""
-    if not WHATSAPP_OWNER_NUMBER:
-        logger.debug("Daily digest skipped: WHATSAPP_OWNER_NUMBER is not set.")
-        return
+    """Log a proactive inbox summary if the daily digest is enabled."""
 
     try:
         from src.integrations.gmail import client as gmail
-        from src.integrations.whatsapp.client import send_message
 
         summary = gmail.inbox_summary(limit=5)
-        send_message(
-            to=WHATSAPP_OWNER_NUMBER,
-            body=f"Daily Gmail digest\n\n{summary}",
-        )
+        logger.info("Daily Gmail digest:\n%s", summary)
     except EnvironmentError:
         logger.info("Daily Gmail digest skipped: Gmail credentials are not configured yet.")
     except Exception:
@@ -207,17 +193,8 @@ def handle_library_maintenance_command(text: str) -> str:
 
 
 def send_weekly_library_maintenance() -> None:
-    if not WHATSAPP_OWNER_NUMBER:
-        logger.debug("Library maintenance reminder skipped: WHATSAPP_OWNER_NUMBER is not set.")
-        return
-
     try:
-        from src.integrations.whatsapp.client import send_message
-
-        send_message(
-            to=WHATSAPP_OWNER_NUMBER,
-            body=format_library_maintenance_summary(),
-        )
+        logger.info("Weekly library maintenance reminder:\n%s", format_library_maintenance_summary())
     except Exception:
         logger.exception("Failed to send weekly library maintenance reminder.")
 

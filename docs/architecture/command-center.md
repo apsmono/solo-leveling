@@ -19,7 +19,7 @@ This repository is the central brain that orchestrates personal development, fin
 ```
 ┌─────────────────────────────────────────────────┐
 │              COMMAND INTERFACES                  │
-│   API · CLI · (optional legacy: WhatsApp)        │
+│   API · CLI                                       │
 └─────────────────────┬───────────────────────────┘
                       │ command received
 ┌─────────────────────▼───────────────────────────┐
@@ -32,8 +32,7 @@ This repository is the central brain that orchestrates personal development, fin
 │  AI AGENT LAYER │   │   INTEGRATION LAYER       │
 │  GitHub Copilot │   │   Notion                  │
 │  Gemini API     │   │   Google Drive            │
-│  OpenAI/Claude  │   │   Gmail                   │
-│  Custom agents  │   │   WhatsApp (outbound)     │
+│  Custom agents  │   │   Gmail                   │
 └─────────────────┘   │   Notifications           │
                       └───────────────────────────┘
 ```
@@ -52,14 +51,6 @@ This repository is the central brain that orchestrates personal development, fin
 ## Command Interfaces
 
 - Primary execution interfaces are API and CLI.
-- WhatsApp is retained as an optional legacy adapter and is no longer a roadmap blocker.
-
-## Optional Legacy Interface: WhatsApp
-
-- User sends natural-language commands to a WhatsApp number controlled by the brain.
-- The bot parses intent and routes to the correct handler.
-- Responses and confirmations are sent back to the same WhatsApp chat.
-- Security: only messages from a trusted number (the owner) are processed.
 
 See `docs/architecture/integrations.md` for implementation options.
 
@@ -89,7 +80,6 @@ When the brain processes a command and produces a durable output, it writes the 
 
 - No credentials or secrets are stored in this repository.
 - All API keys, tokens, and secrets go into environment variables or a secrets manager.
-- Any enabled WhatsApp interface should process messages only from the owner's number.
 - Any integration that can write to external systems requires explicit confirmation before destructive actions.
 
 ## Implementation Stages

@@ -9,12 +9,12 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 ## What Is Done
 
 - **Stage 1 — Foundation:** AI scaffold, changelog policy, planning docs, architecture docs, decisions log.
-- **Stage 2 — WhatsApp bot:** `handler.py`, `client.py`, webhook verification, owner-number guard, router integration.
+- **Stage 2 — Interface baseline:** API/CLI command interface with intent routing.
 - **Stage 3 — Notion:** search, read page, create page, query database.
 - **Stage 4 — Google Drive:** list files, read (export), create doc, move file.
 - **Stage 5 — Gmail:** list unread, search, read message, inbox summary (read-only, OAuth2).
-- **Stage 6 — Notifications:** APScheduler-based reminder scheduler with persistent JSON storage and optional daily Gmail digest delivery via WhatsApp.
-- **Stage 7 — AI agent orchestration:** `dispatcher.py` now supports Gemini as primary provider with OpenAI + Anthropic fallbacks; `ask` intent wired in router.
+- **Stage 6 — Notifications:** APScheduler-based reminder scheduler with persistent JSON storage and optional daily Gmail digest logging.
+- **Stage 7 — AI agent orchestration:** `dispatcher.py` uses Gemini; `ask` intent wired in router.
 - **Stage 8 — Multi-step workflows:** three workflow chains implemented in `src/core/workflows.py`:
   - Summarise unread inbox → save as Notion page
   - Summarise unread inbox → save as Google Doc
@@ -22,14 +22,14 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - **Stage 9 — Personal Knowledge Libraries (Phase 1 complete):**
   - Library handler module implemented (`src/core/libraries.py`) with 6 handler functions for profile, term, book, article, thought, and review captures.
   - Deep intake handler added for `add to library` / `add to my personal knowledge`; it categorizes input, identifies valuable information to track, searches existing library files, and writes a full research bundle with raw input, search history, research notes, Q/A, logic trail, and conclusion.
-  - Filesystem indexing and retrieval added: library writes now refresh `library/index.json`, and users can search library contents, reopen research bundles, and summarize matching bundle overviews from WhatsApp commands.
+  - Filesystem indexing and retrieval added: library writes now refresh `library/index.json`, and users can search library contents, reopen research bundles, and summarize matching bundle overviews from command API requests.
   - Executable regression coverage added in `tests/test_stage9_libraries.py` for validation errors, local entry writes, deep capture bundle creation, and indexed retrieval flows.
-  - Weekly maintenance support added through `src/core/scheduler.py`: `library maintenance` shows the current cleanup checklist and coverage counts, and the scheduler can send a recurring weekly maintenance reminder via WhatsApp.
-  - Containerization baseline added: `Dockerfile` now runs the FastAPI WhatsApp webhook with persistent mounts for `library/` and `data/`.
+  - Weekly maintenance support added through `src/core/scheduler.py`: `library maintenance` shows the current cleanup checklist and coverage counts, and the scheduler logs recurring weekly maintenance reminders.
+  - Containerization baseline added: `Dockerfile` runs the FastAPI command API server with persistent mounts for `library/` and `data/`.
   - Router intents wired for all library commands.
   - Comprehensive formatting guide created (`docs/personal-library-formatting-guide.md`) covering: 9-field standard property order, per-type formats (Profile, Terms, Books, Articles, Thoughts), Title Case naming, lowercase-hyphen tags (max 5), anti-mess guardrails, weekly/monthly/quarterly maintenance checklists.
   - Formatting enforcement functions added: `_apply_formatting_standard()` (validates titles, tags, dates, status), `_ensure_title_case()` (consistent title casing), `_save_formatting_guide_to_library()` (saves guide under `library/references`).
-  - New intent `library_guide` wired in router for WhatsApp trigger.
+  - New intent `library_guide` wired in router.
   - Library storage pivot completed: `library/` folder is now canonical, replacing Notion for Stage 9 library data.
 
 ## What Is Not Done Yet
@@ -47,7 +47,6 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
   - `GOOGLE_DRIVE_CREDENTIALS_PATH` or `GOOGLE_DRIVE_CREDENTIALS_JSON`
   - `GMAIL_CREDENTIALS_PATH` or `GMAIL_CREDENTIALS_JSON`
   - `GEMINI_API_KEY` — primary AI dispatch
-  - `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` — optional fallbacks
 - [ ] Confirm `.env` exists and health check passes.
 - [ ] Set `NOTION_WORKFLOW_PARENT_ID` so Stage 8 workflow output can be saved.
 
@@ -157,14 +156,6 @@ Full list of all variables used across the codebase. Template in `.env.example`.
 
 | Variable                     | Used By                     | Required                                 |
 | ---------------------------- | --------------------------- | ---------------------------------------- |
-| `WHATSAPP_PROVIDER`          | whatsapp/handler, client    | No (default: meta)                       |
-| `WHATSAPP_OWNER_NUMBER`      | whatsapp/handler            | Yes                                      |
-| `META_PHONE_NUMBER_ID`       | whatsapp/client             | Yes (if meta)                            |
-| `META_ACCESS_TOKEN`          | whatsapp/client             | Yes (if meta)                            |
-| `META_VERIFY_TOKEN`          | whatsapp/handler            | Yes (if meta)                            |
-| `TWILIO_ACCOUNT_SID`         | whatsapp/client             | Yes (if twilio)                          |
-| `TWILIO_AUTH_TOKEN`          | whatsapp/client             | Yes (if twilio)                          |
-| `TWILIO_WHATSAPP_NUMBER`     | whatsapp/client             | Yes (if twilio)                          |
 | `NOTION_API_TOKEN`           | notion/client               | Yes (for Notion)                         |
 | `NOTION_WORKFLOW_PARENT_ID`  | core/workflows              | Yes (for Stage 8 Notion output)          |
 | `GOOGLE_DRIVE_CREDENTIALS_PATH` | gdrive/client            | Yes (for Drive)                          |
@@ -179,7 +170,3 @@ Full list of all variables used across the codebase. Template in `.env.example`.
 | `AGENT_PROVIDER`             | agents/dispatcher           | No (default: gemini)                     |
 | `GEMINI_API_KEY`             | agents/dispatcher           | Yes (if gemini)                          |
 | `GEMINI_MODEL`               | agents/dispatcher           | No (default: gemini-2.0-flash)           |
-| `OPENAI_API_KEY`             | agents/dispatcher           | Yes (if openai)                          |
-| `OPENAI_MODEL`               | agents/dispatcher           | No (default: gpt-4o)                     |
-| `ANTHROPIC_API_KEY`          | agents/dispatcher           | Yes (if anthropic)                       |
-| `ANTHROPIC_MODEL`            | agents/dispatcher           | No (default: claude-3-5-sonnet-20241022) |

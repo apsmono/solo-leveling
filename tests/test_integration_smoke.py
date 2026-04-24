@@ -16,7 +16,6 @@ from src.core import router, workflows
 from src.integrations.gmail import client as gmail
 from src.integrations.gdrive import client as gdrive
 from src.integrations.notion import client as notion
-from src.integrations.whatsapp import handler as whatsapp_handler
 
 
 def _credential_file_kind(path_value: str | None) -> str:
@@ -59,42 +58,34 @@ class RouterSmokeTests(unittest.TestCase):
         result = router.route_command("status")
         self.assertEqual(result, "Brain is online and listening.")
 
-    def test_route_health_smoke_meta_provider(self) -> None:
+    def test_route_health_smoke(self) -> None:
         with patch.dict(
             os.environ,
             {
-                "WHATSAPP_PROVIDER": "meta",
                 "NOTION_API_TOKEN": "x",
                 "GOOGLE_DRIVE_CREDENTIALS_PATH": "/tmp/drive-creds.json",
                 "GMAIL_CREDENTIALS_PATH": "/tmp/gmail-creds.json",
-                "OPENAI_API_KEY": "x",
-                "ANTHROPIC_API_KEY": "x",
-                "META_ACCESS_TOKEN": "x",
-                "META_VERIFY_TOKEN": "x",
-                "META_PHONE_NUMBER_ID": "123",
+                "GEMINI_API_KEY": "x",
             },
             clear=True,
         ):
             result = router.route_command("health")
 
-        self.assertIn("WhatsApp (Meta)", result)
+        self.assertIn("Gemini", result)
         self.assertIn("All integrations configured.", result)
 
-    def test_route_health_smoke_meta_provider_missing_phone_id(self) -> None:
+    def test_route_health_smoke_missing_gemini(self) -> None:
         with patch.dict(
             os.environ,
             {
-                "WHATSAPP_PROVIDER": "meta",
                 "NOTION_API_TOKEN": "x",
-                "META_ACCESS_TOKEN": "x",
-                "META_VERIFY_TOKEN": "x",
             },
             clear=True,
         ):
             result = router.route_command("health")
 
-        self.assertIn("WhatsApp (Meta)", result)
-        self.assertIn("META_PHONE_NUMBER_ID", result)
+        self.assertIn("Gemini", result)
+        self.assertIn("GEMINI_API_KEY", result)
 
     def test_route_notion_smoke_with_mocked_client(self) -> None:
         with patch("src.core.router.notion.search", return_value=[{"title": "Roadmap", "type": "page", "url": "https://notion.test/page"}]):
@@ -141,40 +132,11 @@ class RouterSmokeTests(unittest.TestCase):
 
         self.assertIn("Workflow blocked: NOTION_WORKFLOW_PARENT_ID is not set.", result)
 
-    def test_ai_dispatch_guardrail_without_openai_key(self) -> None:
-        with patch("src.agents.dispatcher.PROVIDER", "openai"):
+    def test_ai_dispatch_guardrail_without_gemini_key(self) -> None:
+        with patch("src.agents.dispatcher.PROVIDER", "gemini"):
             with patch.dict(os.environ, {}, clear=True):
-                with self.assertRaisesRegex(EnvironmentError, "OPENAI_API_KEY is not set"):
+                with self.assertRaisesRegex(EnvironmentError, "GEMINI_API_KEY is not set"):
                     dispatcher.run_agent("Say OK")
-
-    def test_whatsapp_payload_extract_smoke(self) -> None:
-        payload = {
-            "entry": [
-                {
-                    "changes": [
-                        {
-                            "value": {
-                                "messages": [
-                                    {
-                                        "from": "628123456789",
-                                        "text": {"body": "status"},
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-
-        sender, text = whatsapp_handler._extract_message(payload)
-        self.assertEqual(sender, "628123456789")
-        self.assertEqual(text, "status")
-
-    def test_whatsapp_payload_extract_smoke_malformed(self) -> None:
-        sender, text = whatsapp_handler._extract_message({"entry": []})
-        self.assertEqual(sender, "")
-        self.assertEqual(text, "")
 
 
 class InlineCredentialSupportTests(unittest.TestCase):

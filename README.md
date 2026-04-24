@@ -4,7 +4,7 @@ Central brain and command center for personal development, financial freedom, an
 
 ## What This Repository Does
 
-This repository is the persistent memory, decision log, and orchestration layer for the owner's entire personal operating system. It connects to Notion, Google Drive, and Gmail, and can attach command interfaces as needed. The brain routes commands, coordinates AI agents, and writes results back to connected tools.
+This repository is the persistent memory, decision log, and orchestration layer for the owner's entire personal operating system. It connects to Notion, Google Drive, and Gmail, and exposes an API/CLI-first command interface. The brain routes commands, coordinates AI agents, and writes results back to connected tools.
 
 ## AI-Ready Workspace
 
@@ -70,8 +70,8 @@ source .venv/bin/activate
 # 2. Run all tests (23 tests, 3 credential-gated skips are expected)
 python -m unittest tests.test_stage9_libraries tests.test_integration_smoke -v
 
-# 3. Start the webhook server
-uvicorn src.integrations.whatsapp.handler:app --port 8000 --reload
+# 3. Start the API server
+uvicorn src.app:app --port 8000 --reload
 ```
 
 ### Container run (with mounts)
@@ -106,12 +106,12 @@ WARNING: Optional credentials not set (integrations will be skipped): ...
 curl http://localhost:8000/docs
 ```
 
-Or use the built-in `health` command from the router:
+Or use the built-in `health` command through the command API:
 
 ```bash
-curl -s -X POST http://localhost:8000/webhook/whatsapp \
+curl -s -X POST http://localhost:8000/command \
   -H 'Content-Type: application/json' \
-  -d '{"entry":[{"changes":[{"value":{"messages":[{"from":"<OWNER_NUMBER>","text":{"body":"health"}}]}}]}]}'
+  -d '{"text":"health"}'
 ```
 
 ### Container restart behaviour
@@ -124,7 +124,7 @@ curl -s -X POST http://localhost:8000/webhook/whatsapp \
 ### Credential setup
 
 See `docs/SETUP_SECRETS.md` for the full credential checklist.
-Quick order: Notion → Google Drive + Gmail → AI provider (Gemini primary; OpenAI/Anthropic optional).
+Quick order: Notion → Google Drive + Gmail → AI provider (Gemini primary).
 
 ### Run a single test group
 

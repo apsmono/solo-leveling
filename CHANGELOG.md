@@ -47,9 +47,16 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Changed
 
+- 2026-04-24 08-56-31 Migrated runtime entrypoint from WhatsApp webhook to generic FastAPI app (`src/app.py`) and updated `Dockerfile` command to `src.app:app` so deployments run interface-agnostic command APIs.
+- 2026-04-24 08-56-31 Simplified AI dispatch to Gemini-only in `src/agents/dispatcher.py` and removed OpenAI/Anthropic runtime config paths from `src/core/router.py`, `.env.example`, and continuation docs.
 - 2026-04-24 08-41-46 Revised core planning docs (`AI_CONTEXT.md`, `README.md`, `docs/ai-knowledge/continuation-plan.md`, `docs/architecture/command-center.md`, `docs/architecture/integrations.md`, `docs/SETUP_SECRETS.md`) to remove WhatsApp from active big-plan critical path and reframe it as an optional legacy adapter.
 - 2026-04-24 08-41-46 Updated AI runtime defaults in `src/agents/dispatcher.py` and `.env.example` to Gemini-first (`AGENT_PROVIDER=gemini`, `GEMINI_API_KEY`, `GEMINI_MODEL`), while preserving OpenAI/Anthropic as optional fallback providers.
 - 2026-04-23 13-38-36 **PRODUCTION DEPLOYMENT CONFIRMED LIVE:** Brain is running on Railway at `https://solo-leveling-production-36c8.up.railway.app`. All server connectivity tests pass; webhook endpoint active with security validation; ready for WhatsApp integration testing.
+
+### Removed
+
+- 2026-04-24 08-56-31 Deleted the entire WhatsApp integration module (`src/integrations/whatsapp/`) and removed WhatsApp-specific scheduler/config dependencies to align code with approved API/CLI-first architecture.
+- 2026-04-24 08-56-31 Removed `twilio`, `openai`, and `anthropic` from `requirements.txt` after provider and channel deprecation.
 
 - 2026-04-23 13-29-58 Added `docs/RAILWAY_DEPLOYMENT_WORKFLOW.md`: end-to-end deployment guide from local validation through Railway live health verification; 6-phase workflow (Pre-deployment, Deploy, Health verify, Persistence volumes, Meta webhook, Staging setup) with step-by-step instructions, curl examples, WhatsApp testing commands, and troubleshooting matrix. Enables operators to go from code → deployed + live + verified in ~30-45 minutes.
 - 2026-04-23 13-26-46 Added `docs/RAILWAY_HEALTH_VERIFICATION.md`: comprehensive health check guide covering local testing via Python, FastAPI endpoint validation, integration status breakdown (critical vs. optional), pre-Railway checklist, post-Railway WhatsApp testing, troubleshooting matrix, and reference to health handler source code. Enables operators to validate environment variables and credential setup before and after Railway deployment.

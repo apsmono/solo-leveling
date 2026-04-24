@@ -7,7 +7,6 @@ This folder holds all executable code for the command center brain.
 ```
 src/
   integrations/
-    whatsapp/      → WhatsApp command interface (inbound + outbound)
     notion/        → Notion read/write connector
     gdrive/        → Google Drive read/write connector
     gmail/         → Gmail read connector
@@ -19,6 +18,7 @@ src/
     workflows.py   → Stage 8 multi-step command composition layer
   agents/
     dispatcher.py  → AI agent spawner and result collector
+  app.py           → FastAPI command server (`/command`, `/healthz`)
 ```
 
 ## Setup Rules

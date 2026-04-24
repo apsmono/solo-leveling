@@ -16,33 +16,6 @@ Define how the brain connects to each external service, what it can read and wri
 
 ---
 
-## Optional Legacy Adapter: WhatsApp
-
-### Purpose
-
-- Legacy command adapter retained for compatibility if needed.
-- Not a blocker for active roadmap execution.
-
-### Implementation Options
-
-| Option                               | Description                  | Trade-off                                          |
-| ------------------------------------ | ---------------------------- | -------------------------------------------------- |
-| Twilio WhatsApp API                  | Managed service, quick setup | Costs per message, Twilio dependency               |
-| Meta WhatsApp Cloud API              | Official free tier, direct   | More setup, requires business verification         |
-| WhatsApp Web automation (unofficial) | No business account needed   | Fragile, against Terms of Service, not recommended |
-
-**Current position:** Optional only. Keep disabled unless explicitly required.
-
-### Security Rule
-
-If enabled, only messages from the owner's verified phone number are accepted as commands.
-
-### Decision Required
-
-Only required if WhatsApp is re-activated as an interface.
-
----
-
 ## Gemini (Primary AI Employee)
 
 ### Purpose
@@ -52,8 +25,7 @@ Only required if WhatsApp is re-activated as an interface.
 
 ### Implementation Approach
 
-- Gemini API as the default dispatcher provider.
-- OpenAI/Anthropic may remain as optional fallback providers.
+- Gemini API as the default and only dispatcher provider.
 
 ### Key Capabilities Needed
 
@@ -156,7 +128,6 @@ Email send permission requires an explicit user command with confirmation step.
 ### Implementation Approach
 
 - Primary channels: email and app-level interfaces.
-- Optional channel: WhatsApp outbound adapter if explicitly enabled.
 - Notification types: command confirmation, error alerts, scheduled digests, email summaries.
 - Implemented scheduler: APScheduler background jobs inside the webhook process (`src/core/scheduler.py`).
 - Reminder persistence: JSON store at `REMINDER_STORE_PATH` (default `data/reminders.json`).
