@@ -40,12 +40,15 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Added
 
+- 2026-04-24 08-41-46 Added decision record `docs/decisions/006-interface-and-gemini-pivot.md` to formalize roadmap pivot: WhatsApp removed from primary plan scope and Gemini set as the primary AI employee provider.
 - 2026-04-23 18-38-04 Added `docs/research/deployable-ai-short-context-2026-04-23.md`: research-backed execution model for short deployable AI context plus detailed per-AI task briefs (objective, scope, editable files, commands, acceptance criteria, evidence, handoff). Includes copy-paste templates for orchestrator/worker/validator/release roles and anti-patterns to reduce ambiguity and rework.
 - 2026-04-23 13-41-44 Releasing development → main: 6 commits encompassing Railway deployment docs, health verification guide, deployment workflow, live status report, release checklist, and CI dual-branch wiring.
 - 2026-04-23 13-38-36 Added `docs/RAILWAY_LIVE_STATUS.md`: live production deployment status report verifying Railway instance `https://solo-leveling-production-36c8.up.railway.app` is running (HTTP 200, FastAPI responding, webhook endpoint active, authorization checks working). Documents test results, validation checklist, and next steps for confirming full integration health via WhatsApp or local testing.
 
 ### Changed
 
+- 2026-04-24 08-41-46 Revised core planning docs (`AI_CONTEXT.md`, `README.md`, `docs/ai-knowledge/continuation-plan.md`, `docs/architecture/command-center.md`, `docs/architecture/integrations.md`, `docs/SETUP_SECRETS.md`) to remove WhatsApp from active big-plan critical path and reframe it as an optional legacy adapter.
+- 2026-04-24 08-41-46 Updated AI runtime defaults in `src/agents/dispatcher.py` and `.env.example` to Gemini-first (`AGENT_PROVIDER=gemini`, `GEMINI_API_KEY`, `GEMINI_MODEL`), while preserving OpenAI/Anthropic as optional fallback providers.
 - 2026-04-23 13-38-36 **PRODUCTION DEPLOYMENT CONFIRMED LIVE:** Brain is running on Railway at `https://solo-leveling-production-36c8.up.railway.app`. All server connectivity tests pass; webhook endpoint active with security validation; ready for WhatsApp integration testing.
 
 - 2026-04-23 13-29-58 Added `docs/RAILWAY_DEPLOYMENT_WORKFLOW.md`: end-to-end deployment guide from local validation through Railway live health verification; 6-phase workflow (Pre-deployment, Deploy, Health verify, Persistence volumes, Meta webhook, Staging setup) with step-by-step instructions, curl examples, WhatsApp testing commands, and troubleshooting matrix. Enables operators to go from code → deployed + live + verified in ~30-45 minutes.

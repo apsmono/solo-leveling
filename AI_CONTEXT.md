@@ -2,14 +2,14 @@
 
 ## Project Intent
 
-This repository is the central brain for the owner's personal operating system: self-development, financial freedom, and full automation of connected tools. It holds persistent context and decisions, routes commands from WhatsApp, integrates with Notion, Google Drive, and Gmail, and orchestrates AI agents for complex tasks.
+This repository is the central brain for the owner's personal operating system: self-development, financial freedom, and full automation of connected tools. It holds persistent context and decisions, routes commands from automation interfaces, integrates with Notion, Google Drive, and Gmail, and orchestrates AI agents for complex tasks.
 
 ## Current Phase
 
 - Phase: Stage 8 complete; Stage 9 local-library pivot active (library means folder `library/`)
 - Main assets: working integration code, notification scheduler, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, formatting enforcement code, deep research-bundle capture flow for "add to library", executable Stage 9 library tests, and weekly library maintenance commands/scheduler support
 - Current work: Stage 9 captures and lookups now run against local markdown entries under `library/`, including indexed search, bundle lookup, summary retrieval for research bundles, regression coverage in `tests/test_stage9_libraries.py`, and weekly maintenance summaries through the scheduler layer
-- Primary need: continue Stage 9 improvements with filesystem-first workflows (manual WhatsApp tests, deployment target choice, broader integration test coverage) while operating under the AI employer governance model for branch authority, OKR tracking, and responsibility-level assignment
+- Primary need: continue Stage 9 improvements with filesystem-first workflows (integration reliability checks, deployment target choice, broader integration test coverage) while operating under the AI employer governance model for branch authority, OKR tracking, and responsibility-level assignment
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth
@@ -53,7 +53,7 @@ As the project expands, prefer this structure:
 2. Complete credential setup using `docs/SETUP_SECRETS.md` so integrations can run end-to-end.
 3. **ACTIVE: Implement Stage 9 — Personal Knowledge Libraries command layer** (`library/` folder is canonical storage; all handlers and plans must be local-library-first)
 4. **ACTIVE: Multi-AI Team Execution** — governance upgraded with role-branch-authority policy, responsibility-level testing, and OKR valuation in `docs/ai-employer-operating-system.md`; upcoming coordinated tasks must use this model.
-5. Choose a deployment target (Railway, Fly.io, or VPS) and validate the new container runtime so the webhook is publicly reachable.
+5. Choose a deployment target (Railway, Fly.io, or VPS) and validate the new container runtime with stable health checks and persistence.
 6. Add `tests/` with at least one integration smoke test per service.
 
 ## Completed Stages
@@ -61,12 +61,12 @@ As the project expands, prefer this structure:
 | Stage | What                                                              | Status          |
 | ----- | ----------------------------------------------------------------- | --------------- |
 | 1     | Foundation — scaffold, docs, changelog policy                     | Done            |
-| 2     | WhatsApp bot — webhook handler, Meta + Twilio client              | Done            |
+| 2     | Command interface baseline (WhatsApp legacy implementation)        | Done            |
 | 3     | Notion — search, read, create page, query database                | Done            |
 | 4     | Google Drive — list, read (export), create doc, move              | Done            |
 | 5     | Gmail — list unread, search, read message, inbox summary (OAuth2) | Done            |
 | 6     | Notifications — proactive push scheduler                          | Done            |
-| 7     | AI agent orchestration — OpenAI + Anthropic dispatcher            | Done            |
+| 7     | AI agent orchestration — Gemini-first dispatcher with fallbacks    | Done            |
 | 8     | Multi-step workflows — chained command handler                    | Done            |
 | 9     | Personal Knowledge Libraries                                      | **In progress** |
 
@@ -74,7 +74,7 @@ As the project expands, prefer this structure:
 
 - `docs/architecture/command-center.md` — full system architecture, stage table, data flow.
 - `docs/architecture/integrations.md` — integration contracts and current status per service.
-- `docs/decisions/` — formal decision records (001: command-center scope, 002: WhatsApp approach).
+- `docs/decisions/` — formal decision records (001: command-center scope, 002: WhatsApp approach, 006: interface and Gemini provider pivot).
 - `docs/ai-working-notes.md` — **AI cross-session memory**: build history, error log, integration patterns, security rules, continuation plan. Read this. Update this after every session.
 - `docs/self-development-system.md` — personal growth and execution design (placeholder, needs real data).
 - `docs/financial-freedom-strategy.md` for income, assets, leverage, and risk planning.

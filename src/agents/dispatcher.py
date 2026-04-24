@@ -2,10 +2,12 @@
 AI agent dispatcher.
 
 Sends a prompt (with optional context) to a configured LLM and returns the response.
-Supports OpenAI and Anthropic. Provider is selected by AGENT_PROVIDER env var.
+Supports Gemini, OpenAI, and Anthropic. Provider is selected by AGENT_PROVIDER env var.
 
 Environment variables required:
-    AGENT_PROVIDER      openai | anthropic  (default: openai)
+    AGENT_PROVIDER      gemini | openai | anthropic  (default: gemini)
+    GEMINI_API_KEY      (when AGENT_PROVIDER=gemini)
+    GEMINI_MODEL        (optional, default: gemini-2.0-flash)
     OPENAI_API_KEY      (when AGENT_PROVIDER=openai)
     OPENAI_MODEL        (optional, default: gpt-4o)
     ANTHROPIC_API_KEY   (when AGENT_PROVIDER=anthropic)
@@ -26,7 +28,7 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-PROVIDER = os.environ.get("AGENT_PROVIDER", "openai").lower()
+PROVIDER = os.environ.get("AGENT_PROVIDER", "gemini").lower()
 
 
 def run_agent(task: str, context: str = "", system: str = "") -> str:
@@ -44,6 +46,8 @@ def run_agent(task: str, context: str = "", system: str = "") -> str:
     prompt = _build_prompt(task, context)
     sys_prompt = system or _default_system_prompt()
 
+    if PROVIDER == "gemini":
+        return _run_gemini(sys_prompt, prompt)
     if PROVIDER == "anthropic":
         return _run_anthropic(sys_prompt, prompt)
     return _run_openai(sys_prompt, prompt)
@@ -52,6 +56,40 @@ def run_agent(task: str, context: str = "", system: str = "") -> str:
 # ---------------------------------------------------------------------------
 # Providers
 # ---------------------------------------------------------------------------
+
+def _run_gemini(system: str, prompt: str) -> str:
+    import httpx  # type: ignore
+
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise EnvironmentError("GEMINI_API_KEY is not set.")
+
+    model = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+    payload = {
+        "systemInstruction": {
+            "parts": [{"text": system}],
+        },
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": prompt}],
+            }
+        ],
+    }
+
+    response = httpx.post(url, params={"key": api_key}, json=payload, timeout=30)
+    response.raise_for_status()
+    data = response.json()
+
+    candidates = data.get("candidates", [])
+    if not candidates:
+        raise RuntimeError("Gemini returned no candidates.")
+    parts = candidates[0].get("content", {}).get("parts", [])
+    result = "".join(part.get("text", "") for part in parts if isinstance(part, dict)).strip()
+    logger.info("Gemini agent responded (%d chars).", len(result))
+    return result
 
 def _run_openai(system: str, prompt: str) -> str:
     import openai  # type: ignore
@@ -112,5 +150,5 @@ def _default_system_prompt() -> str:
         "You are the brain of a personal command center. "
         "You help the owner manage tasks, summarise information, and make decisions. "
         "Be concise, practical, and clear. "
-        "Format responses for WhatsApp (short paragraphs, no markdown tables)."
+        "Format responses for operational clarity (short paragraphs, no markdown tables)."
     )

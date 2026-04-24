@@ -2,7 +2,7 @@
 
 Current state of the project and the next steps. Update this file whenever a stage is completed or a new workstream begins.
 
-Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring) → 2026-04-18 10-22-15 (formatting standard implemented) → 2026-04-20 22-47-07 (library term pivoted to local folder `library/`) → 2026-04-20 23-38-29 (weekly maintenance flow added) → 2026-04-21 13-04-19 (MULTI-AI-002 staged after pilot completion) → 2026-04-21 19-30-19 (MULTI-AI-002 completed and validated) → 2026-04-21 21-52-07 (MULTI-AI-003 CI pipeline implemented) → 2026-04-22 10-14-03 (Phase B+A+C deployment readiness plan fully executed) → 2026-04-23 19-52-00 (v1.0.0 released, production live on Railway, v1.0.1 released with task docs sync)
+Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22-30-00 (Stage 9 research & design) → 2026-04-17 23-40-05 (Stage 9 database validation) → 2026-04-18 09-31-05 (Stage 9 implementation start: multi-agent git protocol + profile command design) → 2026-04-18 09-34-07 (Stage 9 code slice: library handlers + router wiring) → 2026-04-18 10-22-15 (formatting standard implemented) → 2026-04-20 22-47-07 (library term pivoted to local folder `library/`) → 2026-04-20 23-38-29 (weekly maintenance flow added) → 2026-04-21 13-04-19 (MULTI-AI-002 staged after pilot completion) → 2026-04-21 19-30-19 (MULTI-AI-002 completed and validated) → 2026-04-21 21-52-07 (MULTI-AI-003 CI pipeline implemented) → 2026-04-22 10-14-03 (Phase B+A+C deployment readiness plan fully executed) → 2026-04-23 19-52-00 (v1.0.0 released, production live on Railway, v1.0.1 released with task docs sync) → 2026-04-24 08-41-46 (roadmap pivot: WhatsApp removed from primary plan, Gemini set as primary AI provider)
 
 ---
 
@@ -14,7 +14,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 - **Stage 4 — Google Drive:** list files, read (export), create doc, move file.
 - **Stage 5 — Gmail:** list unread, search, read message, inbox summary (read-only, OAuth2).
 - **Stage 6 — Notifications:** APScheduler-based reminder scheduler with persistent JSON storage and optional daily Gmail digest delivery via WhatsApp.
-- **Stage 7 — AI agent orchestration:** `dispatcher.py` with OpenAI + Anthropic; `ask` intent wired in router.
+- **Stage 7 — AI agent orchestration:** `dispatcher.py` now supports Gemini as primary provider with OpenAI + Anthropic fallbacks; `ask` intent wired in router.
 - **Stage 8 — Multi-step workflows:** three workflow chains implemented in `src/core/workflows.py`:
   - Summarise unread inbox → save as Notion page
   - Summarise unread inbox → save as Google Doc
@@ -35,7 +35,7 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 ## What Is Not Done Yet
 
 - **Stage 9 — Personal Knowledge Libraries (Phase 2+):** Deployment readiness hardening now complete (Phase B+A+C). Remaining work:
-  1. **End-to-end testing** — manual WhatsApp tests for each library command family (requires live credentials).
+  1. **End-to-end testing** — API/CLI-driven tests for each library command family.
   2. **Deployment** — choose a target host and confirm container runtime in a real environment.
 - **Tests:** 37 tests pass (3 live tests skipped until `ENABLE_LIVE_SMOKE_TESTS=1` and credentials are set).
 - **Deployment:** `Dockerfile` tested, `.github/workflows/ci.yml` active on both `development` and `main`, Railway production live at `https://solo-leveling-production-36c8.up.railway.app`. Container auto-rebuilds on main push.
@@ -44,18 +44,18 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 - [ ] Complete all credential setup steps in `docs/SETUP_SECRETS.md` — CRITICAL for end-to-end testing.
   - `NOTION_API_KEY` — needed for workflow output
-  - `META_ACCESS_TOKEN`, `META_PHONE_NUMBER_ID` — for WhatsApp webhook auth
   - `GOOGLE_DRIVE_CREDENTIALS_PATH` or `GOOGLE_DRIVE_CREDENTIALS_JSON`
   - `GMAIL_CREDENTIALS_PATH` or `GMAIL_CREDENTIALS_JSON`
-  - `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` — for AI dispatch
+  - `GEMINI_API_KEY` — primary AI dispatch
+  - `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` — optional fallbacks
 - [ ] Confirm `.env` exists and health check passes.
 - [ ] Set `NOTION_WORKFLOW_PARENT_ID` so Stage 8 workflow output can be saved.
 
 ## Recommended Next Steps (in order)
 
-1. Run manual WhatsApp command tests for each handler path and confirm corresponding writes/reads under `library/`.
+1. Run API/CLI command tests for each handler path and confirm corresponding writes/reads under `library/`.
 2. Choose a deployment target and validate the new container runtime end to end.
-3. Add broader integration smoke tests for Notion, Drive, Gmail, and WhatsApp-facing flows once credentials are available.
+3. Add broader integration smoke tests for Notion, Drive, Gmail, and AI-facing flows once credentials are available.
 
 ## Latest Session Notes
 
@@ -176,7 +176,9 @@ Full list of all variables used across the codebase. Template in `.env.example`.
 | `DAILY_GMAIL_DIGEST_ENABLED` | core/scheduler              | No (default: false)                      |
 | `DAILY_GMAIL_DIGEST_HOUR`    | core/scheduler              | No (default: 8)                          |
 | `DAILY_GMAIL_DIGEST_MINUTE`  | core/scheduler              | No (default: 0)                          |
-| `AGENT_PROVIDER`             | agents/dispatcher           | No (default: openai)                     |
+| `AGENT_PROVIDER`             | agents/dispatcher           | No (default: gemini)                     |
+| `GEMINI_API_KEY`             | agents/dispatcher           | Yes (if gemini)                          |
+| `GEMINI_MODEL`               | agents/dispatcher           | No (default: gemini-2.0-flash)           |
 | `OPENAI_API_KEY`             | agents/dispatcher           | Yes (if openai)                          |
 | `OPENAI_MODEL`               | agents/dispatcher           | No (default: gpt-4o)                     |
 | `ANTHROPIC_API_KEY`          | agents/dispatcher           | Yes (if anthropic)                       |

@@ -9,7 +9,7 @@ This repository is the central brain that orchestrates personal development, fin
 | Role            | Description                                                                 |
 | --------------- | --------------------------------------------------------------------------- |
 | Brain           | Holds persistent context, goals, strategies, and operating rules            |
-| Command router  | Receives commands from WhatsApp (and future interfaces) and dispatches work |
+| Command router  | Receives commands from active interfaces and dispatches work                |
 | Integration hub | Connects to Notion, Google Drive, email, and other services                 |
 | AI orchestrator | Spawns and directs AI agents for complex tasks                              |
 | Memory          | All docs, decisions, and strategies are the persistent state of the brain   |
@@ -19,7 +19,7 @@ This repository is the central brain that orchestrates personal development, fin
 ```
 ┌─────────────────────────────────────────────────┐
 │              COMMAND INTERFACES                  │
-│   WhatsApp · CLI · (future: web, voice)          │
+│   API · CLI · (optional legacy: WhatsApp)        │
 └─────────────────────┬───────────────────────────┘
                       │ command received
 ┌─────────────────────▼───────────────────────────┐
@@ -31,8 +31,8 @@ This repository is the central brain that orchestrates personal development, fin
 ┌────────▼────────┐   ┌─────────▼────────────────┐
 │  AI AGENT LAYER │   │   INTEGRATION LAYER       │
 │  GitHub Copilot │   │   Notion                  │
-│  Claude API     │   │   Google Drive            │
-│  OpenAI API     │   │   Gmail                   │
+│  Gemini API     │   │   Google Drive            │
+│  OpenAI/Claude  │   │   Gmail                   │
 │  Custom agents  │   │   WhatsApp (outbound)     │
 └─────────────────┘   │   Notifications           │
                       └───────────────────────────┘
@@ -40,7 +40,7 @@ This repository is the central brain that orchestrates personal development, fin
 
 ## Data Flow
 
-1. **Command received** — user sends a message via WhatsApp (or CLI).
+1. **Command received** — user sends a command via active interface (API or CLI).
 2. **Brain parses intent** — the command is matched to an action or workflow.
 3. **Dispatch** — the brain either:
    - Calls an integration directly (e.g. read a Notion page, create a GDrive file), or
@@ -49,7 +49,12 @@ This repository is the central brain that orchestrates personal development, fin
 4. **Result returned** — output is written back to the user via the command interface.
 5. **State updated** — decisions, outputs, and meaningful changes are written back to `docs/` and `CHANGELOG.md`.
 
-## Command Interface: WhatsApp
+## Command Interfaces
+
+- Primary execution interfaces are API and CLI.
+- WhatsApp is retained as an optional legacy adapter and is no longer a roadmap blocker.
+
+## Optional Legacy Interface: WhatsApp
 
 - User sends natural-language commands to a WhatsApp number controlled by the brain.
 - The bot parses intent and routes to the correct handler.
@@ -84,7 +89,7 @@ When the brain processes a command and produces a durable output, it writes the 
 
 - No credentials or secrets are stored in this repository.
 - All API keys, tokens, and secrets go into environment variables or a secrets manager.
-- The WhatsApp command interface only processes messages from the owner's number.
+- Any enabled WhatsApp interface should process messages only from the owner's number.
 - Any integration that can write to external systems requires explicit confirmation before destructive actions.
 
 ## Implementation Stages
@@ -92,7 +97,7 @@ When the brain processes a command and produces a durable output, it writes the 
 | Stage                        | Scope                                                     | Status      |
 | ---------------------------- | --------------------------------------------------------- | ----------- |
 | 1 — Foundation               | Architecture docs, decision records, repository structure | Done        |
-| 2 — WhatsApp bot             | Receive and route commands from the owner                 | Done        |
+| 2 — Interface baseline       | Receive and route commands from an external interface     | Done        |
 | 3 — Notion integration       | Read and write Notion pages and databases                 | Done        |
 | 4 — Google Drive integration | Read and write GDrive files                               | Done        |
 | 5 — Gmail integration        | Read, summarize, and triage emails                        | Done        |
@@ -103,7 +108,7 @@ When the brain processes a command and produces a durable output, it writes the 
 ## Stage 6 Implementation Notes
 
 - Scheduler implementation lives in `src/core/scheduler.py`.
-- Runs as an APScheduler background worker inside the FastAPI webhook process.
+- Runs as an APScheduler background worker inside the FastAPI process.
 - Persists reminder jobs to `data/reminders.json` so reminders survive restarts.
 - Current user-facing command formats:
   - `remind me in 30 minutes to stretch`

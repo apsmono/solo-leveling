@@ -4,7 +4,7 @@ Central brain and command center for personal development, financial freedom, an
 
 ## What This Repository Does
 
-This repository is the persistent memory, decision log, and orchestration layer for the owner's entire personal operating system. It connects to Notion, Google Drive, Gmail, and WhatsApp. The owner sends commands via WhatsApp; the brain routes them, coordinates AI agents, and writes results back to connected tools.
+This repository is the persistent memory, decision log, and orchestration layer for the owner's entire personal operating system. It connects to Notion, Google Drive, and Gmail, and can attach command interfaces as needed. The brain routes commands, coordinates AI agents, and writes results back to connected tools.
 
 ## AI-Ready Workspace
 
@@ -124,7 +124,7 @@ curl -s -X POST http://localhost:8000/webhook/whatsapp \
 ### Credential setup
 
 See `docs/SETUP_SECRETS.md` for the full credential checklist.
-Quick order: WhatsApp → Notion → Google Drive + Gmail → AI provider (OpenAI or Anthropic).
+Quick order: Notion → Google Drive + Gmail → AI provider (Gemini primary; OpenAI/Anthropic optional).
 
 ### Run a single test group
 
