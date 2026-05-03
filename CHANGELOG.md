@@ -44,6 +44,7 @@ Release step: move completed entries from `Unreleased` into the new version sect
 - 2026-05-03 16-45-00 Added monorepo scaffolding: `subprojects/scrapers/`, `subprojects/microservices/example-service/`, and `docker-compose.yml` for MacMini backend orchestration.
 - 2026-05-03 16-45-00 Added comprehensive test coverage: `tests/test_firebase.py` (auth + firestore, 9 tests), `tests/test_dashboard_api.py` (11 tests), `tests/test_telegram.py` (4 tests). Full suite now 59 tests (3 credential-gated skips).
 - 2026-05-03 23-31-03 Replaced `frontend/index.html` with a public portfolio landing page. New `frontend/portfolio.css` provides dark-mode responsive styles. Sections: Hero, About, Projects, Skills, Contact, Footer. Includes mobile hamburger menu, smooth scroll, and placeholder content with `<!-- EDIT -->` markers for easy customization. Dashboard link preserved in nav and footer.
+- 2026-05-03 16-45-00 Added two static-site sub-projects under `subprojects/`: `wedding-invitation/` (event site with countdown, couple details, gallery, and RSVP) and `koperasi-landing/` (business landing page for Koperasi Konsumen Karya Tunggal Sejahtera with hero, about, services, membership CTA, and contact). Both are vanilla HTML/CSS/JS with no build step, ready for Cloudflare Pages deployment. Includes deployment guide at `subprojects/DEPLOY.md`.
 - 2026-05-03 16-45-00 Added Firebase, Telegram, and CORS environment variables to `src/core/config.py` and updated health check in `src/core/router.py` to report Firebase status.
 
 ### Changed
