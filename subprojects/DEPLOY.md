@@ -2,6 +2,8 @@
 
 Panduan step-by-step deploy dua sub-project (`wedding-invitation` dan `koperasi-landing`) dari monorepo ini ke Cloudflare Pages menggunakan subdomain `*.pages.dev`.
 
+> **Struktur terbaru:** `subprojects/dashboard/`, `subprojects/wedding-invitation/`, dan `subprojects/koperasi-landing/` berisi file aktif di monorepo. Setiap push ke `main` akan otomatis mensinkronkan ke repo eksternal masing-masing via `.github/workflows/sync-subprojects.yml`. Lihat juga `docs/subproject-linking-workflow.md`.
+
 ---
 
 ## Prasyarat

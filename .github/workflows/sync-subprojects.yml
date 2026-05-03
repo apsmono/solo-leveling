@@ -1,0 +1,91 @@
+name: Sync Subprojects to External Repos
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync-dashboard:
+    name: Sync Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout solo-leveling
+        uses: actions/checkout@v4
+
+      - name: Checkout dashboard repo
+        uses: actions/checkout@v4
+        with:
+          repository: apsmono/dashboard
+          token: ${{ secrets.SYNC_PAT }}
+          path: _target
+
+      - name: Sync files
+        run: |
+          cp -r subprojects/dashboard/* _target/
+          # Preserve .git and workflow-specific files
+          cd _target
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "sync: update from solo-leveling monorepo"
+          git push origin main
+
+  sync-wedding-invitation:
+    name: Sync Wedding Invitation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout solo-leveling
+        uses: actions/checkout@v4
+
+      - name: Checkout wedding-invitation repo
+        uses: actions/checkout@v4
+        with:
+          repository: apsmono/wedding-invitation
+          token: ${{ secrets.SYNC_PAT }}
+          path: _target
+
+      - name: Sync files
+        run: |
+          cp -r subprojects/wedding-invitation/* _target/
+          cd _target
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "sync: update from solo-leveling monorepo"
+          git push origin main
+
+  sync-koperasi:
+    name: Sync Koperasi Landing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout solo-leveling
+        uses: actions/checkout@v4
+
+      - name: Checkout koperasi repo
+        uses: actions/checkout@v4
+        with:
+          repository: apsmono/koperasi
+          token: ${{ secrets.SYNC_PAT }}
+          path: _target
+
+      - name: Sync files
+        run: |
+          cp -r subprojects/koperasi-landing/* _target/
+          cd _target
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "sync: update from solo-leveling monorepo"
+          git push origin main

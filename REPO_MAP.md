@@ -122,10 +122,13 @@ Static sites and microservices housed in the same repo for discoverability.
 
 | Directory | Contents | Deploy Target |
 |-----------|----------|---------------|
+| `dashboard/` | Portfolio + dashboard static site (HTML/CSS/JS) | GitHub Pages |
 | `wedding-invitation/` | Wedding invitation static site (HTML/CSS/JS) | Cloudflare Pages |
 | `koperasi-landing/` | Koperasi KKS landing page static site (HTML/CSS/JS) | Cloudflare Pages |
 | `scrapers/` | Python scraping scripts | Local / scheduled |
 | `microservices/` | Standalone FastAPI services | Docker / MacMini |
+
+Subprojects are synced to their own external repositories on every push to `main` via `.github/workflows/sync-subprojects.yml`.
 
 ---
 

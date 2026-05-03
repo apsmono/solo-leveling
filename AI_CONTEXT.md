@@ -7,8 +7,8 @@ This repository is the central brain for the owner's personal operating system: 
 ## Current Phase
 
 - Phase: Stage 8 complete; Stage 9 in progress; Firebase/Telegram/Dashboard infrastructure landed
-- Main assets: working integration code (Notion, Drive, Gmail, Gemini), notification scheduler with Firestore/JSON dual backend, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, deep research-bundle capture flow, indexed search with LRU cache, Firebase Auth + Firestore integration, Telegram bot webhook, static dashboard frontend for GitHub Pages, versioned REST API (`/api/v1`), Docker Compose for MacMini, monorepo `subprojects/` scaffolding
-- Current work: backend runs on MacMini via Docker; static dashboard deploys to GitHub Pages; Telegram and HTTP `/command` both route through `route_command()`; Firestore stores reminders and command history when `USE_FIRESTORE_REMINDERS=true`; single-user Firebase Auth gates `/dashboard` endpoints; two new static-site sub-projects (`wedding-invitation` and `koperasi-landing`) scaffolded under `subprojects/` for Cloudflare Pages deployment
+- Main assets: working integration code (Notion, Drive, Gmail, Gemini), notification scheduler with Firestore/JSON dual backend, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, deep research-bundle capture flow, indexed search with LRU cache, Firebase Auth + Firestore integration, Telegram bot webhook, static dashboard frontend for GitHub Pages under `subprojects/dashboard`, versioned REST API (`/api/v1`), Docker Compose for MacMini, monorepo `subprojects/` scaffolding with auto-sync to external repos
+- Current work: backend runs on MacMini via Docker; static dashboard deploys to GitHub Pages from `subprojects/dashboard`; Telegram and HTTP `/command` both route through `route_command()`; Firestore stores reminders and command history when `USE_FIRESTORE_REMINDERS=true`; single-user Firebase Auth gates `/dashboard` endpoints; static-site sub-projects (`dashboard`, `wedding-invitation`, `koperasi-landing`) auto-sync to standalone repos on every push to `main`
 - Primary need: configure Firebase credentials and `FRONTEND_ORIGIN`, deploy dashboard to GitHub Pages, set Telegram webhook via `scripts/set-telegram-webhook.py`, verify end-to-end auth flow, then continue Stage 9 improvements
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
@@ -50,7 +50,7 @@ As the project expands, prefer this structure:
 ## Current Priorities
 
 1. ~~Expand Stage 8 from starter workflow to multiple robust workflow chains~~ **DONE (3 workflows implemented)**
-2. **ACTIVE: Deploy and verify Firebase + Dashboard + Telegram end-to-end** — configure Firebase credentials, deploy `frontend/` to GitHub Pages, set Telegram webhook, verify auth flow and CORS
+2. **ACTIVE: Deploy and verify Firebase + Dashboard + Telegram end-to-end** — configure Firebase credentials, deploy `subprojects/dashboard/` to GitHub Pages, set Telegram webhook, verify auth flow and CORS
 3. ~~Implement Stage 9 — Personal Knowledge Libraries command layer~~ **DONE** (`library/` folder is canonical storage; all handlers are local-library-first)
 4. **ACTIVE: Multi-AI Team Execution** — governance upgraded with role-branch-authority policy, responsibility-level testing, and OKR valuation in `docs/ai-employer-operating-system.md`; upcoming coordinated tasks must use this model.
 5. **ACTIVE: Autopilot System** — Phase 1 MVP live in `src/autopilot/`. RL-governed autonomous loop with Kimi API via litellm. Commands: `autopilot start: <goal>`, `autopilot status`, `autopilot pause`, `autopilot approve`. Phase 2 will add Claude Code subprocess client, write tools, and approval queue.
