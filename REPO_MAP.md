@@ -116,6 +116,19 @@ Filled operational records for completed work.
 
 ---
 
+## `subprojects/` — Monorepo Projects
+
+Static sites and microservices housed in the same repo for discoverability.
+
+| Directory | Contents | Deploy Target |
+|-----------|----------|---------------|
+| `wedding-invitation/` | Wedding invitation static site (HTML/CSS/JS) | Cloudflare Pages |
+| `koperasi-landing/` | Koperasi KKS landing page static site (HTML/CSS/JS) | Cloudflare Pages |
+| `scrapers/` | Python scraping scripts | Local / scheduled |
+| `microservices/` | Standalone FastAPI services | Docker / MacMini |
+
+---
+
 ## `library/` — Knowledge Storage
 
 The filesystem-based personal library. All content is markdown with YAML frontmatter.
