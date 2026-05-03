@@ -10,10 +10,13 @@ This repository is the persistent memory, decision log, and orchestration layer 
 
 This repository is built AI-first. GitHub Copilot and other AI agents work from a shared set of authoritative context files so every AI task operates against current reality.
 
+**New to this repo?** Start with [`CLAUDE.md`](CLAUDE.md) — the AI onboarding hub that connects all documentation.
+
 Source-of-truth files:
 
 - `AGENTS.md` — repository-wide agent rules and changelog standard.
 - `AI_CONTEXT.md` — project intent, current phase, and active planning documents.
+- `CLAUDE.md` — AI onboarding hub connecting all docs, conventions, and architecture.
 - `.github/copilot-instructions.md` — GitHub Copilot-specific working rules.
 - `CHANGELOG.md` — human-readable running history of notable changes.
 - `docs/architecture/command-center.md` — full brain and command-center architecture.
