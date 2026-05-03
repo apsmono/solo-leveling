@@ -12,6 +12,8 @@ This repository is built AI-first. GitHub Copilot and other AI agents work from 
 
 **New to this repo?** Start with [`CLAUDE.md`](CLAUDE.md) — the AI onboarding hub that connects all documentation.
 
+**Working in parallel with other agents?** Use `claude --worktree <name>` to create an isolated checkout and avoid file conflicts. See `CLAUDE.md` → "Parallel Work with Git Worktrees".
+
 Source-of-truth files:
 
 - `AGENTS.md` — repository-wide agent rules and changelog standard.

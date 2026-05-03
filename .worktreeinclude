@@ -1,0 +1,6 @@
+# Files to copy into new git worktrees
+# Syntax: same as .gitignore — one pattern per line
+# Only gitignored files that match a pattern here are copied
+# Tracked files are never duplicated
+
+.env

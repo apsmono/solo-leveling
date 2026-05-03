@@ -29,6 +29,11 @@ This repository is the central brain and command center for the owner's personal
   - Prefer PR-based merges to `main`; do not push direct to `main` when a task can conflict with another active task.
   - Claim ownership of a task before editing and keep one active owner per task at a time.
   - Include a handoff summary in the same change: what was done, what is pending, and what the next agent should do.
+- **Worktree isolation for parallel agents:**
+  - If another agent is already working in this checkout, start a new worktree with `claude --worktree <name>` instead of editing the same files.
+  - For subagents that may edit code in parallel, set `isolation: worktree` in the subagent frontmatter so each gets its own temporary branch and directory.
+  - Clean up worktrees when done: `git worktree remove <path>` or let Claude prompt you on exit.
+  - See `CLAUDE.md` → "Parallel Work with Git Worktrees" for full details.
 - When adding integration code, update `docs/architecture/integrations.md` to reflect the current state.
 - When making a significant scope, structure, or policy decision, create a numbered record in `docs/decisions/`.
 - Never store credentials, API keys, or secrets in this repository.

@@ -112,6 +112,7 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Docs
 
+- 2026-05-04 00-08-53 Added worktree isolation guidance to `CLAUDE.md` (new "Parallel Work with Git Worktrees" section), `AGENTS.md` (multi-agent worktree rules), and `README.md` (AI-ready workspace note). Created `.worktreeinclude` to copy `.env` into new worktrees so parallel agents retain integration credentials.
 - 2026-04-23 17-20-45 Added lightweight versioned release-section template in `CHANGELOG.md` so each new main-branch tag can publish consistent release notes (`## [vX.Y.Z] - YYYY-MM-DD`) without changing original entry timestamps.
 - 2026-04-23 17-06-51 Updated `docs/ai-team-coordination.md` and `docs/ai-knowledge/conventions.md` to formalize semantic git tag versioning on `main` releases (`vMAJOR.MINOR.PATCH`), including release-gate checks, tag creation commands, and bump rules.
 - 2026-04-23 14-56-07 Updated `AI_INSTALLATION.md` with researched change-record guidance for multi-AI workflows: recommends layered record model (git commits + curated changelog + continuity notes + decisions), plus explicit read-before-work and write-after-work protocol for consistent cross-AI collaboration.

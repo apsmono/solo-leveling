@@ -8,6 +8,52 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Parallel Work with Git Worktrees
+
+When multiple AI agents work simultaneously, or when you need to work on unrelated tasks in parallel without colliding, use **git worktrees** for isolation.
+
+### When to use a worktree
+
+| Scenario | Action |
+|----------|--------|
+| Another AI agent is already editing this repo | Start a new worktree to avoid file conflicts |
+| You need to run a long task while doing quick fixes | Use `claude --worktree` for the side task |
+| A subagent may edit files in parallel | Set `isolation: worktree` in the subagent frontmatter |
+| You are behind `main` but need to patch a hotfix | Create a worktree from `main` instead of switching branches |
+
+### How to start a worktree session
+
+```bash
+# Named worktree (recommended for agents)
+claude --worktree agent-feature-name
+
+# Auto-generated name
+claude --worktree
+```
+
+Or ask Claude to "work in a worktree" during a session and it will create one automatically.
+
+### Worktree behavior in this repo
+
+- `.claude/worktrees/` is already gitignored — worktree contents never pollute the main checkout.
+- `.worktreeinclude` copies `.env` into new worktrees so integrations work out of the box.
+- Each worktree gets its own branch: `worktree-<name>` based off `origin/HEAD`.
+- Subagent worktrees auto-remove when the subagent finishes without changes.
+- Manual worktrees created with `--worktree` prompt for cleanup on exit if changes exist.
+
+### Manual worktree commands
+
+```bash
+git worktree list                              # see all worktrees
+git worktree add ../hotfix -b hotfix main      # create manually
+claude                                         # run Claude inside it
+git worktree remove ../hotfix                  # clean up when done
+```
+
+Full reference: [Git worktree docs](https://git-scm.com/docs/git-worktree) and [Claude Code worktree guide](https://code.claude.com/docs/en/worktrees).
+
+---
+
 ## Commands
 
 ```bash
