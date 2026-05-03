@@ -1,16 +1,47 @@
-# CLAUDE.md — AI Onboarding Hub
+# CLAUDE.md
 
-This is the single entry point for AI assistants working in the solo-leveling repository. Read this file first, then follow the links to deeper documentation.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ---
-
-## Start Here
 
 **solo-leveling** is a personal command-center brain built with FastAPI. It receives text commands via HTTP, detects intent, and dispatches to handlers that integrate with Notion, Google Drive, Gmail, and Gemini AI. It also manages a filesystem-based personal knowledge library under `library/`.
 
 ---
 
-## Read This First
+## Commands
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run tests (23 tests; 3 credential-gated skips are expected)
+python -m unittest tests.test_stage9_libraries tests.test_integration_smoke -v
+
+# Run a single test module
+python -m unittest tests.test_stage9_libraries -v
+python -m unittest tests.test_integration_smoke -v
+
+# Start the API server locally
+uvicorn src.app:app --port 8000 --reload
+
+# Build Docker image
+docker build -t solo-leveling .
+
+# Run container with persistent mounts (library/ and data/ must be mounted)
+docker run --rm \
+  -p 8000:8000 \
+  --env-file .env \
+  -v "$(pwd)/library:/app/library" \
+  -v "$(pwd)/data:/app/data" \
+  solo-leveling
+
+# Enable live integration smoke tests
+ENABLE_LIVE_SMOKE_TESTS=1 python -m unittest tests.test_integration_smoke -v
+```
+
+---
+
+## Read Before Working
 
 Read these files in order before doing any work:
 
