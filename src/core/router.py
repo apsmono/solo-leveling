@@ -51,6 +51,10 @@ INTENT_MAP: dict[str, list[str]] = {
     "reminder": ["remind", "reminder", "notify me"],
     "ask_ai": ["ask", "ai ", "think about", "summarise", "summarize", "analyse", "analyze", "write", "draft"],
     "autopilot": ["autopilot"],
+    "github_repos": ["github list repos", "list my repos", "my repos"],
+    "github_issue": ["github create issue", "create issue in"],
+    "github_workflow": ["github trigger", "trigger workflow"],
+    "github_status": ["github status", "github health"],
 }
 
 
@@ -85,6 +89,26 @@ def _detect_intent(text: str) -> str:
     # Autopilot intents should be detected before generic keywords like "status"
     if lower.startswith("autopilot"):
         return "autopilot"
+
+    # GitHub intents should be detected before generic keywords like "status" or "workflow"
+    if lower.startswith("github "):
+        if "create issue" in lower:
+            return "github_issue"
+        if "trigger" in lower:
+            return "github_workflow"
+        if "list repos" in lower or "my repos" in lower:
+            return "github_repos"
+        if "status" in lower or "health" in lower:
+            return "github_status"
+
+    if lower.startswith("create issue in"):
+        return "github_issue"
+
+    if lower.startswith("trigger workflow "):
+        return "github_workflow"
+
+    if lower.startswith("list my repos"):
+        return "github_repos"
 
     # Stage 8 compound workflow detection should run before keyword map because
     # terms like "notion", "inbox", "drive" also match single-step intents.
@@ -130,6 +154,10 @@ def _dispatch(intent: str, original_text: str) -> str:
         "reminder": _handle_reminder,
         "ask_ai": _handle_ask_ai,
         "autopilot": _handle_autopilot,
+        "github_repos": _handle_github_repos,
+        "github_issue": _handle_github_issue,
+        "github_workflow": _handle_github_workflow,
+        "github_status": _handle_github_status,
         "unknown": _handle_unknown,
     }
     handler = handlers.get(intent, _handle_unknown)
@@ -182,6 +210,10 @@ def _handle_help(_: str) -> str:
         "• remind me tomorrow at 09:00 to review goals\n"
         "• reminders — list pending reminders\n"
         "• health — check which integrations are configured\n"
+        "• github list repos — list your GitHub repositories\n"
+        "• github create issue in owner/repo: title — create a GitHub issue\n"
+        "• github trigger owner/repo/workflow.yml — trigger a GitHub Actions workflow\n"
+        "• github status — check GitHub integration health\n"
         "• autopilot start: <goal> — queue an autonomous task\n"
         "• autopilot status — show active and pending tasks\n"
         "• help — show this message"
@@ -221,6 +253,7 @@ def _handle_health(_: str) -> str:
         ("Gmail (disabled)" if not _gmail_enabled() else "Gmail", [] if (not _gmail_enabled() or gmail_ready) else ["GMAIL_CREDENTIALS_PATH or GMAIL_TOKEN_PATH"]),
         ("Gemini", ["GEMINI_API_KEY"]),
         ("Firebase", [] if firebase_ready else ["FIREBASE_CREDENTIALS_PATH or FIREBASE_CREDENTIALS_JSON"]),
+        ("GitHub", [] if os.environ.get("GITHUB_PAT") else ["GITHUB_PAT"]),
     ]
     lines = ["System health check:\n"]
     missing = []
@@ -351,6 +384,96 @@ def _handle_reminder(text: str) -> str:
 
 def _handle_library_maintenance(text: str) -> str:
     return handle_library_maintenance_command(text)
+
+
+# ---------------------------------------------------------------------------
+# GitHub handlers
+# ---------------------------------------------------------------------------
+
+def _handle_github_repos(_: str) -> str:
+    from src.integrations.github import client as gh
+    result = gh.health_check()
+    if not result["ok"]:
+        return f"GitHub integration unavailable: {result['error']}"
+    repos = gh.list_repos(per_page=10)
+    if not repos:
+        return "No repositories found."
+    lines = ["Your repositories:\n"]
+    for i, r in enumerate(repos, 1):
+        lock = "🔒" if r["private"] else "🌐"
+        lines.append(f"{i}. {lock} {r['name']} — {r['url']}")
+    return "\n".join(lines)
+
+
+def _handle_github_issue(text: str) -> str:
+    from src.integrations.github import client as gh
+    result = gh.health_check()
+    if not result["ok"]:
+        return f"GitHub integration unavailable: {result['error']}"
+
+    # Expected formats:
+    #   "github create issue in owner/repo: title here"
+    #   "create issue in owner/repo: title here"
+    cleaned = text
+    for prefix in ("github create issue in ", "create issue in "):
+        if cleaned.lower().startswith(prefix):
+            cleaned = cleaned[len(prefix):]
+            break
+
+    if ":" not in cleaned:
+        return "Usage: create issue in owner/repo: title of the issue"
+
+    repo, title = cleaned.split(":", 1)
+    repo = repo.strip()
+    title = title.strip()
+    if not repo or not title:
+        return "Usage: create issue in owner/repo: title of the issue"
+
+    try:
+        issue = gh.create_issue(repo, title)
+        return f"Issue created.\n• #{issue['number']}: {issue['title']}\n• {issue['url']}"
+    except Exception as e:
+        logger.exception("Failed to create GitHub issue")
+        return f"Failed to create issue: {e}"
+
+
+def _handle_github_workflow(text: str) -> str:
+    from src.integrations.github import client as gh
+    result = gh.health_check()
+    if not result["ok"]:
+        return f"GitHub integration unavailable: {result['error']}"
+
+    # Expected formats:
+    #   "github trigger owner/repo/workflow.yml"
+    #   "trigger workflow owner/repo/workflow.yml"
+    cleaned = text
+    for prefix in ("github trigger ", "trigger workflow "):
+        if cleaned.lower().startswith(prefix):
+            cleaned = cleaned[len(prefix):]
+            break
+
+    parts = cleaned.strip().split("/")
+    if len(parts) < 3:
+        return "Usage: github trigger owner/repo/workflow.yml (or workflow ID)"
+
+    owner, repo_name = parts[0], parts[1]
+    workflow_id = "/".join(parts[2:])
+    repo = f"{owner}/{repo_name}"
+
+    try:
+        gh.trigger_workflow(repo, workflow_id)
+        return f"Workflow triggered.\n• Repo: {repo}\n• Workflow: {workflow_id}\n• Branch: main"
+    except Exception as e:
+        logger.exception("Failed to trigger workflow")
+        return f"Failed to trigger workflow: {e}"
+
+
+def _handle_github_status(_: str) -> str:
+    from src.integrations.github import client as gh
+    result = gh.health_check()
+    if result["ok"]:
+        return f"GitHub integration is healthy.\n• Authenticated as: {result['user']}"
+    return f"GitHub integration unhealthy.\n• {result['error']}"
 
 
 def _handle_unknown(text: str) -> str:

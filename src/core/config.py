@@ -78,6 +78,11 @@ TELEGRAM_WEBHOOK_SECRET: str = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "")
 FRONTEND_ORIGIN: str = os.environ.get("FRONTEND_ORIGIN", "")
 
 # ---------------------------------------------------------------------------
+# GitHub (cross-repo orchestration)
+# ---------------------------------------------------------------------------
+GITHUB_PAT: str = os.environ.get("GITHUB_PAT", "")
+
+# ---------------------------------------------------------------------------
 # Workflows
 # ---------------------------------------------------------------------------
 NOTION_WORKFLOW_PARENT_ID: str = os.environ.get("NOTION_WORKFLOW_PARENT_ID", "")

@@ -43,7 +43,7 @@ Release step: move completed entries from `Unreleased` into the new version sect
 - 2026-05-03 16-45-00 Added CORS middleware to `src/app.py` allowing `FRONTEND_ORIGIN` and localhost dev servers.
 - 2026-05-03 16-45-00 Added monorepo scaffolding: `subprojects/scrapers/`, `subprojects/microservices/example-service/`, and `docker-compose.yml` for MacMini backend orchestration.
 - 2026-05-03 16-45-00 Added comprehensive test coverage: `tests/test_firebase.py` (auth + firestore, 9 tests), `tests/test_dashboard_api.py` (11 tests), `tests/test_telegram.py` (4 tests). Full suite now 59 tests (3 credential-gated skips).
-- 2026-05-03 23-31-03 Replaced `frontend/index.html` with a public portfolio landing page. New `frontend/portfolio.css` provides dark-mode responsive styles. Sections: Hero, About, Projects, Skills, Contact, Footer. Includes mobile hamburger menu, smooth scroll, and placeholder content with `<!-- EDIT -->` markers for easy customization. Dashboard link preserved in nav and footer.
+- 2026-05-04 00-08-53 Added GitHub cross-repo orchestration Phase 1: `src/integrations/github/client.py` with `list_repos`, `create_issue`, `trigger_workflow`, and `health_check`. New router intents: `github list repos`, `github create issue in owner/repo: title`, `github trigger owner/repo/workflow.yml`, `github status`. Health check now reports GitHub status. Added `GITHUB_PAT` to `src/core/config.py` and `.env.example`. 15 tests in `tests/test_github.py`, all passing. Zero regressions in existing suite (50 tests total).
 - 2026-05-03 16-45-00 Added Firebase, Telegram, and CORS environment variables to `src/core/config.py` and updated health check in `src/core/router.py` to report Firebase status.
 
 ### Changed
