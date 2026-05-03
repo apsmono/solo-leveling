@@ -3,50 +3,218 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Solo Leveling — Brain Command Center</title>
-  <link rel="stylesheet" href="dashboard/styles.css">
+  <!-- EDIT: Replace with your name -->
+  <title>Your Name — Portfolio</title>
+  <link rel="stylesheet" href="portfolio.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Solo Leveling</h1>
-    <p>Personal command-center brain. Built with FastAPI.</p>
 
-    <div class="card">
-      <h2>Send Command</h2>
-      <input type="text" id="cmd-input" placeholder="Type a command..." />
-      <button id="cmd-send">Send</button>
-      <pre id="cmd-output"></pre>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <!-- EDIT: Replace with your name or brand -->
+      <a href="#" class="logo">Your<span>Name</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="dashboard/">Dashboard</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
+  </nav>
 
-    <p><a href="dashboard/">Go to Dashboard (requires login)</a></p>
-  </div>
+  <!-- Hero -->
+  <section id="hero">
+    <div class="container">
+      <!-- EDIT: Replace with your name -->
+      <h1>Hi, I'm Your Name</h1>
+      <!-- EDIT: Replace with your tagline -->
+      <p class="tagline">Short one-line description of what you do. e.g., "Backend engineer building automation tools and AI-driven systems."</p>
+      <div>
+        <a href="#projects" class="btn btn-primary">View My Work</a>
+        <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+      </div>
+      <div class="scroll-down">Scroll down ↓</div>
+    </div>
+  </section>
 
-  <script type="module">
-    import { API_BASE } from './shared/firebase-config.js';
+  <!-- About -->
+  <section id="about">
+    <div class="container">
+      <h2 class="section-title">About Me</h2>
+      <p class="section-subtitle">A little bit about who I am and what I do.</p>
+      <div class="about-content">
+        <div class="avatar-placeholder">
+          <!-- EDIT: Replace with your avatar image -->
+          <span>Add your<br>photo here</span>
+        </div>
+        <div class="about-text">
+          <!-- EDIT: Replace with your bio -->
+          <p>
+            Write a short biography here. Talk about your background, what drives you,
+            and the kind of problems you enjoy solving. Keep it concise but personal.
+          </p>
+          <p>
+            You can mention your current focus, past experiences, or what you're learning next.
+            This is your story — make it authentic.
+          </p>
+          <a href="#contact" class="btn btn-primary">Let's Talk</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    const input = document.getElementById('cmd-input');
-    const btn = document.getElementById('cmd-send');
-    const output = document.getElementById('cmd-output');
+  <!-- Projects -->
+  <section id="projects">
+    <div class="container">
+      <h2 class="section-title">Projects</h2>
+      <p class="section-subtitle">Things I've built.</p>
+      <div class="projects-grid">
 
-    async function send() {
-      const text = input.value.trim();
-      if (!text) return;
-      output.textContent = 'Sending...';
-      try {
-        const res = await fetch(`${API_BASE}/command`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text }),
-        });
-        const data = await res.json();
-        output.textContent = data.reply || data.status;
-      } catch (e) {
-        output.textContent = 'Error: ' + e.message;
-      }
-    }
+        <!-- EDIT: Duplicate this card for each project -->
+        <div class="card project-card">
+          <div class="project-image">
+            <!-- EDIT: Replace with project screenshot -->
+            <span>Screenshot</span>
+          </div>
+          <!-- EDIT: Project title -->
+          <h3>Project Name</h3>
+          <!-- EDIT: Short project description -->
+          <p>Brief description of what this project does and why it matters.</p>
+          <div class="tags">
+            <!-- EDIT: Tech stack tags -->
+            <span class="tag">Python</span>
+            <span class="tag">FastAPI</span>
+            <span class="tag">Firebase</span>
+          </div>
+          <div class="project-links">
+            <!-- EDIT: Links to live demo and source code -->
+            <a href="#" target="_blank">Live Demo →</a>
+            <a href="#" target="_blank">Source Code →</a>
+          </div>
+        </div>
 
-    btn.addEventListener('click', send);
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+        <!-- Example second project card (remove or duplicate as needed) -->
+        <div class="card project-card">
+          <div class="project-image">
+            <span>Screenshot</span>
+          </div>
+          <h3>Another Project</h3>
+          <p>Description of another project you've worked on.</p>
+          <div class="tags">
+            <span class="tag">JavaScript</span>
+            <span class="tag">React</span>
+          </div>
+          <div class="project-links">
+            <a href="#" target="_blank">Live Demo →</a>
+            <a href="#" target="_blank">Source Code →</a>
+          </div>
+        </div>
+
+        <!-- Example third project card -->
+        <div class="card project-card">
+          <div class="project-image">
+            <span>Screenshot</span>
+          </div>
+          <h3>Third Project</h3>
+          <p>Description of a third project.</p>
+          <div class="tags">
+            <span class="tag">Go</span>
+            <span class="tag">Docker</span>
+          </div>
+          <div class="project-links">
+            <a href="#" target="_blank">Live Demo →</a>
+            <a href="#" target="_blank">Source Code →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section id="skills">
+    <div class="container">
+      <h2 class="section-title">Skills</h2>
+      <p class="section-subtitle">Tools and technologies I work with.</p>
+      <div class="skills-grid">
+        <!-- EDIT: Add, remove, or change skills as needed -->
+        <div class="skill-item">Python</div>
+        <div class="skill-item">FastAPI</div>
+        <div class="skill-item">JavaScript</div>
+        <div class="skill-item">Docker</div>
+        <div class="skill-item">Firebase</div>
+        <div class="skill-item">Git</div>
+        <div class="skill-item">PostgreSQL</div>
+        <div class="skill-item">Linux</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title">Contact</h2>
+      <p class="section-subtitle">Let's build something together.</p>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <div class="label">Email</div>
+          <!-- EDIT: Your email address -->
+          <a href="mailto:you@example.com">you@example.com</a>
+        </div>
+        <div class="contact-item">
+          <div class="label">GitHub</div>
+          <!-- EDIT: Your GitHub profile -->
+          <a href="https://github.com/yourusername" target="_blank">@yourusername</a>
+        </div>
+        <div class="contact-item">
+          <div class="label">LinkedIn</div>
+          <!-- EDIT: Your LinkedIn profile -->
+          <a href="https://linkedin.com/in/yourusername" target="_blank">/in/yourusername</a>
+        </div>
+        <div class="contact-item">
+          <div class="label">Twitter / X</div>
+          <!-- EDIT: Your Twitter/X profile -->
+          <a href="https://twitter.com/yourusername" target="_blank">@yourusername</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>
+        <!-- EDIT: Update year and name -->
+        © 2026 Your Name. All rights reserved.
+        <span style="margin: 0 0.5rem;">·</span>
+        <a href="dashboard/">Dashboard</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+    });
+
+    // Close mobile menu when clicking a link
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+      });
+    });
   </script>
+
 </body>
 </html>

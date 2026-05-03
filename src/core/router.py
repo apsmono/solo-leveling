@@ -50,6 +50,7 @@ INTENT_MAP: dict[str, list[str]] = {
     "gmail_summary": ["email", "gmail", "inbox", "unread", "emails"],
     "reminder": ["remind", "reminder", "notify me"],
     "ask_ai": ["ask", "ai ", "think about", "summarise", "summarize", "analyse", "analyze", "write", "draft"],
+    "autopilot": ["autopilot"],
 }
 
 
@@ -80,6 +81,10 @@ def _log_command(text: str, intent: str, reply: str, source: str) -> None:
 
 def _detect_intent(text: str) -> str:
     lower = text.strip().lower()
+
+    # Autopilot intents should be detected before generic keywords like "status"
+    if lower.startswith("autopilot"):
+        return "autopilot"
 
     # Stage 8 compound workflow detection should run before keyword map because
     # terms like "notion", "inbox", "drive" also match single-step intents.
@@ -124,6 +129,7 @@ def _dispatch(intent: str, original_text: str) -> str:
         "gmail_summary": _handle_gmail_summary,
         "reminder": _handle_reminder,
         "ask_ai": _handle_ask_ai,
+        "autopilot": _handle_autopilot,
         "unknown": _handle_unknown,
     }
     handler = handlers.get(intent, _handle_unknown)
@@ -176,6 +182,8 @@ def _handle_help(_: str) -> str:
         "• remind me tomorrow at 09:00 to review goals\n"
         "• reminders — list pending reminders\n"
         "• health — check which integrations are configured\n"
+        "• autopilot start: <goal> — queue an autonomous task\n"
+        "• autopilot status — show active and pending tasks\n"
         "• help — show this message"
     )
 
@@ -295,6 +303,46 @@ def _handle_ask_ai(text: str) -> str:
     if not task:
         return "What would you like me to think about? Try: ask <your question>"
     return run_agent(task=task)
+
+
+def _handle_autopilot(text: str) -> str:
+    from src.autopilot.loop import get_loop
+
+    normalized = text.strip().lower()
+
+    if normalized in {"autopilot status", "autopilot tasks"}:
+        return get_loop().get_status()
+
+    if normalized.startswith("autopilot pause "):
+        task_id = text[len("autopilot pause "):].strip()
+        return get_loop().pause_task(task_id)
+
+    if normalized.startswith("autopilot approve "):
+        task_id = text[len("autopilot approve "):].strip()
+        return get_loop().approve_task(task_id)
+
+    # Default: autopilot start: <goal>
+    goal = text
+    for kw in ("autopilot start:", "autopilot:", "autopilot "):
+        if goal.lower().startswith(kw):
+            goal = goal[len(kw):].strip()
+            break
+    if not goal:
+        return (
+            "Autopilot commands:\n"
+            "• autopilot start: <goal> — queue a new autonomous task\n"
+            "• autopilot status — show active and pending tasks\n"
+            "• autopilot pause <task_id> — pause a running task\n"
+            "• autopilot approve <task_id> — resume a task awaiting approval"
+        )
+    task = get_loop().start_task(goal)
+    return (
+        f"Autopilot task queued.\n"
+        f"• ID: {task['id']}\n"
+        f"• Goal: {task['goal']}\n"
+        f"• Steps: {len(task.get('steps', []))}\n"
+        f"• Status: {task['status']}"
+    )
 
 
 def _handle_reminder(text: str) -> str:

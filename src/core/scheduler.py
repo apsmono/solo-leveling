@@ -47,6 +47,8 @@ except ModuleNotFoundError:
     CronTrigger = None
 
 from src.core.config import (
+    AUTOPILOT_ENABLED,
+    AUTOPILOT_TICK_SECONDS,
     DAILY_GMAIL_DIGEST_ENABLED,
     DAILY_GMAIL_DIGEST_HOUR,
     DAILY_GMAIL_DIGEST_MINUTE,
@@ -281,6 +283,18 @@ def send_weekly_library_maintenance() -> None:
         logger.exception("Failed to send weekly library maintenance reminder.")
 
 
+def process_autopilot_tick() -> None:
+    """Execute one tick of the autopilot loop if enabled."""
+    if not AUTOPILOT_ENABLED:
+        return
+    try:
+        from src.autopilot.loop import get_loop
+
+        get_loop().tick()
+    except Exception:
+        logger.exception("Autopilot tick failed.")
+
+
 def start_scheduler() -> None:
     """Start the background scheduler once per process."""
     global _scheduler
@@ -300,6 +314,16 @@ def start_scheduler() -> None:
         id="due-reminders",
         replace_existing=True,
     )
+
+    if AUTOPILOT_ENABLED:
+        _scheduler.add_job(
+            process_autopilot_tick,
+            "interval",
+            seconds=max(AUTOPILOT_TICK_SECONDS, 15),
+            id="autopilot-tick",
+            replace_existing=True,
+        )
+        logger.info("Autopilot tick scheduled every %s seconds.", max(AUTOPILOT_TICK_SECONDS, 15))
 
     if DAILY_GMAIL_DIGEST_ENABLED:
         _scheduler.add_job(

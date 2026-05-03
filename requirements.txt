@@ -26,3 +26,6 @@ firebase-admin>=6.5.0
 
 # Telegram bot
 python-telegram-bot>=20.8
+
+# Autopilot — multi-AI orchestration
+litellm>=1.40.0

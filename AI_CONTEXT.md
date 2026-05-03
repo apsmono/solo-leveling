@@ -53,7 +53,8 @@ As the project expands, prefer this structure:
 2. **ACTIVE: Deploy and verify Firebase + Dashboard + Telegram end-to-end** — configure Firebase credentials, deploy `frontend/` to GitHub Pages, set Telegram webhook, verify auth flow and CORS
 3. ~~Implement Stage 9 — Personal Knowledge Libraries command layer~~ **DONE** (`library/` folder is canonical storage; all handlers are local-library-first)
 4. **ACTIVE: Multi-AI Team Execution** — governance upgraded with role-branch-authority policy, responsibility-level testing, and OKR valuation in `docs/ai-employer-operating-system.md`; upcoming coordinated tasks must use this model.
-5. ~~Choose a deployment target~~ **DONE** — MacMini (backend via Docker Compose) + GitHub Pages (static dashboard frontend)
+5. **ACTIVE: Autopilot System** — Phase 1 MVP live in `src/autopilot/`. RL-governed autonomous loop with Kimi API via litellm. Commands: `autopilot start: <goal>`, `autopilot status`, `autopilot pause`, `autopilot approve`. Phase 2 will add Claude Code subprocess client, write tools, and approval queue.
+6. ~~Choose a deployment target~~ **DONE** — MacMini (backend via Docker Compose) + GitHub Pages (static dashboard frontend)
 6. ~~Add tests with at least one integration smoke test per service~~ **DONE** — 59 tests (Firebase auth, Firestore, dashboard API, Telegram webhook, Stage 9 libraries, integration smoke)
 
 ## Completed Stages

@@ -81,3 +81,14 @@ FRONTEND_ORIGIN: str = os.environ.get("FRONTEND_ORIGIN", "")
 # Workflows
 # ---------------------------------------------------------------------------
 NOTION_WORKFLOW_PARENT_ID: str = os.environ.get("NOTION_WORKFLOW_PARENT_ID", "")
+
+# ---------------------------------------------------------------------------
+# Autopilot
+# ---------------------------------------------------------------------------
+AUTOPILOT_ENABLED: bool = _get_bool("AUTOPILOT_ENABLED", False)
+AUTOPILOT_TICK_SECONDS: int = _get_int("AUTOPILOT_TICK_SECONDS", 60)
+AUTOPILOT_RL_LEVEL: int = _get_int("AUTOPILOT_RL_LEVEL", 1)
+AUTOPILOT_MAX_STEPS_PER_TASK: int = _get_int("AUTOPILOT_MAX_STEPS_PER_TASK", 50)
+AUTOPILOT_TASK_STORE_PATH: str = os.environ.get("AUTOPILOT_TASK_STORE_PATH", "data/autopilot_tasks.json")
+AUTOPILOT_STATE_PATH: str = os.environ.get("AUTOPILOT_STATE_PATH", "data/autopilot_state.json")
+AUTOPILOT_APPROVALS_PATH: str = os.environ.get("AUTOPILOT_APPROVALS_PATH", "data/autopilot_approvals.json")
