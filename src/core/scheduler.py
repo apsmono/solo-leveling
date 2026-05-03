@@ -33,6 +33,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from pathlib import Path
 from threading import Lock
@@ -55,6 +56,7 @@ from src.core.config import (
     LIBRARY_MAINTENANCE_MINUTE,
     REMINDER_STORE_PATH,
     SCHEDULER_POLL_SECONDS,
+    USE_FIRESTORE_REMINDERS,
 )
 from src.core.libraries import format_library_maintenance_summary
 
@@ -76,6 +78,104 @@ _TOMORROW_PATTERN = re.compile(
 _STORE_LOCK = Lock()
 _scheduler: BackgroundScheduler | None = None
 
+
+# ---------------------------------------------------------------------------
+# Reminder store abstraction
+# ---------------------------------------------------------------------------
+
+class _ReminderStore(ABC):
+    @abstractmethod
+    def create(self, message: str, run_at: datetime) -> dict[str, str]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_pending(self) -> list[dict[str, str]]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def mark_sent(self, ids: set[str]) -> None:
+        raise NotImplementedError
+
+
+class _JsonReminderStore(_ReminderStore):
+    def create(self, message: str, run_at: datetime) -> dict[str, str]:
+        reminder = {
+            "id": uuid4().hex,
+            "message": message.strip(),
+            "run_at": run_at.isoformat(timespec="seconds"),
+            "created_at": datetime.now().isoformat(timespec="seconds"),
+            "sent_at": "",
+        }
+        with _STORE_LOCK:
+            reminders = _load_reminders()
+            reminders.append(reminder)
+            reminders.sort(key=lambda item: item["run_at"])
+            _save_reminders(reminders)
+        return reminder
+
+    def list_pending(self) -> list[dict[str, str]]:
+        return [item for item in _load_reminders() if not item.get("sent_at")]
+
+    def mark_sent(self, ids: set[str]) -> None:
+        with _STORE_LOCK:
+            reminders = _load_reminders()
+            sent_at = datetime.now().isoformat(timespec="seconds")
+            for reminder in reminders:
+                if reminder["id"] in ids:
+                    reminder["sent_at"] = sent_at
+            _save_reminders(reminders)
+
+
+class _FirestoreReminderStore(_ReminderStore):
+    def create(self, message: str, run_at: datetime) -> dict[str, str]:
+        from src.integrations.firebase import firestore as fb
+
+        doc_id = fb.create_reminder_doc(message, run_at)
+        return {
+            "id": doc_id,
+            "message": message.strip(),
+            "run_at": run_at.isoformat(timespec="seconds"),
+            "created_at": datetime.now().isoformat(timespec="seconds"),
+            "sent_at": "",
+        }
+
+    def list_pending(self) -> list[dict[str, str]]:
+        from src.integrations.firebase import firestore as fb
+
+        docs = fb.list_pending_reminders()
+        results = []
+        for doc in docs:
+            run_at = doc.get("run_at")
+            if isinstance(run_at, datetime):
+                run_at = run_at.isoformat(timespec="seconds")
+            results.append({
+                "id": doc["id"],
+                "message": doc.get("message", ""),
+                "run_at": run_at or "",
+                "created_at": "",
+                "sent_at": "",
+            })
+        return results
+
+    def mark_sent(self, ids: set[str]) -> None:
+        from src.integrations.firebase import firestore as fb
+
+        for doc_id in ids:
+            try:
+                fb.mark_reminder_sent(doc_id)
+            except Exception:
+                logger.exception("Failed to mark reminder %s as sent in Firestore", doc_id)
+
+
+def _get_store() -> _ReminderStore:
+    if USE_FIRESTORE_REMINDERS:
+        return _FirestoreReminderStore()
+    return _JsonReminderStore()
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
 
 def handle_reminder_command(text: str) -> str:
     """Create or inspect reminders based on the inbound command text."""
@@ -106,26 +206,15 @@ def handle_reminder_command(text: str) -> str:
 
 
 def create_reminder(message: str, run_at: datetime) -> dict[str, str]:
-    reminder = {
-        "id": uuid4().hex,
-        "message": message.strip(),
-        "run_at": run_at.isoformat(timespec="seconds"),
-        "created_at": datetime.now().isoformat(timespec="seconds"),
-        "sent_at": "",
-    }
-
-    with _STORE_LOCK:
-        reminders = _load_reminders()
-        reminders.append(reminder)
-        reminders.sort(key=lambda item: item["run_at"])
-        _save_reminders(reminders)
-
+    store = _get_store()
+    reminder = store.create(message, run_at)
     logger.info("Reminder scheduled for %s: %s", reminder["run_at"], reminder["message"])
     return reminder
 
 
 def format_pending_reminders() -> str:
-    reminders = [item for item in _load_reminders() if not item.get("sent_at")]
+    store = _get_store()
+    reminders = store.list_pending()
     if not reminders:
         return "No pending reminders."
 
@@ -138,10 +227,11 @@ def format_pending_reminders() -> str:
 
 def process_due_reminders() -> None:
     """Send any reminders whose due time has passed."""
+    store = _get_store()
     now = datetime.now()
     due = [
-        item for item in _load_reminders()
-        if not item.get("sent_at") and datetime.fromisoformat(item["run_at"]) <= now
+        item for item in store.list_pending()
+        if item.get("run_at") and datetime.fromisoformat(item["run_at"]) <= now
     ]
     if not due:
         return
@@ -159,16 +249,8 @@ def process_due_reminders() -> None:
         except Exception:
             logger.exception("Failed to send reminder %s", reminder["id"])
 
-    if not sent_ids:
-        return
-
-    with _STORE_LOCK:
-        reminders = _load_reminders()
-        sent_at = datetime.now().isoformat(timespec="seconds")
-        for reminder in reminders:
-            if reminder["id"] in sent_ids:
-                reminder["sent_at"] = sent_at
-        _save_reminders(reminders)
+    if sent_ids:
+        store.mark_sent(sent_ids)
 
 
 def send_daily_gmail_digest() -> None:

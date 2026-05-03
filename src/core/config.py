@@ -58,6 +58,26 @@ LIBRARY_MAINTENANCE_HOUR: int = _get_int("LIBRARY_MAINTENANCE_HOUR", 9)
 LIBRARY_MAINTENANCE_MINUTE: int = _get_int("LIBRARY_MAINTENANCE_MINUTE", 0)
 
 # ---------------------------------------------------------------------------
+# Firebase
+# ---------------------------------------------------------------------------
+FIREBASE_CREDENTIALS_PATH: str = os.environ.get("FIREBASE_CREDENTIALS_PATH", "")
+FIREBASE_CREDENTIALS_JSON: str = os.environ.get("FIREBASE_CREDENTIALS_JSON", "")
+FIREBASE_PROJECT_ID: str = os.environ.get("FIREBASE_PROJECT_ID", "")
+ALLOWED_USER_EMAIL: str = os.environ.get("ALLOWED_USER_EMAIL", "")
+USE_FIRESTORE_REMINDERS: bool = _get_bool("USE_FIRESTORE_REMINDERS", False)
+
+# ---------------------------------------------------------------------------
+# Telegram
+# ---------------------------------------------------------------------------
+TELEGRAM_BOT_TOKEN: str = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_WEBHOOK_SECRET: str = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "")
+
+# ---------------------------------------------------------------------------
+# CORS / Deployment
+# ---------------------------------------------------------------------------
+FRONTEND_ORIGIN: str = os.environ.get("FRONTEND_ORIGIN", "")
+
+# ---------------------------------------------------------------------------
 # Workflows
 # ---------------------------------------------------------------------------
 NOTION_WORKFLOW_PARENT_ID: str = os.environ.get("NOTION_WORKFLOW_PARENT_ID", "")

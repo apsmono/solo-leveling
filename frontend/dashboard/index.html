@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Solo Leveling</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div id="login-gate" class="login-gate">
+      <h1>Solo Leveling Dashboard</h1>
+      <p>Sign in to view your command center.</p>
+      <button id="btn-login">Sign in with Google</button>
+    </div>
+
+    <div id="dashboard" class="hidden">
+      <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+        <h1>Dashboard</h1>
+        <div>
+          <span id="user-email" style="margin-right:1rem;color:var(--muted);"></span>
+          <button id="btn-logout">Logout</button>
+        </div>
+      </header>
+
+      <nav id="nav">
+        <a href="#" data-view="overview" class="active">Overview</a>
+        <a href="#" data-view="commands">Commands</a>
+        <a href="#" data-view="reminders">Reminders</a>
+        <a href="#" data-view="cmd">Send Command</a>
+      </nav>
+
+      <div id="view-overview">
+        <div class="card">
+          <h2>Library</h2>
+          <div class="grid">
+            <div class="stat"><div class="value" id="stat-profile">0</div><div class="label">Profile</div></div>
+            <div class="stat"><div class="value" id="stat-terms">0</div><div class="label">Terms</div></div>
+            <div class="stat"><div class="value" id="stat-books">0</div><div class="label">Books</div></div>
+            <div class="stat"><div class="value" id="stat-articles">0</div><div class="label">Articles</div></div>
+            <div class="stat"><div class="value" id="stat-thoughts">0</div><div class="label">Thoughts</div></div>
+            <div class="stat"><div class="value" id="stat-references">0</div><div class="label">References</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Integration Health</h2>
+          <div id="health-list"></div>
+        </div>
+      </div>
+
+      <div id="view-commands" class="hidden">
+        <div class="card">
+          <h2>Recent Commands</h2>
+          <table id="commands-table">
+            <thead><tr><th>Time</th><th>Text</th><th>Intent</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="view-reminders" class="hidden">
+        <div class="card">
+          <h2>Pending Reminders</h2>
+          <pre id="reminder-list"></pre>
+        </div>
+        <div class="card">
+          <h2>Create Reminder</h2>
+          <input type="text" id="reminder-msg" placeholder="What to remind?" />
+          <input type="datetime-local" id="reminder-time" />
+          <button id="reminder-create">Create</button>
+        </div>
+      </div>
+
+      <div id="view-cmd" class="hidden">
+        <div class="card">
+          <h2>Send Command</h2>
+          <input type="text" id="dash-cmd-input" placeholder="Type a command..." />
+          <button id="dash-cmd-send">Send</button>
+          <pre id="dash-cmd-output"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

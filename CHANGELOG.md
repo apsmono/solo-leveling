@@ -34,13 +34,26 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ## Unreleased
 
+### Added
+
+- 2026-05-03 16-45-00 Added Firebase ecosystem integration: `src/integrations/firebase/auth.py` (ID token verification with single-user email gate) and `src/integrations/firebase/firestore.py` (reminders + command logging collections). Firestore usage is gated by `USE_FIRESTORE_REMINDERS` env var; JSON file fallback remains active by default.
+- 2026-05-03 16-45-00 Added Telegram bot webhook integration at `POST /webhook/telegram` via `src/integrations/telegram/webhook.py`. Incoming messages route through the same `route_command()` function as the HTTP API. Supports optional `TELEGRAM_WEBHOOK_SECRET` for spoofing protection. Added `scripts/set-telegram-webhook.py` for webhook registration.
+- 2026-05-03 16-45-00 Added versioned REST API under `/api/v1`: `src/api/dashboard.py` (library stats + integration health), `src/api/commands.py` (command history from Firestore), `src/api/reminders.py` (list/create/delete reminders). All dashboard endpoints require Firebase Auth Bearer token via `src/api/deps.py`.
+- 2026-05-03 16-45-00 Added static dashboard frontend under `frontend/` for GitHub Pages deployment: landing page with command input, auth-gated dashboard with library overview, integration health, recent commands, reminder manager, and command sender. Built with vanilla JS, no build step. Added `.github/workflows/deploy-dashboard.yml` for automatic Pages deployment on push to `main`.
+- 2026-05-03 16-45-00 Added CORS middleware to `src/app.py` allowing `FRONTEND_ORIGIN` and localhost dev servers.
+- 2026-05-03 16-45-00 Added monorepo scaffolding: `subprojects/scrapers/`, `subprojects/microservices/example-service/`, and `docker-compose.yml` for MacMini backend orchestration.
+- 2026-05-03 16-45-00 Added comprehensive test coverage: `tests/test_firebase.py` (auth + firestore, 9 tests), `tests/test_dashboard_api.py` (11 tests), `tests/test_telegram.py` (4 tests). Full suite now 59 tests (3 credential-gated skips).
+- 2026-05-03 16-45-00 Added Firebase, Telegram, and CORS environment variables to `src/core/config.py` and updated health check in `src/core/router.py` to report Firebase status.
+
+### Changed
+
+- 2026-05-03 16-45-00 Refactored `src/core/scheduler.py` with `_ReminderStore` abstraction: `_JsonReminderStore` (existing JSON file behavior) and `_FirestoreReminderStore` (new Firestore backend). Store selection is automatic based on `USE_FIRESTORE_REMINDERS` flag. All public scheduler functions (`create_reminder`, `format_pending_reminders`, `process_due_reminders`) work transparently with either backend.
+- 2026-05-03 16-45-00 Updated `src/core/router.py` `route_command()` to accept optional `source` parameter and log commands to Firestore when `USE_FIRESTORE_REMINDERS` is enabled.
+- 2026-05-03 16-45-00 Updated `.github/workflows/ci.yml` to run all five test modules (`test_stage9_libraries`, `test_integration_smoke`, `test_firebase`, `test_dashboard_api`, `test_telegram`).
+
 ### Fixed
 
 - 2026-04-23 19-52-00 Corrected `docs/TASK-MULTI-AI-003.md` status from IN_PROGRESS to DONE with all 6 acceptance criteria checked. Task was completed 2026-04-21 (commit 7227075) but documentation was not updated at handoff; now synchronized with actual state (`.github/workflows/ci.yml` fully implemented, tests running green in CI).
-
-### Added
-
-- 2026-04-24 08-41-46 Added decision record `docs/decisions/006-interface-and-gemini-pivot.md` to formalize roadmap pivot: WhatsApp removed from primary plan scope and Gemini set as the primary AI employee provider.
 - 2026-04-23 18-38-04 Added `docs/research/deployable-ai-short-context-2026-04-23.md`: research-backed execution model for short deployable AI context plus detailed per-AI task briefs (objective, scope, editable files, commands, acceptance criteria, evidence, handoff). Includes copy-paste templates for orchestrator/worker/validator/release roles and anti-patterns to reduce ambiguity and rework.
 - 2026-04-23 13-41-44 Releasing development → main: 6 commits encompassing Railway deployment docs, health verification guide, deployment workflow, live status report, release checklist, and CI dual-branch wiring.
 - 2026-04-23 13-38-36 Added `docs/RAILWAY_LIVE_STATUS.md`: live production deployment status report verifying Railway instance `https://solo-leveling-production-36c8.up.railway.app` is running (HTTP 200, FastAPI responding, webhook endpoint active, authorization checks working). Documents test results, validation checklist, and next steps for confirming full integration health via WhatsApp or local testing.

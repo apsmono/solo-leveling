@@ -25,4 +25,4 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run tests
-        run: python -m unittest tests.test_stage9_libraries tests.test_integration_smoke -v
+        run: python -m unittest tests.test_stage9_libraries tests.test_integration_smoke tests.test_firebase tests.test_dashboard_api tests.test_telegram -v

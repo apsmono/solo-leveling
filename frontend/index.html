@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solo Leveling — Brain Command Center</title>
+  <link rel="stylesheet" href="dashboard/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Solo Leveling</h1>
+    <p>Personal command-center brain. Built with FastAPI.</p>
+
+    <div class="card">
+      <h2>Send Command</h2>
+      <input type="text" id="cmd-input" placeholder="Type a command..." />
+      <button id="cmd-send">Send</button>
+      <pre id="cmd-output"></pre>
+    </div>
+
+    <p><a href="dashboard/">Go to Dashboard (requires login)</a></p>
+  </div>
+
+  <script type="module">
+    import { API_BASE } from './shared/firebase-config.js';
+
+    const input = document.getElementById('cmd-input');
+    const btn = document.getElementById('cmd-send');
+    const output = document.getElementById('cmd-output');
+
+    async function send() {
+      const text = input.value.trim();
+      if (!text) return;
+      output.textContent = 'Sending...';
+      try {
+        const res = await fetch(`${API_BASE}/command`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text }),
+        });
+        const data = await res.json();
+        output.textContent = data.reply || data.status;
+      } catch (e) {
+        output.textContent = 'Error: ' + e.message;
+      }
+    }
+
+    btn.addEventListener('click', send);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+  </script>
+</body>
+</html>

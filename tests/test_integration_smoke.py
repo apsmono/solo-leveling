@@ -66,6 +66,7 @@ class RouterSmokeTests(unittest.TestCase):
                 "GOOGLE_DRIVE_CREDENTIALS_PATH": "/tmp/drive-creds.json",
                 "GMAIL_CREDENTIALS_PATH": "/tmp/gmail-creds.json",
                 "GEMINI_API_KEY": "x",
+                "FIREBASE_CREDENTIALS_PATH": "/tmp/fb-creds.json",
             },
             clear=True,
         ):

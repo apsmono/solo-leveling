@@ -13,7 +13,9 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
+from src.core.config import FRONTEND_ORIGIN
 from src.core.router import route_command
 from src.core.scheduler import shutdown_scheduler, start_scheduler
 
@@ -38,6 +40,24 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# CORS for GitHub Pages frontend
+_origins = ["http://localhost:8080", "http://localhost:3000"]
+if FRONTEND_ORIGIN:
+    _origins.append(FRONTEND_ORIGIN)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
+)
+
+# Versioned API routers
+from src.api.v1_router import router as v1_router
+
+app.include_router(v1_router)
+
 
 @app.get("/healthz")
 async def healthz() -> dict[str, str]:
@@ -52,3 +72,21 @@ async def command(payload: dict[str, Any]) -> dict[str, str]:
 
     reply = route_command(text)
     return {"status": "ok", "reply": reply}
+
+
+@app.post("/webhook/telegram")
+async def telegram_webhook(payload: dict[str, Any]) -> dict[str, str]:
+    """Receive Telegram webhook updates."""
+    from src.core.config import TELEGRAM_WEBHOOK_SECRET
+    from src.integrations.telegram.webhook import process_update
+
+    secret = payload.get("secret", "")
+    if TELEGRAM_WEBHOOK_SECRET and secret != TELEGRAM_WEBHOOK_SECRET:
+        logger.warning("Telegram webhook received with invalid secret.")
+        return {"status": "ok"}
+
+    try:
+        await process_update(payload)
+    except Exception:
+        logger.exception("Telegram webhook error")
+    return {"status": "ok"}

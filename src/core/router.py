@@ -53,11 +53,25 @@ INTENT_MAP: dict[str, list[str]] = {
 }
 
 
-def route_command(text: str) -> str:
+def route_command(text: str, source: str = "api") -> str:
     """Parse intent from text and dispatch to the correct handler."""
     intent = _detect_intent(text)
     logger.info("Intent detected: %s", intent)
-    return _dispatch(intent, text)
+    reply = _dispatch(intent, text)
+    _log_command(text, intent, reply, source)
+    return reply
+
+
+def _log_command(text: str, intent: str, reply: str, source: str) -> None:
+    """Log command to Firestore if Firebase is configured."""
+    from src.core.config import USE_FIRESTORE_REMINDERS
+    if not USE_FIRESTORE_REMINDERS:
+        return
+    try:
+        from src.integrations.firebase.firestore import log_command as _fb_log
+        _fb_log(text, intent, reply, source)
+    except Exception:
+        logger.debug("Command logging to Firestore failed", exc_info=True)
 
 
 # ---------------------------------------------------------------------------
@@ -186,11 +200,19 @@ def _handle_health(_: str) -> str:
         ]
     )
 
+    firebase_ready = any(
+        [
+            os.environ.get("FIREBASE_CREDENTIALS_PATH"),
+            os.environ.get("FIREBASE_CREDENTIALS_JSON"),
+        ]
+    )
+
     checks = [
         ("Notion", ["NOTION_API_TOKEN"]),
         ("Google Drive", [] if drive_ready else ["GOOGLE_DRIVE_CREDENTIALS_PATH"]),
         ("Gmail (disabled)" if not _gmail_enabled() else "Gmail", [] if (not _gmail_enabled() or gmail_ready) else ["GMAIL_CREDENTIALS_PATH or GMAIL_TOKEN_PATH"]),
         ("Gemini", ["GEMINI_API_KEY"]),
+        ("Firebase", [] if firebase_ready else ["FIREBASE_CREDENTIALS_PATH or FIREBASE_CREDENTIALS_JSON"]),
     ]
     lines = ["System health check:\n"]
     missing = []
