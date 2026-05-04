@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-labelledby="t3">
+  <title id="t3">Placeholder foto pre-wedding 3  ganti dengan foto Anda</title>
+  <defs>
+    <linearGradient id="g3" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1f3529"/>
+      <stop offset="100%" style="stop-color:#8a5a2f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g3)"/>
+  <text x="400" y="290" text-anchor="middle" fill="#fffbf4" font-family="Georgia, serif" font-size="28">Foto 3</text>
+  <text x="400" y="330" text-anchor="middle" fill="rgba(255,251,244,0.85)" font-family="system-ui, sans-serif" font-size="16">Gunakan loading=&quot;lazy&quot; pada gambar</text>
+</svg>

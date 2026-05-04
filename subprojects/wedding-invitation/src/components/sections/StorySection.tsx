@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/Card';
 
 export function StorySection() {
   return (
-    <section id="kisah" className="py-10">
+    <section id="kisah" className="py-10 scroll-mt-[var(--nav-offset,5rem)]">
       <div className="container-main">
         <AnimatedSection>
           <Card>

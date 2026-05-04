@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Anchor scroll offset below sticky nav */
+    --nav-offset: 4.5rem;
+  }
+
   html {
     scroll-behavior: smooth;
     font-size: 17px;
