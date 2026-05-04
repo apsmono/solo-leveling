@@ -138,6 +138,12 @@ Email send permission requires an explicit user command with confirmation step.
   - `reminders`
 - Optional daily Gmail digest is controlled by `DAILY_GMAIL_DIGEST_ENABLED`, `DAILY_GMAIL_DIGEST_HOUR`, and `DAILY_GMAIL_DIGEST_MINUTE`.
 
+### Dashboard REST (`/api/v1`, Firebase Auth)
+
+- Static site: `subprojects/dashboard/` (portfolio root + `dashboard/` app). See `subprojects/dashboard/README.md`.
+- `GET /api/v1/reminders` returns `pending` (same human-readable text as the `reminders` command) and `items` (sorted list of `{id, message, run_at, ...}`) for UI tables.
+- `DELETE /api/v1/reminders/{id}` removes a **pending** reminder via the same `_ReminderStore` as JSON or Firestore (`USE_FIRESTORE_REMINDERS`); already-sent rows are not removed.
+
 ---
 
 ## Workflows (Stage 8)

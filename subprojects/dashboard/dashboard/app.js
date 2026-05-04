@@ -57,8 +57,20 @@ onAuthChanged((user) => {
   }
 });
 
+function setBanner(id, message) {
+  const el = document.getElementById(id);
+  if (!message) {
+    el.textContent = "";
+    el.classList.add("hidden");
+    return;
+  }
+  el.textContent = message;
+  el.classList.remove("hidden");
+}
+
 // Overview
 async function loadOverview() {
+  setBanner("overview-error", "");
   try {
     const data = await apiGet("/api/v1/dashboard/stats");
     const lib = data.library || {};
@@ -79,6 +91,7 @@ async function loadOverview() {
       .join("");
   } catch (e) {
     console.error(e);
+    setBanner("overview-error", e.message || "Could not load overview.");
   }
 }
 
@@ -102,11 +115,54 @@ async function loadCommands() {
 
 // Reminders
 async function loadReminders() {
+  setBanner("reminders-error", "");
+  const tbody = document.getElementById("reminders-tbody");
+  const table = document.getElementById("reminders-table");
+  const empty = document.getElementById("reminders-empty");
   try {
     const data = await apiGet("/api/v1/reminders");
-    document.getElementById("reminder-list").textContent = data.pending;
+    const items = Array.isArray(data.items) ? data.items : [];
+    tbody.innerHTML = "";
+    if (items.length === 0) {
+      table.classList.add("hidden");
+      empty.classList.remove("hidden");
+      return;
+    }
+    empty.classList.add("hidden");
+    table.classList.remove("hidden");
+    for (const row of items) {
+      const tr = document.createElement("tr");
+      const tdWhen = document.createElement("td");
+      tdWhen.textContent = row.run_at ? new Date(row.run_at).toLocaleString() : "—";
+      const tdMsg = document.createElement("td");
+      tdMsg.textContent = row.message || "";
+      const tdBtn = document.createElement("td");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn-danger";
+      btn.textContent = "Delete";
+      btn.addEventListener("click", async () => {
+        if (!row.id || !confirm("Remove this reminder?")) return;
+        try {
+          const out = await apiDelete(`/api/v1/reminders/${encodeURIComponent(row.id)}`);
+          if (out.status === "error") {
+            alert(out.reply || "Delete failed");
+            return;
+          }
+          await loadReminders();
+        } catch (e) {
+          alert(e.message);
+        }
+      });
+      tdBtn.appendChild(btn);
+      tr.append(tdWhen, tdMsg, tdBtn);
+      tbody.appendChild(tr);
+    }
   } catch (e) {
     console.error(e);
+    table.classList.add("hidden");
+    empty.classList.add("hidden");
+    setBanner("reminders-error", e.message || "Could not load reminders.");
   }
 }
 
@@ -115,8 +171,13 @@ document.getElementById("reminder-create").addEventListener("click", async () =>
   const runAt = document.getElementById("reminder-time").value;
   if (!message || !runAt) return;
   try {
-    await apiPost("/api/v1/reminders", { message, run_at: runAt });
+    const out = await apiPost("/api/v1/reminders", { message, run_at: runAt });
+    if (out.status === "error") {
+      alert(out.reply || "Could not create reminder");
+      return;
+    }
     document.getElementById("reminder-msg").value = "";
+    document.getElementById("reminder-time").value = "";
     loadReminders();
   } catch (e) {
     alert(e.message);

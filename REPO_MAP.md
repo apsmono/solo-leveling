@@ -122,7 +122,7 @@ Static sites and microservices housed in the same repo for discoverability.
 
 | Directory | Contents | Deploy Target |
 |-----------|----------|---------------|
-| `dashboard/` | Portfolio + dashboard static site (HTML/CSS/JS) | GitHub Pages |
+| `dashboard/` | Portfolio + dashboard static site (HTML/CSS/JS); config + deploy notes in `README.md` | GitHub Pages |
 | `wedding-invitation/` | Digital wedding invite (Vite, React, TypeScript, Tailwind); see `subprojects/wedding-invitation/README.md` | Cloudflare Pages / Vercel / Netlify |
 | `koperasi-landing/` | Koperasi KKS landing page static site (HTML/CSS/JS) | Cloudflare Pages |
 | `scrapers/` | Python scraping scripts | Local / scheduled |

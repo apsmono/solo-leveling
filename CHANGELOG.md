@@ -34,7 +34,13 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ## Unreleased
 
+### Added
+
+- 2026-05-04 12-03-53 `GET /api/v1/reminders` now includes `items`, a sorted array of pending reminders (`id`, `message`, `run_at`, …) for the static dashboard. Added `list_pending_reminders_structured()`, `delete_pending_reminder()`, and `_ReminderStore.delete_pending()` (JSON + Firestore). Firestore helper `delete_reminder_doc()`. Dashboard reminders view: table with delete, empty state, error banners; `subprojects/dashboard/README.md`. Tests: `test_delete_reminder_not_found`, expanded `test_list_reminders`.
+
 ### Changed
+
+- 2026-05-04 12-03-53 `DELETE /api/v1/reminders/{id}` removes pending reminders through the reminder store for **both** JSON and Firestore backends (previously Firestore-only). Returns `error` when the id is missing, already sent, or unknown.
 
 - 2026-05-04 10-41-17 Updated `subprojects/wedding-invitation/` defaults: couple names Arif Eko Pramono & Amalia Indah Palupi; `WEDDING_DATE_LABEL_LONG` now derived via `formatDateId(WEDDING_DATE)` (`Intl` id-ID) + ` · InsyaAllah`; expanded `CONTENT_GUIDE.md` with step-by-step Google Maps address, embed, and directions URLs; synced `index.html` meta titles.
 - 2026-05-04 10-06-45 Rebuilt `subprojects/wedding-invitation/` toward a minimalist Goodchoice-style flow: Bahasa Indonesia throughout, sticky anchor nav (`#beranda`, `#ayatsuci`, `#acara`, `#kisah`, `#galeri`, `#lokasi`, `#rsvp`, `#hadiah`), WhatsApp RSVP with local summary, gift copy + optional QRIS, dual Google Maps embeds, lazy-loaded gallery placeholders, and centralized placeholders in `src/lib/constants.ts`. Added `CONTENT_GUIDE.md` and expanded `README.md` (stack rationale, folder tree, deploy checklist).
