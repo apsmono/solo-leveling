@@ -1,15 +1,8 @@
 import { AnimatedSection } from '@/components/ui/AnimatedSection';
 import { Button } from '@/components/ui/Button';
-import {
-  BRIDE_NAME,
-  COVER_IMAGE_SRC,
-  GROOM_NAME,
-  WEDDING_DATE_LABEL_LONG,
-} from '@/lib/constants';
+import { BRIDE_NAME, GROOM_NAME, WEDDING_DATE_LABEL_LONG } from '@/lib/constants';
 
 export function HeroSection() {
-  const showHeroPhoto = Boolean(COVER_IMAGE_SRC.trim());
-
   return (
     <section id="beranda" className="text-center pt-14 pb-12 relative scroll-mt-[var(--nav-offset,5rem)]">
       <AnimatedSection>
@@ -21,22 +14,6 @@ export function HeroSection() {
           </svg>
         </div>
       </AnimatedSection>
-
-      {showHeroPhoto && (
-        <AnimatedSection delay={0.05}>
-          <div className="mx-auto mb-8 max-w-[min(92vw,340px)] overflow-hidden rounded-[28px] shadow-soft border border-[rgba(120,86,55,0.12)]">
-            <img
-              src={COVER_IMAGE_SRC}
-              alt={`Foto pasangan pengantin ${GROOM_NAME} dan ${BRIDE_NAME}`}
-              width={680}
-              height={850}
-              className="aspect-[4/5] w-full object-cover"
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-        </AnimatedSection>
-      )}
 
       <AnimatedSection delay={0.1}>
         <p className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-4">{WEDDING_DATE_LABEL_LONG}</p>

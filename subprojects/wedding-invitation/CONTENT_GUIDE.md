@@ -15,9 +15,9 @@ Judul HTML/meta ada di `index.html` (sesuaikan `<title>` dan Open Graph).
 - `WEDDING_DATE` — gabungan tanggal + jam WIB untuk timer (edit jam di string ISO jika perlu).
 - `WEDDING_DATE_LABEL_LONG` — kalimat tanggal Indonesia untuk hero dan kartu undangan (harus selaras dengan hari tanggal sebenarnya).
 
-## Foto sampul / hero
+## Foto sampul
 
-- `COVER_IMAGE_SRC` — path ke file di folder `public/`, contoh `/images/cover.jpg`.
+- `COVER_IMAGE_SRC` — path ke file di folder `public/`, contoh `/images/cover.jpg` (hanya di **halaman sampul** sebelum *Buka Undangan*; bagian beranda setelahnya memakai tipografi tanpa duplikasi foto agar LCP tetap ringan).
 - Kosongkan (`''`) untuk hanya memakai latar gradien.
 
 Rekomendasi: rasio potret, kompres WebP/JPG, lebar 1200–1600px.
