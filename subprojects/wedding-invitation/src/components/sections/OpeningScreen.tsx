@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useInvitationStore } from '@/store/useInvitationStore';
 import { Button } from '@/components/ui/Button';
+import { BRIDE_NAME, COVER_IMAGE_SRC, GROOM_NAME } from '@/lib/constants';
 
 export function OpeningScreen() {
   const { guestName, openInvitation, toggleMusic } = useInvitationStore();
@@ -11,6 +12,7 @@ export function OpeningScreen() {
   };
 
   const displayName = guestName?.trim() || 'Tamu Undangan';
+  const showCover = Boolean(COVER_IMAGE_SRC.trim());
 
   return (
     <motion.div
@@ -23,8 +25,8 @@ export function OpeningScreen() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.8, ease: 'easeInOut' }}
     >
-      {/* Texture overlay */}
-      <div className="fixed inset-0 pointer-events-none z-0"
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
         style={{
           background:
             'linear-gradient(130deg, rgba(255,255,255,0.12), transparent 30%), repeating-linear-gradient(45deg, transparent 0, transparent 26px, rgba(98,71,44,0.03) 26px, rgba(98,71,44,0.03) 28px), repeating-linear-gradient(90deg, transparent 0, transparent 38px, rgba(122,95,70,0.03) 38px, rgba(122,95,70,0.03) 39px)',
@@ -37,9 +39,8 @@ export function OpeningScreen() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
       >
-        {/* Ornament top */}
         <motion.div
-          className="flex justify-center mb-8 text-bronze-500"
+          className="flex justify-center mb-6 text-bronze-500"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
@@ -51,22 +52,41 @@ export function OpeningScreen() {
           </svg>
         </motion.div>
 
+        {showCover && (
+          <motion.div
+            className="mx-auto mb-8 max-h-[min(42vh,280px)] w-full max-w-[280px] overflow-hidden rounded-[28px] shadow-soft border border-[rgba(120,86,55,0.14)]"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: 0.35 }}
+          >
+            <img
+              src={COVER_IMAGE_SRC}
+              alt={`Foto sampul undangan pernikahan ${GROOM_NAME} dan ${BRIDE_NAME}`}
+              width={560}
+              height={700}
+              className="h-full w-full object-cover"
+              loading="eager"
+              decoding="async"
+            />
+          </motion.div>
+        )}
+
         <motion.p
-          className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-4"
+          className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          The Wedding of
+          Undangan Pernikahan
         </motion.p>
 
         <motion.h1
-          className="font-serif text-[clamp(2.5rem,6vw,4.5rem)] text-green-800 mb-8"
+          className="font-serif text-[clamp(2.2rem,5.5vw,3.75rem)] text-green-800 mb-8"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          Amalia <span className="italic font-medium text-bronze-500">&</span> Arif
+          {GROOM_NAME} <span className="italic font-medium text-bronze-500">&amp;</span> {BRIDE_NAME}
         </motion.h1>
 
         <motion.div
@@ -82,11 +102,7 @@ export function OpeningScreen() {
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.0 }}>
           <Button onClick={handleOpen} className="px-8">
             Buka Undangan
           </Button>

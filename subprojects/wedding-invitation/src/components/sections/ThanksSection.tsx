@@ -2,7 +2,7 @@ import { AnimatedSection } from '@/components/ui/AnimatedSection';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useInvitationStore } from '@/store/useInvitationStore';
-import { attendanceLabels, mealLabels } from '@/lib/constants';
+import { attendanceLabels } from '@/lib/constants';
 import { escapeHtml } from '@/lib/utils';
 
 export function ThanksSection() {
@@ -14,44 +14,45 @@ export function ThanksSection() {
 
   const summaryItems = [
     { label: 'Nama', value: formData.guestName },
-    { label: 'Email', value: formData.email },
     { label: 'Kehadiran', value: attendanceLabels[formData.attendance] || formData.attendance },
     { label: 'Jumlah Tamu', value: formData.guestCount },
-    { label: 'Menu', value: mealLabels[formData.mealPreference] || formData.mealPreference },
-    { label: 'Catatan Makanan', value: formData.dietaryNotes || 'Tidak ada catatan' },
-    { label: 'Permintaan Lagu', value: formData.songRequest || 'Tidak ada' },
   ];
 
   return (
-    <section id="thanks" className="py-10">
+    <section id="thanks" className="py-10 scroll-mt-[var(--nav-offset,5rem)]">
       <div className="container-main">
         <AnimatedSection>
-          <Card className="max-w-[800px] mx-auto">
-            <p className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-4">Ringkasan</p>
-            <h2 className="text-[clamp(1.8rem,3vw,2.8rem)]">Terima kasih atas konfirmasinya</h2>
+          <Card className="max-w-[640px] mx-auto">
+            <p className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-4">Terima kasih</p>
+            <h2 className="text-[clamp(1.8rem,3vw,2.8rem)]">Konfirmasi telah dicatat</h2>
             <p className="text-brown-500 mt-4">
-              Ringkasan konfirmasi Anda telah tersimpan di perangkat ini.
+              Ringkasan berikut tersimpan di perangkat Anda. Jika WhatsApp terbuka, pesan juga dapat dikirim ulang dari
+              riwayat chat.
             </p>
 
-            <div className="grid md:grid-cols-3 gap-4 my-8">
+            <div className="grid sm:grid-cols-3 gap-4 my-8">
               {summaryItems.map((item) => (
                 <article
                   key={item.label}
-                  className="py-4 px-6 rounded-[20px] bg-[rgba(255,252,248,0.66)] border border-[rgba(120,86,55,0.12)] grid gap-2"
+                  className="py-4 px-5 rounded-[20px] bg-[rgba(255,252,248,0.66)] border border-[rgba(120,86,55,0.12)] grid gap-2"
                 >
-                  <span className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400">
-                    {item.label}
-                  </span>
+                  <span className="uppercase tracking-[0.22em] text-[0.72rem] text-brown-400">{item.label}</span>
                   <strong
-                    className="text-green-800 font-medium"
+                    className="text-green-800 font-medium text-[0.98rem]"
                     dangerouslySetInnerHTML={{ __html: escapeHtml(item.value) }}
                   />
                 </article>
               ))}
             </div>
 
+            <p className="text-brown-500 text-[0.95rem] leading-relaxed mb-6">
+              Merupakan suatu kehormatan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.
+            </p>
+
             <div className="flex flex-wrap gap-4">
-              <Button href="#panduan">Lanjut ke Panduan Tamu</Button>
+              <Button href="#hadiah" variant="secondary">
+                Lanjut ke Kirim Hadiah
+              </Button>
               <Button variant="secondary" onClick={resetRsvp}>
                 Ubah Konfirmasi
               </Button>

@@ -21,8 +21,8 @@ export function CountdownSection() {
             <p className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-4">Hitung Mundur</p>
             <h2 className="text-[clamp(1.8rem,3vw,2.8rem)]">Menuju hari yang kami nantikan</h2>
             <p className="text-brown-500 mt-4 max-w-[42rem] mx-auto">
-              Halaman ini kami siapkan sebagai pusat informasi bagi para tamu. Hitung mundur,
-              panduan acara, dan formulir konfirmasi dapat dibagikan melalui tautan undangan ini.
+              Hitung mundur menuju hari yang kami nantikan. Informasi acara, lokasi, dan konfirmasi kehadiran dapat
+              diakses melalui tautan undangan ini.
             </p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
               {cells.map((cell) => (
