@@ -147,3 +147,39 @@ th, td {
 th { color: var(--muted); }
 
 .hidden { display: none !important; }
+
+.muted { color: var(--muted); font-size: 0.9rem; }
+
+.banner-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid var(--danger);
+  color: #fecaca;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+button.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid #334155;
+  font-weight: 500;
+}
+
+button.btn-ghost:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+button.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+button.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+}

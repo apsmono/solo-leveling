@@ -31,6 +31,7 @@
       </nav>
 
       <div id="view-overview">
+        <p id="overview-error" class="banner-error hidden" role="alert"></p>
         <div class="card">
           <h2>Library</h2>
           <div class="grid">
@@ -59,9 +60,16 @@
       </div>
 
       <div id="view-reminders" class="hidden">
+        <p id="reminders-error" class="banner-error hidden" role="alert"></p>
         <div class="card">
           <h2>Pending Reminders</h2>
-          <pre id="reminder-list"></pre>
+          <p id="reminders-empty" class="muted hidden">No pending reminders.</p>
+          <table id="reminders-table" class="hidden">
+            <thead>
+              <tr><th>When</th><th>Message</th><th></th></tr>
+            </thead>
+            <tbody id="reminders-tbody"></tbody>
+          </table>
         </div>
         <div class="card">
           <h2>Create Reminder</h2>
