@@ -1,42 +1,21 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { RsvpFormData, RsvpSubmission, Wish } from '@/types';
-import {
-  RSVP_DRAFT_KEY,
-  RSVP_SUBMITTED_KEY,
-  OLD_RSVP_DRAFT_KEY,
-  OLD_RSVP_SUBMITTED_KEY,
-  defaultRsvpForm,
-} from '@/lib/constants';
+import type { RsvpFormData, RsvpSubmission } from '@/types';
+import { OLD_RSVP_KEYS_TO_REMOVE } from '@/lib/constants';
 
-function migrateOldData() {
+/** Drop legacy persistence keys so old RSVP shapes do not collide */
+function purgeLegacyKeys() {
   try {
-    const oldDraft = localStorage.getItem(OLD_RSVP_DRAFT_KEY);
-    const oldSubmitted = localStorage.getItem(OLD_RSVP_SUBMITTED_KEY);
-
-    if (oldDraft && !localStorage.getItem(RSVP_DRAFT_KEY)) {
-      const parsed = JSON.parse(oldDraft);
-      localStorage.setItem(RSVP_DRAFT_KEY, JSON.stringify({ ...defaultRsvpForm, ...parsed }));
+    for (const key of OLD_RSVP_KEYS_TO_REMOVE) {
+      localStorage.removeItem(key);
     }
-    if (oldSubmitted && !localStorage.getItem(RSVP_SUBMITTED_KEY)) {
-      const parsed = JSON.parse(oldSubmitted);
-      localStorage.setItem(
-        RSVP_SUBMITTED_KEY,
-        JSON.stringify({
-          formData: { ...defaultRsvpForm, ...(parsed.formData || parsed) },
-          submittedAt: new Date().toISOString(),
-        })
-      );
-    }
-
-    localStorage.removeItem(OLD_RSVP_DRAFT_KEY);
-    localStorage.removeItem(OLD_RSVP_SUBMITTED_KEY);
+    localStorage.removeItem('wedding-invitation.wishes-v2');
   } catch {
-    // silently ignore migration errors
+    // ignore
   }
 }
 
-migrateOldData();
+purgeLegacyKeys();
 
 interface InvitationState {
   guestName: string | null;
@@ -48,15 +27,16 @@ interface InvitationState {
   isMusicPlaying: boolean;
   toggleMusic: () => void;
 
+  toastMessage: string | null;
+  showToast: (message: string) => void;
+  dismissToast: () => void;
+
   rsvpDraft: RsvpFormData | null;
   saveRsvpDraft: (data: RsvpFormData) => void;
 
   rsvpSubmission: RsvpSubmission | null;
   submitRsvp: (data: RsvpFormData) => void;
   resetRsvp: () => void;
-
-  wishes: Wish[];
-  addWish: (wish: Omit<Wish, 'id' | 'createdAt'>) => void;
 }
 
 export const useInvitationStore = create<InvitationState>()(
@@ -71,6 +51,10 @@ export const useInvitationStore = create<InvitationState>()(
       isMusicPlaying: false,
       toggleMusic: () => set((state) => ({ isMusicPlaying: !state.isMusicPlaying })),
 
+      toastMessage: null,
+      showToast: (message) => set({ toastMessage: message }),
+      dismissToast: () => set({ toastMessage: null }),
+
       rsvpDraft: null,
       saveRsvpDraft: (data) => set({ rsvpDraft: data }),
 
@@ -81,26 +65,12 @@ export const useInvitationStore = create<InvitationState>()(
           rsvpDraft: null,
         }),
       resetRsvp: () => set({ rsvpSubmission: null }),
-
-      wishes: [],
-      addWish: (wish) =>
-        set((state) => ({
-          wishes: [
-            {
-              ...wish,
-              id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-              createdAt: new Date().toISOString(),
-            },
-            ...state.wishes,
-          ],
-        })),
     }),
     {
-      name: 'wedding-invitation.store',
+      name: 'wedding-invitation.v3',
       partialize: (state) => ({
         rsvpDraft: state.rsvpDraft,
         rsvpSubmission: state.rsvpSubmission,
-        wishes: state.wishes,
       }),
     }
   )

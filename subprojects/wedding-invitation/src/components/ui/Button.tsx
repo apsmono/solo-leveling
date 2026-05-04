@@ -9,6 +9,8 @@ interface ButtonProps {
   type?: 'button' | 'submit';
   disabled?: boolean;
   href?: string;
+  /** Opens in a new tab (maps, WhatsApp web, etc.) */
+  external?: boolean;
 }
 
 export function Button({
@@ -19,6 +21,7 @@ export function Button({
   type = 'button',
   disabled,
   href,
+  external,
 }: ButtonProps) {
   const classes = cn(
     'inline-flex items-center justify-center min-h-[48px] px-6 rounded-pill font-medium text-[0.95rem] transition-all duration-180 cursor-pointer border-none',
@@ -32,7 +35,11 @@ export function Button({
 
   if (href) {
     return (
-      <a href={href} className={classes}>
+      <a
+        href={href}
+        className={classes}
+        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      >
         {children}
       </a>
     );

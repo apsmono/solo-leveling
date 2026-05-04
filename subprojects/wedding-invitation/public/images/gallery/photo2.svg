@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-labelledby="t2">
+  <title id="t2">Placeholder foto pre-wedding 2  ganti dengan foto Anda</title>
+  <defs>
+    <linearGradient id="g2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8f0e3"/>
+      <stop offset="100%" style="stop-color:#c99b55"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#g2)"/>
+  <text x="400" y="290" text-anchor="middle" fill="#1f3529" font-family="Georgia, serif" font-size="28">Foto 2</text>
+  <text x="400" y="330" text-anchor="middle" fill="#4c3c2d" font-family="system-ui, sans-serif" font-size="16">JPG/WebP disarankan untuk kualitas cetak</text>
+</svg>

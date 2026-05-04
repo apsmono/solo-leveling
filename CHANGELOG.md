@@ -34,6 +34,11 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ## Unreleased
 
+### Changed
+
+- 2026-05-04 10-41-17 Updated `subprojects/wedding-invitation/` defaults: couple names Arif Eko Pramono & Amalia Indah Palupi; `WEDDING_DATE_LABEL_LONG` now derived via `formatDateId(WEDDING_DATE)` (`Intl` id-ID) + ` · InsyaAllah`; expanded `CONTENT_GUIDE.md` with step-by-step Google Maps address, embed, and directions URLs; synced `index.html` meta titles.
+- 2026-05-04 10-06-45 Rebuilt `subprojects/wedding-invitation/` toward a minimalist Goodchoice-style flow: Bahasa Indonesia throughout, sticky anchor nav (`#beranda`, `#ayatsuci`, `#acara`, `#kisah`, `#galeri`, `#lokasi`, `#rsvp`, `#hadiah`), WhatsApp RSVP with local summary, gift copy + optional QRIS, dual Google Maps embeds, lazy-loaded gallery placeholders, and centralized placeholders in `src/lib/constants.ts`. Added `CONTENT_GUIDE.md` and expanded `README.md` (stack rationale, folder tree, deploy checklist).
+
 ### Added
 
 - 2026-05-03 16-45-00 Added Firebase ecosystem integration: `src/integrations/firebase/auth.py` (ID token verification with single-user email gate) and `src/integrations/firebase/firestore.py` (reminders + command logging collections). Firestore usage is gated by `USE_FIRESTORE_REMINDERS` env var; JSON file fallback remains active by default.

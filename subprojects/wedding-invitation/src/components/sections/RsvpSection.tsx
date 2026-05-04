@@ -3,20 +3,20 @@ import { AnimatedSection } from '@/components/ui/AnimatedSection';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useInvitationStore } from '@/store/useInvitationStore';
-import { defaultRsvpForm } from '@/lib/constants';
+import { defaultRsvpForm, WHATSAPP_RSVP_E164 } from '@/lib/constants';
 import type { RsvpFormData } from '@/types';
+import { buildRsvpWhatsAppBody, whatsappRsvpUrl } from '@/lib/rsvpWhatsApp';
 
 interface RsvpErrors {
   guestName?: string;
-  email?: string;
 }
 
 export function RsvpSection() {
-  const { guestName, rsvpDraft, rsvpSubmission, saveRsvpDraft, submitRsvp } = useInvitationStore();
+  const { guestName, rsvpDraft, rsvpSubmission, saveRsvpDraft, submitRsvp, showToast } =
+    useInvitationStore();
   const [formData, setFormData] = useState<RsvpFormData>(defaultRsvpForm);
   const [errors, setErrors] = useState<RsvpErrors>({});
 
-  // Initialize from draft or pre-fill guest name
   useEffect(() => {
     const initial = rsvpDraft || defaultRsvpForm;
     setFormData({
@@ -25,12 +25,24 @@ export function RsvpSection() {
     });
   }, [rsvpDraft, guestName]);
 
-  // Auto-save draft
+  /** Keep guest count consistent with attendance choice */
+  useEffect(() => {
+    setFormData((prev) => {
+      if (prev.attendance === 'tidak-hadir' && prev.guestCount !== '0') {
+        return { ...prev, guestCount: '0' };
+      }
+      if (prev.attendance !== 'tidak-hadir' && prev.guestCount === '0') {
+        return { ...prev, guestCount: '1' };
+      }
+      return prev;
+    });
+  }, [formData.attendance]);
+
   useEffect(() => {
     if (!rsvpSubmission) {
       const timeout = setTimeout(() => {
         saveRsvpDraft(formData);
-      }, 500);
+      }, 400);
       return () => clearTimeout(timeout);
     }
   }, [formData, rsvpSubmission, saveRsvpDraft]);
@@ -43,45 +55,53 @@ export function RsvpSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: RsvpErrors = {};
-    if (!formData.guestName.trim()) newErrors.guestName = 'Mohon isi nama lengkap Anda.';
-    if (!formData.email.trim() || !formData.email.includes('@')) {
-      newErrors.email = 'Mohon isi alamat email yang valid.';
-    }
+    if (!formData.guestName.trim()) newErrors.guestName = 'Mohon lengkapi data terlebih dahulu';
+
+    const adjusted: RsvpFormData = {
+      ...formData,
+      guestCount: formData.attendance === 'tidak-hadir' ? '0' : formData.guestCount,
+    };
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      showToast('Mohon lengkapi data terlebih dahulu');
       return;
     }
 
-    // Normalize guest count if declining
-    const data = { ...formData };
-    if (data.attendance === 'regretfully-declines') {
-      data.guestCount = '0';
+    const wa = WHATSAPP_RSVP_E164.replace(/\D/g, '');
+    if (!wa || wa.length < 10) {
+      showToast('Nomor WhatsApp panitia belum diatur. Hubungi pengundang secara langsung.');
+      return;
     }
 
-    submitRsvp(data);
+    const body = buildRsvpWhatsAppBody(adjusted);
+    const url = whatsappRsvpUrl(wa, body);
+    window.open(url, '_blank', 'noopener,noreferrer');
+
+    submitRsvp(adjusted);
+    showToast('Konfirmasi berhasil dikirim. Terima kasih!');
   };
 
   if (rsvpSubmission) return null;
 
   return (
-    <section id="rsvp" className="py-10">
+    <section id="rsvp" className="py-10 scroll-mt-[var(--nav-offset,5rem)]">
       <div className="container-main">
         <AnimatedSection>
-          <Card className="max-w-[800px] mx-auto">
-            <p className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-4">
+          <Card className="max-w-[560px] mx-auto">
+            <p className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-4 text-center">
               Konfirmasi Kehadiran
             </p>
-            <h2 className="text-[clamp(1.8rem,3vw,2.8rem)]">Mohon konfirmasi kehadiran</h2>
-            <p className="text-brown-500 mt-4">
-              Kami memohon kesediaan Bapak/Ibu/Saudara/i untuk mengisi konfirmasi kehadiran
-              melalui formulir berikut. Data konfirmasi akan tersimpan di perangkat ini.
+            <h2 className="text-[clamp(1.8rem,3vw,2.6rem)] text-center mb-4">Mohon konfirmasi kehadiran</h2>
+            <p className="text-brown-500 text-center text-[0.95rem] mb-8">
+              Formulir ini akan membuka WhatsApp dengan pesan yang sudah terisi. Pastikan WhatsApp terpasang di
+              perangkat Anda.
             </p>
 
-            <form onSubmit={handleSubmit} className="mt-8 grid md:grid-cols-2 gap-6 text-left">
+            <form onSubmit={handleSubmit} className="grid gap-6 text-left">
               <div className="grid gap-2">
                 <label htmlFor="guestName" className="text-[0.9rem] font-medium text-green-800">
-                  Nama Tamu
+                  Nama
                 </label>
                 <input
                   id="guestName"
@@ -89,24 +109,10 @@ export function RsvpSection() {
                   value={formData.guestName}
                   onChange={(e) => updateField('guestName', e.target.value)}
                   placeholder="Nama lengkap Anda"
+                  autoComplete="name"
                   className="w-full py-3.5 px-4 rounded-[18px] border border-[rgba(120,86,55,0.16)] bg-[rgba(255,255,255,0.72)] font-inherit text-green-800 transition-all duration-180 focus:outline-none focus:border-bronze-500 focus:shadow-[0_0_0_3px_rgba(138,90,47,0.1)]"
                 />
                 {errors.guestName && <small className="text-[#a14e42] text-[0.8rem]">{errors.guestName}</small>}
-              </div>
-
-              <div className="grid gap-2">
-                <label htmlFor="email" className="text-[0.9rem] font-medium text-green-800">
-                  Alamat Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => updateField('email', e.target.value)}
-                  placeholder="email@contoh.com"
-                  className="w-full py-3.5 px-4 rounded-[18px] border border-[rgba(120,86,55,0.16)] bg-[rgba(255,255,255,0.72)] font-inherit text-green-800 transition-all duration-180 focus:outline-none focus:border-bronze-500 focus:shadow-[0_0_0_3px_rgba(138,90,47,0.1)]"
-                />
-                {errors.email && <small className="text-[#a14e42] text-[0.8rem]">{errors.email}</small>}
               </div>
 
               <div className="grid gap-2">
@@ -116,11 +122,14 @@ export function RsvpSection() {
                 <select
                   id="attendance"
                   value={formData.attendance}
-                  onChange={(e) => updateField('attendance', e.target.value as RsvpFormData['attendance'])}
+                  onChange={(e) =>
+                    updateField('attendance', e.target.value as RsvpFormData['attendance'])
+                  }
                   className="w-full py-3.5 px-4 rounded-[18px] border border-[rgba(120,86,55,0.16)] bg-[rgba(255,255,255,0.72)] font-inherit text-green-800 transition-all duration-180 focus:outline-none focus:border-bronze-500 focus:shadow-[0_0_0_3px_rgba(138,90,47,0.1)] appearance-none"
                 >
-                  <option value="joyfully-accepts">InsyaAllah hadir</option>
-                  <option value="regretfully-declines">Dengan hormat berhalangan hadir</option>
+                  <option value="hadir">Hadir</option>
+                  <option value="tidak-hadir">Tidak Hadir</option>
+                  <option value="ragu">Masih Ragu</option>
                 </select>
               </div>
 
@@ -134,61 +143,23 @@ export function RsvpSection() {
                   onChange={(e) => updateField('guestCount', e.target.value as RsvpFormData['guestCount'])}
                   className="w-full py-3.5 px-4 rounded-[18px] border border-[rgba(120,86,55,0.16)] bg-[rgba(255,255,255,0.72)] font-inherit text-green-800 transition-all duration-180 focus:outline-none focus:border-bronze-500 focus:shadow-[0_0_0_3px_rgba(138,90,47,0.1)] appearance-none"
                 >
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
+                  {formData.attendance === 'tidak-hadir' ? (
+                    <option value="0">0</option>
+                  ) : (
+                    <>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </>
+                  )}
                 </select>
               </div>
 
-              <div className="grid gap-2">
-                <label htmlFor="mealPreference" className="text-[0.9rem] font-medium text-green-800">
-                  Pilihan Menu
-                </label>
-                <select
-                  id="mealPreference"
-                  value={formData.mealPreference}
-                  onChange={(e) => updateField('mealPreference', e.target.value as RsvpFormData['mealPreference'])}
-                  className="w-full py-3.5 px-4 rounded-[18px] border border-[rgba(120,86,55,0.16)] bg-[rgba(255,255,255,0.72)] font-inherit text-green-800 transition-all duration-180 focus:outline-none focus:border-bronze-500 focus:shadow-[0_0_0_3px_rgba(138,90,47,0.1)] appearance-none"
-                >
-                  <option value="chef-selection">Menu pilihan panitia</option>
-                  <option value="vegetarian">Menu vegetarian</option>
-                  <option value="vegan">Menu vegan</option>
-                </select>
-              </div>
-
-              <div className="grid gap-2">
-                <label htmlFor="songRequest" className="text-[0.9rem] font-medium text-green-800">
-                  Permintaan Lagu
-                </label>
-                <input
-                  id="songRequest"
-                  type="text"
-                  value={formData.songRequest}
-                  onChange={(e) => updateField('songRequest', e.target.value)}
-                  placeholder="Judul lagu dan artis"
-                  className="w-full py-3.5 px-4 rounded-[18px] border border-[rgba(120,86,55,0.16)] bg-[rgba(255,255,255,0.72)] font-inherit text-green-800 transition-all duration-180 focus:outline-none focus:border-bronze-500 focus:shadow-[0_0_0_3px_rgba(138,90,47,0.1)]"
-                />
-              </div>
-
-              <div className="grid gap-2 md:col-span-2">
-                <label htmlFor="dietaryNotes" className="text-[0.9rem] font-medium text-green-800">
-                  Catatan Makanan
-                </label>
-                <textarea
-                  id="dietaryNotes"
-                  value={formData.dietaryNotes}
-                  onChange={(e) => updateField('dietaryNotes', e.target.value)}
-                  rows={4}
-                  placeholder="Alergi atau kebutuhan khusus lainnya"
-                  className="w-full py-3.5 px-4 rounded-[18px] border border-[rgba(120,86,55,0.16)] bg-[rgba(255,255,255,0.72)] font-inherit text-green-800 transition-all duration-180 focus:outline-none focus:border-bronze-500 focus:shadow-[0_0_0_3px_rgba(138,90,47,0.1)] resize-y"
-                />
-              </div>
-
-              <div className="flex flex-wrap gap-4 mt-4 md:col-span-2">
-                <Button type="submit">Lanjut ke Ringkasan</Button>
-                <Button variant="secondary" href="mailto:?subject=Pertanyaan%20Undangan">
-                  Ajukan Pertanyaan
+              <div className="pt-2">
+                <Button type="submit" className="w-full justify-center">
+                  Kirim Konfirmasi
                 </Button>
               </div>
             </form>

@@ -17,36 +17,41 @@ export function GallerySection() {
   const goNext = () => setCurrentIndex((i) => (i === galleryImages.length - 1 ? 0 : i + 1));
 
   return (
-    <section id="galeri" className="py-10">
+    <section id="galeri" className="py-10 scroll-mt-[var(--nav-offset,5rem)]">
       <div className="container-main">
         <AnimatedSection>
           <Card>
             <p className="uppercase tracking-[0.22em] text-[0.74rem] text-brown-400 mb-4">Galeri</p>
-            <h2 className="text-[clamp(1.8rem,3vw,2.8rem)]">Jejak perjalanan kami</h2>
+            <h2 className="text-[clamp(1.8rem,3vw,2.8rem)]">Jejak pre-wedding kami</h2>
             <p className="text-brown-500 mt-4 max-w-[42rem]">
-              Beberapa kenangan yang kami simpan sebagai penanda perjalanan menuju hari pernikahan kami.
+              Beberapa momen kami abadikan sebelum hari pernikahan. Sentuh foto untuk memperbesar.
             </p>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
               {galleryImages.map((img, i) => (
                 <article
                   key={i}
-                  className="p-4 rounded-[20px] bg-[rgba(255,252,248,0.66)] border border-[rgba(120,86,55,0.12)] cursor-pointer hover:shadow-soft transition-shadow"
-                  onClick={() => openLightbox(i)}
+                  className="p-3 rounded-[20px] bg-[rgba(255,252,248,0.66)] border border-[rgba(120,86,55,0.12)] cursor-pointer hover:shadow-soft transition-shadow"
                 >
-                  <div
-                    className="h-[120px] rounded-[18px] mb-4 relative overflow-hidden"
-                    style={{
-                      background: `
-                        radial-gradient(circle at 24% 24%, rgba(255,248,236,0.35), transparent 26%),
-                        repeating-linear-gradient(45deg, rgba(255,233,201,0.08) 0, rgba(255,233,201,0.08) 12px, transparent 12px, transparent 24px),
-                        linear-gradient(135deg, rgba(50,92,65,0.82), rgba(175,130,67,0.72))
-                      `,
-                    }}
+                  <button
+                    type="button"
+                    onClick={() => openLightbox(i)}
+                    className="w-full text-left border-none bg-transparent p-0 font-inherit cursor-pointer"
                   >
-                    <div className="absolute inset-4 rounded-2xl border border-[rgba(255,241,224,0.35)]" />
-                  </div>
-                  <h3 className="text-[1rem] mb-1">{img.alt}</h3>
-                  <p className="text-brown-500 text-[0.9rem]">{img.caption}</p>
+                    <div className="h-[200px] rounded-[18px] mb-4 relative overflow-hidden bg-cream-200">
+                      <img
+                        src={img.src}
+                        alt={img.alt}
+                        width={800}
+                        height={600}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    </div>
+                    <h3 className="text-[1rem] mb-1 text-green-800">Kenangan {i + 1}</h3>
+                    {img.caption && <p className="text-brown-500 text-[0.9rem]">{img.caption}</p>}
+                  </button>
                 </article>
               ))}
             </div>
