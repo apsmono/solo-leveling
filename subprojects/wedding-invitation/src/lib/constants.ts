@@ -1,14 +1,15 @@
 import type { RsvpFormData } from '@/types';
+import { formatDateId } from '@/lib/utils';
 
 // =============================================================================
 // Wedding content — replace placeholders before sending invites (CONTENT_GUIDE.md)
 // =============================================================================
 
 /** Groom first name or full name as shown on the invitation */
-export const GROOM_NAME = '[PRIA]';
+export const GROOM_NAME = 'Arif Eko Pramono';
 
 /** Bride first name or full name as shown on the invitation */
-export const BRIDE_NAME = '[WANITA]';
+export const BRIDE_NAME = 'Amalia Indah Palupi';
 
 /** Wedding date as ISO date only; time is applied with Asia/Jakarta below */
 export const WEDDING_DATE_ISO = '2026-06-01';
@@ -20,9 +21,10 @@ export const WEDDING_DATE_ISO = '2026-06-01';
 export const WEDDING_DATE = new Date(`${WEDDING_DATE_ISO}T08:00:00+07:00`);
 
 /**
- * Human-readable Indonesian date line for hero / cards (edit to match your day).
+ * Derived from `WEDDING_DATE` via `formatDateId` (`Intl`, Bahasa Indonesia).
+ * Ubah hanya `WEDDING_DATE_ISO` — teks hero/kartu ikut tanpa edit manual.
  */
-export const WEDDING_DATE_LABEL_LONG = 'Minggu, 1 Juni 2026 · InsyaAllah';
+export const WEDDING_DATE_LABEL_LONG = `${formatDateId(WEDDING_DATE)} · InsyaAllah`;
 
 /**
  * Optional cover / hero image on opening screen and beranda (empty = gradient only).
