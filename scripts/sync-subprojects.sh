@@ -27,7 +27,15 @@ for src in "${!MAP[@]}"; do
   fi
 
   echo "SYNC: $src -> $dst"
-  rsync -av --exclude='.git' --delete "$src_path/" "$dst/"
+  # Monorepo .git is excluded from send; rsync also skips deleting a receiver .git
+  # when .git is excluded. Omit heavy / generated dirs so the clone stays lean.
+  rsync -av \
+    --exclude='.git' \
+    --exclude='node_modules' \
+    --exclude='dist' \
+    --exclude='.claude' \
+    --delete \
+    "$src_path/" "$dst/"
 
 done
 
