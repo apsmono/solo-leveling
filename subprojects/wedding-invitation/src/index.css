@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-size: 17px;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #4c3c2d;
+    line-height: 1.65;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.58), transparent 35%),
+      radial-gradient(circle at 82% 10%, rgba(160,119,62,0.24), transparent 24%),
+      radial-gradient(circle at 18% 88%, rgba(46,82,59,0.14), transparent 24%),
+      linear-gradient(180deg, #f8f0e3 0%, #efe2cc 46%, #dcc6a4 100%);
+    min-height: 100vh;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(130deg, rgba(255,255,255,0.12), transparent 30%),
+      repeating-linear-gradient(45deg, transparent 0, transparent 26px, rgba(98,71,44,0.03) 26px, rgba(98,71,44,0.03) 28px),
+      repeating-linear-gradient(90deg, transparent 0, transparent 38px, rgba(122,95,70,0.03) 38px, rgba(122,95,70,0.03) 39px);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 0, rgba(55,42,26,0.06) 100%);
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    z-index: -1;
+  }
+
+  ::selection {
+    background: rgba(199, 147, 108, 0.28);
+    color: #1f3529;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Cormorant Garamond', Baskerville, Georgia, serif;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: #1f3529;
+  }
+
+  img, picture, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  .container-main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  @media (max-width: 960px) {
+    html {
+      font-size: 16px;
+    }
+    .container-main {
+      padding: 0 20px;
+    }
+  }
+}
+
+@layer utilities {
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes drift {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 700ms ease both;
+  }
+
+  .animate-drift {
+    animation: drift 8s ease-in-out infinite;
+  }
+}

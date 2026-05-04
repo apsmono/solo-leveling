@@ -1,20 +1,60 @@
 # Wedding Invitation
 
-Undangan pernikahan statis untuk deploy ke Cloudflare Pages.
+Undangan pernikahan digital dengan React, TypeScript, dan Tailwind CSS. Deploy ke Cloudflare Pages.
 
-## Quick Start
+## Fitur
 
-1. Ganti placeholder di `index.html` dengan data Anda (nama, tanggal, lokasi, dll).
-2. Ganti foto placeholder di `assets/images/`.
-3. Sesuaikan warna tema di `css/base.css` bagian `:root`.
-4. Sesuaikan tanggal hitung mundur di `js/main.js` (`WEDDING_DATE`).
+- **Halaman Pembuka** dengan nama tamu personal dari URL (`?to=NamaTamu`)
+- **Musik Latar** dengan tombol mengambang
+- **Galeri Foto** dengan lightbox
+- **Formulir RSVP** dengan validasi dan auto-save
+- **Buku Ucapan** untuk doa dan pesan dari tamu
+- **Hitung Mundur** menuju hari pernikahan
+- **Desain Responsif** untuk desktop dan mobile
 
-## RSVP
+## Tech Stack
 
-Pilih salah satu:
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS v3
+- Framer Motion
+- Zustand
+- Lucide React
 
-- **Google Forms** (paling mudah): Ganti link di tombol "Isi Form RSVP".
-- **Custom API**: Uncomment form HTML di `index.html` dan uncomment handler di `js/main.js`. Pastikan endpoint FastAPI Anda sudah tersedia dan CORS diizinkan.
+## Cara Pakai
+
+### Development
+
+```bash
+npm install
+npm run dev
+```
+
+Buka `http://localhost:5173/?to=Bapak%20Joko` untuk melihat halaman pembuka dengan nama tamu.
+
+### Build
+
+```bash
+npm run build
+```
+
+Output ada di folder `dist/`.
+
+### Customisasi
+
+1. **Ganti data pasangan**: Edit file di `src/components/sections/`
+2. **Ganti foto galeri**: Tambahkan foto ke `public/images/gallery/`
+3. **Ganti tanggal**: Edit `WEDDING_DATE` di `src/lib/constants.ts`
+4. **Ganti musik**: Ganti file `public/music/background.mp3`
+5. **Ganti warna tema**: Edit `tailwind.config.js`
+
+### Share Link ke Tamu
+
+```
+https://your-domain.com/?to=Bapak%20Joko%20Widodo
+```
+
+Nama tamu akan muncul di halaman pembuka.
 
 ## Deploy
 
