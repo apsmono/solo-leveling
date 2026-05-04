@@ -53,6 +53,11 @@ def mark_reminder_sent(doc_id: str) -> None:
     _client().collection("reminders").document(doc_id).update({"sent_at": datetime.now()})
 
 
+def delete_reminder_doc(doc_id: str) -> None:
+    """Delete a reminder document by id (dashboard / API cancel)."""
+    _client().collection("reminders").document(doc_id).delete()
+
+
 # ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------

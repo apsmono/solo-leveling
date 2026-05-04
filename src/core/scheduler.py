@@ -98,6 +98,11 @@ class _ReminderStore(ABC):
     def mark_sent(self, ids: set[str]) -> None:
         raise NotImplementedError
 
+    @abstractmethod
+    def delete_pending(self, reminder_id: str) -> bool:
+        """Remove one pending reminder. Returns True if it existed and was removed."""
+        raise NotImplementedError
+
 
 class _JsonReminderStore(_ReminderStore):
     def create(self, message: str, run_at: datetime) -> dict[str, str]:
@@ -126,6 +131,20 @@ class _JsonReminderStore(_ReminderStore):
                 if reminder["id"] in ids:
                     reminder["sent_at"] = sent_at
             _save_reminders(reminders)
+
+    def delete_pending(self, reminder_id: str) -> bool:
+        with _STORE_LOCK:
+            reminders = _load_reminders()
+            kept: list[dict[str, str]] = []
+            removed = False
+            for reminder in reminders:
+                if reminder["id"] == reminder_id and not reminder.get("sent_at"):
+                    removed = True
+                    continue
+                kept.append(reminder)
+            if removed:
+                _save_reminders(kept)
+            return removed
 
 
 class _FirestoreReminderStore(_ReminderStore):
@@ -167,6 +186,16 @@ class _FirestoreReminderStore(_ReminderStore):
                 fb.mark_reminder_sent(doc_id)
             except Exception:
                 logger.exception("Failed to mark reminder %s as sent in Firestore", doc_id)
+
+    def delete_pending(self, reminder_id: str) -> bool:
+        from src.integrations.firebase import firestore as fb
+
+        try:
+            fb.delete_reminder_doc(reminder_id)
+        except Exception:
+            logger.exception("Failed to delete reminder %s in Firestore", reminder_id)
+            return False
+        return True
 
 
 def _get_store() -> _ReminderStore:
@@ -214,14 +243,25 @@ def create_reminder(message: str, run_at: datetime) -> dict[str, str]:
     return reminder
 
 
-def format_pending_reminders() -> str:
+def delete_pending_reminder(reminder_id: str) -> bool:
+    """Remove one pending reminder (JSON file or Firestore)."""
+    return _get_store().delete_pending(reminder_id)
+
+
+def list_pending_reminders_structured() -> list[dict[str, str]]:
+    """Pending reminders sorted by run_at (API / dashboard)."""
     store = _get_store()
     reminders = store.list_pending()
+    return sorted(reminders, key=lambda item: item.get("run_at", ""))
+
+
+def format_pending_reminders() -> str:
+    reminders = list_pending_reminders_structured()
     if not reminders:
         return "No pending reminders."
 
     lines = ["Pending reminders:\n"]
-    for index, reminder in enumerate(sorted(reminders, key=lambda item: item["run_at"]), start=1):
+    for index, reminder in enumerate(reminders, start=1):
         lines.append(f"{index}. {_format_timestamp(datetime.fromisoformat(reminder['run_at']))}")
         lines.append(f"   {reminder['message']}")
     return "\n".join(lines)

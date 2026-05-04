@@ -66,12 +66,16 @@ class DashboardApiTests(unittest.TestCase):
     def test_list_reminders(self, mock_verify: MagicMock) -> None:
         mock_verify.return_value = self.mock_user
         with patch("src.api.reminders.format_pending_reminders", return_value="No pending reminders."):
-            response = self.client.get(
-                "/api/v1/reminders",
-                headers={"Authorization": "Bearer valid-token"},
-            )
+            with patch("src.api.reminders.list_pending_reminders_structured", return_value=[]):
+                response = self.client.get(
+                    "/api/v1/reminders",
+                    headers={"Authorization": "Bearer valid-token"},
+                )
         self.assertEqual(response.status_code, 200)
-        self.assertIn("pending", response.json())
+        data = response.json()
+        self.assertIn("pending", data)
+        self.assertIn("items", data)
+        self.assertEqual(data["items"], [])
 
     @patch("src.api.deps.verify_id_token")
     def test_add_reminder(self, mock_verify: MagicMock) -> None:
@@ -100,14 +104,24 @@ class DashboardApiTests(unittest.TestCase):
     @patch("src.api.deps.verify_id_token")
     def test_delete_reminder(self, mock_verify: MagicMock) -> None:
         mock_verify.return_value = self.mock_user
-        with patch("src.api.reminders.USE_FIRESTORE_REMINDERS", True):
-            with patch("src.integrations.firebase.firestore._client") as mock_client:
-                response = self.client.delete(
-                    "/api/v1/reminders/r1",
-                    headers={"Authorization": "Bearer valid-token"},
-                )
+        with patch("src.api.reminders.delete_pending_reminder", return_value=True):
+            response = self.client.delete(
+                "/api/v1/reminders/r1",
+                headers={"Authorization": "Bearer valid-token"},
+            )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
+
+    @patch("src.api.deps.verify_id_token")
+    def test_delete_reminder_not_found(self, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        with patch("src.api.reminders.delete_pending_reminder", return_value=False):
+            response = self.client.delete(
+                "/api/v1/reminders/missing",
+                headers={"Authorization": "Bearer valid-token"},
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "error")
 
     def test_dashboard_stats_unauthorized(self) -> None:
         response = self.client.get("/api/v1/dashboard/stats")

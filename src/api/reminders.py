@@ -8,15 +8,22 @@ from typing import Any
 from fastapi import APIRouter, Depends
 
 from src.api.deps import require_auth
-from src.core.config import USE_FIRESTORE_REMINDERS
-from src.core.scheduler import create_reminder, format_pending_reminders
+from src.core.scheduler import (
+    create_reminder,
+    delete_pending_reminder,
+    format_pending_reminders,
+    list_pending_reminders_structured,
+)
 
 router = APIRouter()
 
 
 @router.get("/reminders")
 async def list_reminders(_: dict[str, Any] = Depends(require_auth)) -> dict[str, Any]:
-    return {"pending": format_pending_reminders()}
+    return {
+        "pending": format_pending_reminders(),
+        "items": list_pending_reminders_structured(),
+    }
 
 
 @router.post("/reminders")
@@ -41,8 +48,9 @@ async def delete_reminder(
     reminder_id: str,
     _: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, str]:
-    if not USE_FIRESTORE_REMINDERS:
-        return {"status": "error", "reply": "Reminder deletion requires Firestore."}
-    from src.integrations.firebase.firestore import _client
-    _client().collection("reminders").document(reminder_id).delete()
+    if not reminder_id.strip():
+        return {"status": "error", "reply": "Missing reminder id."}
+    removed = delete_pending_reminder(reminder_id.strip())
+    if not removed:
+        return {"status": "error", "reply": "Reminder not found or already sent."}
     return {"status": "ok", "id": reminder_id}
