@@ -86,8 +86,10 @@ Edit file-file berikut **langsung di repo**, lalu push. Cloudflare akan auto-red
   - Ganti link Google Forms (atau aktifkan custom form)
 - `subprojects/koperasi-landing/css/base.css`
   - Sesuaikan `:root` warna brand
+- `subprojects/koperasi-landing/favicon.svg` dan `subprojects/koperasi-landing/assets/images/og-share.svg`
+  - Opsional: sesuaikan bentuk warna; untuk pratinjau tautan di Facebook/X lebih andal, pertimbangkan PNG/JPEG 1200×630 dan set `og:image` ke URL absolut setelah deploy
 - `subprojects/koperasi-landing/assets/images/`
-  - Ganti foto/ilustrasi placeholder
+  - Tambahkan foto kantor (`about-hero.jpg` dll.) sesuai README sub-project
 
 ---
 

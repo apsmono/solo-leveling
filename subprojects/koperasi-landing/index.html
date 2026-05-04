@@ -5,18 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Koperasi Konsumen Karya Tunggal Sejahtera</title>
   <meta name="description" content="Koperasi Konsumen Karya Tunggal Sejahtera — Membangun Ekonomi Bersama untuk Masa Depan yang Lebih Baik.">
+  <meta name="theme-color" content="#1a5d3a">
   <meta property="og:title" content="Koperasi Konsumen Karya Tunggal Sejahtera">
   <meta property="og:description" content="Membangun Ekonomi Bersama untuk Masa Depan yang Lebih Baik.">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/images/og-share.svg">
+  <meta property="og:locale" content="id_ID">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/base.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">Langsung ke isi</a>
 
   <!-- Navbar -->
-  <nav class="navbar" id="navbar">
+  <nav class="navbar" id="navbar" aria-label="Navigasi utama">
     <div class="container nav-container">
       <a href="#" class="nav-logo">Koperasi KKS</a>
-      <button class="nav-toggle" id="nav-toggle" aria-label="Buka menu navigasi">
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="nav-menu">
         <span class="hamburger"></span>
         <span class="hamburger"></span>
         <span class="hamburger"></span>
@@ -31,6 +36,7 @@
     </div>
   </nav>
 
+  <main id="main">
   <!-- Hero -->
   <header class="hero" id="beranda">
     <div class="container hero-content">
@@ -52,13 +58,14 @@
           <p>Koperasi Konsumen Karya Tunggal Sejahtera (KKS) didirikan atas semangat gotong royong dan kebersamaan. Kami percaya bahwa setiap individu berhak mendapatkan akses layanan keuangan yang mudah, terjangkau, dan menguntungkan.</p>
           <p>Dengan prinsip <strong>transparansi, akuntabilitas, dan pelayanan prima</strong>, KKS terus berkembang menjadi koperasi yang dapat diandalkan oleh seluruh anggotanya.</p>
           <ul class="about-list">
-            <li><strong>+500</strong> Anggota Aktif</li>
-            <li><strong>10+</strong> Tahun Pengalaman</li>
-            <li><strong>99%</strong> Tingkat Kepuasan Anggota</li>
+            <li><strong>Simpan pinjam</strong> Produk tabungan &amp; pinjaman anggota</li>
+            <li><strong>Toko &amp; layanan</strong> Kebutuhan sehari-hari &amp; pembayaran digital</li>
+            <li><strong>SHU &amp; tata kelola</strong> Transparansi pembagian hasil usaha</li>
           </ul>
+          <p class="about-note">Angka dan pencapaian operasional dapat ditambahkan setelah disesuaikan dengan data resmi koperasi.</p>
         </div>
-        <div class="about-visual placeholder" aria-label="Ilustrasi koperasi">
-          <!-- Ganti dengan gambar kantor/logo koperasi -->
+        <div class="about-visual placeholder" aria-label="Foto kantor atau kegiatan koperasi">
+          <!-- Tambahkan gambar: letakkan berkas di assets/images/ lalu ikuti cuplikan di README. -->
         </div>
       </div>
     </div>
@@ -98,7 +105,7 @@
   <section class="section cta" id="keanggotaan">
     <div class="container cta-content">
       <h2>Jadilah Bagian dari Koperasi KKS</h2>
-      <p>Bergabunglah bersama ratusan anggota lainnya. Nikmati layanan keuangan yang adil, belanja hemat, dan bagian dari SHU tahunan.</p>
+      <p>Bergabunglah bersama anggota lainnya. Nikmati layanan keuangan yang adil, belanja hemat, dan bagian dari SHU tahunan.</p>
       <a href="#kontak" class="btn-primary btn-large">Daftar Sekarang</a>
     </div>
   </section>
@@ -110,13 +117,14 @@
       <p class="section-subtitle">Punya pertanyaan? Kami siap membantu Anda.</p>
       <div class="contact-grid">
         <div class="contact-info">
+          <!-- Sesuaikan alamat, telepon, dan email dengan data resmi koperasi. -->
           <div class="contact-item">
             <strong>Alamat</strong>
             <p>Jalan Contoh No. 45, Kelurahan Mulya, Kecamatan Sejahtera, Kota Harapan, Indonesia</p>
           </div>
           <div class="contact-item">
             <strong>Telepon / WhatsApp</strong>
-            <p><a href="tel:+6281234567890">+62 812-3456-7890</a></p>
+            <p><a href="tel:+6281234567890">+62 812-3456-7890</a> · <a href="https://wa.me/6281234567890" target="_blank" rel="noopener">Chat WhatsApp</a></p>
           </div>
           <div class="contact-item">
             <strong>Email</strong>
@@ -130,8 +138,8 @@
 
         <!-- Option A: Google Forms (simplest) -->
         <div class="contact-form-wrapper">
-          <a href="https://forms.google.com/YOUR_CONTACT_FORM" target="_blank" rel="noopener" class="btn-primary btn-large" style="display:block;text-align:center;">
-            Kirim Pesan Melalui Form
+          <a href="https://forms.google.com/YOUR_CONTACT_FORM" target="_blank" rel="noopener" class="btn-primary btn-large btn-block">
+            Kirim pesan melalui form
           </a>
         </div>
 
@@ -166,9 +174,10 @@
   <footer class="footer">
     <div class="container">
       <p class="footer-copy">&copy; 2026 Koperasi Konsumen Karya Tunggal Sejahtera. Hak Cipta Dilindungi.</p>
-      <p class="footer-legal">Badan Hukum No. ... / AHU-...AHU.01.29/Tahun ...</p>
+      <p class="footer-legal">Badan hukum: nomor SK / AHU sesuai akta pendirian (lengkapi sebelum publikasi).</p>
     </div>
   </footer>
+  </main>
 
   <script src="js/main.js"></script>
 </body>

@@ -11,31 +11,45 @@
   const navMenu = document.getElementById('nav-menu');
 
   if (navToggle && navMenu) {
+    function setNavOpen(open) {
+      navMenu.classList.toggle('active', open);
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      navToggle.setAttribute('aria-label', open ? 'Tutup menu navigasi' : 'Buka menu navigasi');
+    }
+
     navToggle.addEventListener('click', function () {
-      navMenu.classList.toggle('active');
+      var open = !navMenu.classList.contains('active');
+      setNavOpen(open);
     });
 
-    // Close menu when a link is clicked
     navMenu.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', function () {
-        navMenu.classList.remove('active');
+        setNavOpen(false);
       });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && navMenu.classList.contains('active')) {
+        setNavOpen(false);
+      }
     });
   }
 
   // === Navbar Scroll Effect ===
   const navbar = document.getElementById('navbar');
 
-  function onScroll() {
-    if (window.scrollY > 10) {
-      navbar.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)';
-    } else {
-      navbar.style.boxShadow = 'none';
+  if (navbar) {
+    function onScroll() {
+      if (window.scrollY > 10) {
+        navbar.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)';
+      } else {
+        navbar.style.boxShadow = 'none';
+      }
     }
-  }
 
-  window.addEventListener('scroll', onScroll);
-  onScroll();
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+  }
 
   // === Contact Form Handler (uncomment if using custom form) ===
   /*
