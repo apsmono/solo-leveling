@@ -34,6 +34,10 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ## Unreleased
 
+### Changed
+
+- 2026-05-23 21-58-15 Removed `subprojects/` directory and all sync infrastructure. `solo-leveling` is now backend-only. Frontend/static projects (`dashboard`, `wedding-invitation`, `koperasi`, `scrapers`, `microservices`) live as standalone repos managed by the parent workspace repo `apsmono/projects` via git submodules. See updated `AGENTS.md` in parent repo for submodule workflow.
+
 ### Docs
 
 - 2026-05-04 13-09-25 Clarified `docs/subproject-linking-workflow.md`: `apsmono/wedding-invitation` receives **`dist/` output from CI**, while `subprojects/wedding-invitation/` remains the Vite/React source; documented when to use `./scripts/sync-subprojects.sh` versus `git pull` in the standalone clone.

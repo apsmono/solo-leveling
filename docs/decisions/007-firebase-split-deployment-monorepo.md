@@ -28,7 +28,7 @@ The project had no persistent database (only JSON files), no authentication, no 
 3. **Firestore replaces JSON files** for reminders and command history, gated by `USE_FIRESTORE_REMINDERS` feature flag with JSON fallback for local dev.
 4. **Split deployment**: FastAPI backend runs on MacMini via Docker Compose; static dashboard frontend deploys to GitHub Pages.
 5. **Telegram webhook** supplements (not replaces) the existing HTTP `/command` endpoint.
-6. **Monorepo structure** with `subprojects/` directory for Python scripts, modules, and separate FastAPI microservices.
+6. ~~Monorepo structure with `subprojects/` directory~~ **RESCINDED** — subprojects were extracted into standalone repos managed by a parent workspace repo (`apsmono/projects`) using git submodules. See amendment below.
 
 ## Why
 
