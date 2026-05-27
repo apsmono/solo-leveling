@@ -1,0 +1,23 @@
+# <type>(<scope>): <subject>
+#
+# Types:
+#   feat     - new feature
+#   fix      - bug fix
+#   chore    - tooling, deps, build changes
+#   refactor - code restructuring, no behavior change
+#   style    - formatting, whitespace, semicolons
+#   docs     - documentation only
+#   test     - adding or updating tests
+#   ci       - CI/CD changes
+#   merge    - merge commits
+#   sync     - sync/update from another source
+#
+# Scope (optional): component, module, or file group in parentheses
+#   e.g. feat(offering-details), fix(tnc), chore(ci)
+#
+# Subject: imperative mood, lowercase, no trailing period, max 72 chars
+#
+# Body (optional): explain WHAT and WHY, wrap at 72 chars
+#
+# Footer (optional): reference ClickUp task ID
+#   CU-86dxxxxxx
