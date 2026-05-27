@@ -15,6 +15,7 @@ from typing import Any
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.deps import optional_auth
 from src.core.config import FRONTEND_ORIGIN
 from src.core.router import route_command
 from src.core.scheduler import shutdown_scheduler, start_scheduler
@@ -65,12 +66,16 @@ async def healthz() -> dict[str, str]:
 
 
 @app.post("/command")
-async def command(payload: dict[str, Any]) -> dict[str, str]:
+async def command(
+    payload: dict[str, Any],
+    user: dict[str, Any] | None = Depends(optional_auth),
+) -> dict[str, str]:
     text = str(payload.get("text", "")).strip()
     if not text:
         return {"status": "error", "reply": "Missing 'text' in request payload."}
 
-    reply = route_command(text)
+    source = f"api:{user['email']}" if user else "api"
+    reply = route_command(text, source=source)
     return {"status": "ok", "reply": reply}
 
 
