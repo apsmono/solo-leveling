@@ -24,6 +24,8 @@ from time import time
 from typing import Any, Optional
 
 from src.agents.dispatcher import run_agent
+from src.integrations.web_fetch import fetch_url_metadata
+from src.integrations.youtube import extract_video_id, fetch_transcript
 
 
 logger = logging.getLogger(__name__)
@@ -167,6 +169,8 @@ def _build_library_index() -> dict[str, Any]:
         section = section_match.group(1).strip() if section_match else path.parent.name
         category = category_match.group(1).strip() if category_match else section
         status = status_match.group(1).strip() if status_match else "unknown"
+        source_url_match = re.search(r"^source_url:\s*(.+)$", text, flags=re.MULTILINE)
+        source_url = source_url_match.group(1).strip() if source_url_match else None
         record = {
             "title": title,
             "path": rel_path,
@@ -174,6 +178,7 @@ def _build_library_index() -> dict[str, Any]:
             "category": category,
             "status": status,
             "type": "bundle-index" if path.name == "index.md" and path.parent != (_LIBRARY_ROOT / _resolve_section_dir(section)) else "entry",
+            "source_url": source_url,
             "updated_at": datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="minutes"),
         }
         entries.append(record)
@@ -276,13 +281,22 @@ def _contains_sensitive_content(text: str) -> bool:
     return any(token in lower for token in _SENSITIVE_TOKENS)
 
 
-def _capture_entry(section: str, title: str, body: str, *, status: str = "draft", tags: list[str] | None = None) -> str:
+def _capture_entry(
+    section: str,
+    title: str,
+    body: str,
+    *,
+    status: str = "draft",
+    tags: list[str] | None = None,
+    source_url: Optional[str] = None,
+) -> str:
     _ensure_library_dirs()
     dirname = _resolve_section_dir(section)
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
     slug = _slugify(title)
     path = _LIBRARY_ROOT / dirname / f"{ts}-{slug}.md"
     metadata_tags = ", ".join(tags or [])
+    source_url_line = f"source_url: {source_url}\n" if source_url else ""
     content = (
         f"---\n"
         f"title: {title}\n"
@@ -290,6 +304,7 @@ def _capture_entry(section: str, title: str, body: str, *, status: str = "draft"
         f"status: {status}\n"
         f"tags: [{metadata_tags}]\n"
         f"captured_at: {datetime.now().isoformat(timespec='minutes')}\n"
+        f"{source_url_line}"
         f"---\n\n"
         f"{body}\n"
     )
@@ -394,10 +409,12 @@ def _default_capture_analysis(payload: str, existing_matches: list[str]) -> dict
     words = payload.split()
 
     if "http://" in lower or "https://" in lower:
+        meta = fetch_url_metadata(payload.strip())
+        platform = meta.get("platform", "generic")
         category = "article"
         storage_folder = "articles"
-        item_type = "article-research"
-        title = f"Article Research — {payload[:60].strip()}"
+        item_type = f"{platform}-research" if platform != "generic" else "article-research"
+        title = meta.get("title") or f"Article Research — {payload[:60].strip()}"
         information_to_track = [
             "source-url",
             "author-or-source",
@@ -406,6 +423,55 @@ def _default_capture_analysis(payload: str, existing_matches: list[str]) -> dict
             "why-it-matters",
             "follow-up-action",
         ]
+        if platform == "youtube":
+            information_to_track.extend(["video-transcript", "channel", "duration"])
+        elif platform == "github":
+            information_to_track.extend(["repo-language", "stars", "use-case"])
+        summary = meta.get("description") or meta.get("title") or payload.strip()
+        why_valuable = f"External {platform} resource flagged for long-term development and reference."
+        key_facts = [f"Source: {payload.strip()}"]
+        if meta.get("author"):
+            key_facts.append(f"Author: {meta['author']}")
+        if meta.get("extra"):
+            for k, v in meta["extra"].items():
+                if v and k not in ("thumbnail_url", "thumbnail_width", "thumbnail_height"):
+                    key_facts.append(f"{k.replace('_', ' ').title()}: {v}")
+        return {
+            "title": title,
+            "category": category,
+            "storage_folder": storage_folder,
+            "item_type": item_type,
+            "summary": summary,
+            "why_valuable": why_valuable,
+            "key_facts": key_facts,
+            "information_to_track": information_to_track,
+            "research_notes": [
+                "Captured from external URL.",
+                "Metadata fetched automatically where available.",
+                "Further external verification may still be useful.",
+            ],
+            "qa_log": [
+                {
+                    "question": "What is the most important thing to preserve from this intake?",
+                    "answer": "The original source URL, fetched metadata, and any extracted insights for later reuse.",
+                }
+            ],
+            "logic_trail": [
+                "Detect URL in input and identify platform.",
+                "Fetch metadata via platform-specific API (oEmbed, GitHub API, or HTML parsing).",
+                "Search existing library entries to avoid duplication.",
+                "Choose the storage folder that best matches long-term retrieval needs.",
+            ],
+            "conclusion": "Store this as a reusable knowledge asset and revisit it as new evidence or decisions appear.",
+            "tags": _normalize_tags([category, item_type, platform, "critical-knowledge"]),
+            "open_questions": [
+                "What must be validated externally?",
+                "What action should this knowledge change?",
+            ],
+            "research_mode": "url-enriched",
+            "related_existing_entries": existing_matches[:5],
+            "source_url": payload.strip(),
+        }
     elif lower.startswith("book") or " by " in lower:
         category = "book"
         storage_folder = "books"
@@ -479,6 +545,7 @@ def _default_capture_analysis(payload: str, existing_matches: list[str]) -> dict
         ],
         "research_mode": "fallback-heuristic",
         "related_existing_entries": existing_matches[:5],
+        "source_url": None,
     }
 
 
@@ -511,6 +578,7 @@ def _parse_capture_analysis(response: str, payload: str, existing_matches: list[
         "open_questions": _normalize_str_list(parsed.get("open_questions")) or fallback["open_questions"],
         "research_mode": "ai-synthesized",
         "related_existing_entries": existing_matches[:5],
+        "source_url": fallback.get("source_url"),
     }
 
 
@@ -551,6 +619,8 @@ def _capture_research_bundle(payload: str, analysis: dict, existing_matches: lis
     section_dir = _resolve_section_dir(analysis["storage_folder"])
     bundle_dir = _LIBRARY_ROOT / section_dir / f"{ts}-{_slugify(analysis['title'])}"
     bundle_dir.mkdir(parents=True, exist_ok=True)
+    source_url = analysis.get("source_url")
+    source_url_line = f"source_url: {source_url}\n" if source_url else ""
 
     metadata = (
         f"---\n"
@@ -561,6 +631,7 @@ def _capture_research_bundle(payload: str, analysis: dict, existing_matches: lis
         f"tags: [{', '.join(analysis['tags'])}]\n"
         f"captured_at: {datetime.now().isoformat(timespec='minutes')}\n"
         f"research_mode: {analysis['research_mode']}\n"
+        f"{source_url_line}"
         f"---\n\n"
     )
 
@@ -609,6 +680,24 @@ def _capture_research_bundle(payload: str, analysis: dict, existing_matches: lis
     _write_bundle_file(bundle_dir / "06-logic-trail.md", logic)
     _write_bundle_file(bundle_dir / "07-conclusion.md", conclusion)
 
+    # If YouTube URL, fetch and save transcript
+    if source_url and "youtube" in analysis.get("item_type", ""):
+        video_id = extract_video_id(source_url)
+        if video_id:
+            transcript = fetch_transcript(video_id)
+            if transcript:
+                transcript_content = (
+                    f"---\n"
+                    f"title: Transcript: {analysis['title']}\n"
+                    f"category: transcript\n"
+                    f"tags: [transcript, youtube]\n"
+                    f"captured_at: {datetime.now().isoformat(timespec='minutes')}\n"
+                    f"{source_url_line}"
+                    f"---\n\n"
+                    f"{transcript}\n"
+                )
+                _write_bundle_file(bundle_dir / "08-transcript.md", transcript_content)
+
     # Auto-produce supporting entries for every deep capture:
     # 1. Term definition in library/terms/
     _capture_entry(
@@ -623,6 +712,7 @@ def _capture_research_bundle(payload: str, analysis: dict, existing_matches: lis
         ),
         status="active",
         tags=analysis["tags"],
+        source_url=source_url,
     )
 
     # 2. Reference file in library/references/
@@ -640,6 +730,7 @@ def _capture_research_bundle(payload: str, analysis: dict, existing_matches: lis
         ),
         status="active",
         tags=analysis["tags"],
+        source_url=source_url,
     )
 
     # 3. Thought entry in library/thoughts/ (reasoning + conclusion)
@@ -657,6 +748,7 @@ def _capture_research_bundle(payload: str, analysis: dict, existing_matches: lis
         ),
         status="draft",
         tags=analysis["tags"],
+        source_url=source_url,
     )
 
     _build_library_index()
@@ -906,6 +998,28 @@ def _handle_article(text: str) -> str:
             return "Use: article: <url or title>"
         if len(payload) < 5:
             return "Use: article: <url or title>"
+
+        # Detect and enrich URLs
+        stripped = payload.strip()
+        if stripped.startswith("http://") or stripped.startswith("https://"):
+            meta = fetch_url_metadata(stripped)
+            title = meta.get("title") or stripped
+            body_lines = [f"Source: {stripped}"]
+            if meta.get("description"):
+                body_lines.append(f"Description: {meta['description']}")
+            if meta.get("author"):
+                body_lines.append(f"Author: {meta['author']}")
+            if meta.get("extra"):
+                for k, v in meta["extra"].items():
+                    if v and k not in ("thumbnail_url", "thumbnail_width", "thumbnail_height"):
+                        body_lines.append(f"{k.replace('_', ' ').title()}: {v}")
+            body_lines.append(f"Captured At: {datetime.now().isoformat(timespec='minutes')}")
+            body = "\n\n".join(body_lines)
+            platform = meta.get("platform", "article")
+            tags = [platform, "link", "to-read"]
+            path = _capture_entry("article", title, body, status="to-read", tags=tags, source_url=stripped)
+            return f"Article saved to local library.\n{path}\nPlatform: {platform}"
+
         title = f"Article: {payload.split('|')[0].strip()}"
         body = f"{payload}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
         formatted = _apply_formatting_standard("article", title, body, metadata={"status": "to-read"})

@@ -61,6 +61,11 @@ def _extract_captured_at(text: str) -> str:
     return cap_match.group(1).strip() if cap_match else ""
 
 
+def _extract_source_url(text: str) -> Optional[str]:
+    url_match = re.search(r"^source_url:\s*(.+)$", text, flags=re.MULTILINE)
+    return url_match.group(1).strip() if url_match else None
+
+
 def _compute_related(entry: dict[str, Any], all_entries: list[dict[str, Any]]) -> list[str]:
     """Find related entries by shared tags or section."""
     path = entry.get("path", "")
@@ -98,6 +103,7 @@ async def list_entries(
     status: Optional[str] = Query(None),
     tag: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
+    source_url: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     _: dict[str, Any] = Depends(require_auth),
@@ -118,6 +124,8 @@ async def list_entries(
                 if (_PROJECT_ROOT / e.get("path", "")).exists() else ""
             )]
         ]
+    if source_url:
+        entries = [e for e in entries if e.get("source_url") == source_url]
     if search:
         q = search.lower()
         entries = [
@@ -125,6 +133,7 @@ async def list_entries(
             if q in str(e.get("title", "")).lower()
             or q in str(e.get("section", "")).lower()
             or q in str(e.get("category", "")).lower()
+            or q in str(e.get("source_url", "")).lower()
         ]
 
     total = len(entries)
@@ -147,6 +156,7 @@ async def list_entries(
             "type": e.get("type", ""),
             "tags": _extract_tags(text),
             "captured_at": _extract_captured_at(text),
+            "source_url": _extract_source_url(text),
             "path": path,
         })
 
@@ -192,6 +202,7 @@ async def get_entry(
         "type": matched.get("type", ""),
         "tags": _extract_tags(text),
         "captured_at": _extract_captured_at(text),
+        "source_url": _extract_source_url(text),
         "path": path,
         "markdown": text,
         "related": _compute_related(matched, all_entries),
