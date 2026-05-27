@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import HTTPException, Request, status
 
@@ -20,7 +20,7 @@ async def require_auth(request: Request) -> dict[str, Any]:
     return verify_id_token(token)
 
 
-async def optional_auth(request: Request) -> dict[str, Any] | None:
+async def optional_auth(request: Request) -> Optional[dict[str, Any]]:
     try:
         return await require_auth(request)
     except HTTPException:

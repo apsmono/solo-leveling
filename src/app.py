@@ -10,9 +10,9 @@ from __future__ import annotations
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.deps import optional_auth
@@ -68,7 +68,7 @@ async def healthz() -> dict[str, str]:
 @app.post("/command")
 async def command(
     payload: dict[str, Any],
-    user: dict[str, Any] | None = Depends(optional_auth),
+    user: Optional[dict[str, Any]] = Depends(optional_auth),
 ) -> dict[str, str]:
     text = str(payload.get("text", "")).strip()
     if not text:
