@@ -51,8 +51,8 @@ def fetch_transcript(video_id: str) -> Optional[str]:
     """
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-        lines = [entry["text"] for entry in transcript_list]
+        transcript = YouTubeTranscriptApi().fetch(video_id)
+        lines = [snippet.text for snippet in transcript]
         return "\n".join(lines)
     except Exception as exc:
         logger.warning("Transcript unavailable for %s: %s", video_id, type(exc).__name__)
