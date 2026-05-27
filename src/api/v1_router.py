@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from src.api import dashboard, commands, reminders
+from src.api import dashboard, commands, reminders, library
 
 router = APIRouter(prefix="/api/v1")
 router.include_router(dashboard.router)
 router.include_router(commands.router)
 router.include_router(reminders.router)
+router.include_router(library.router)
