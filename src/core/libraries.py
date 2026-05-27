@@ -993,11 +993,24 @@ def _handle_article(text: str) -> str:
     lower = text.lower().strip()
 
     if lower.startswith("article:"):
-        payload = text.split(":", 1)[1].strip() if ":" in text else ""
+        lines = text.strip().splitlines()
+        article_line = lines[0] if lines else ""
+        payload = article_line.split(":", 1)[1].strip() if ":" in article_line else ""
         if not payload:
             return "Use: article: <url or title>"
         if len(payload) < 5:
             return "Use: article: <url or title>"
+
+        # Parse optional tags and status from subsequent lines
+        extra_tags: list[str] = []
+        extra_status = "to-read"
+        for line in lines[1:]:
+            line_lower = line.lower().strip()
+            if line_lower.startswith("tags:"):
+                tag_str = line.split(":", 1)[1].strip()
+                extra_tags = [t.strip() for t in tag_str.split(",") if t.strip()]
+            elif line_lower.startswith("status:"):
+                extra_status = line.split(":", 1)[1].strip()
 
         # Detect and enrich URLs
         stripped = payload.strip()
@@ -1016,14 +1029,19 @@ def _handle_article(text: str) -> str:
             body_lines.append(f"Captured At: {datetime.now().isoformat(timespec='minutes')}")
             body = "\n\n".join(body_lines)
             platform = meta.get("platform", "article")
-            tags = [platform, "link", "to-read"]
-            path = _capture_entry("article", title, body, status="to-read", tags=tags, source_url=stripped)
+            tags = [platform, "link", extra_status]
+            if extra_tags:
+                tags.extend(extra_tags)
+            path = _capture_entry("article", title, body, status=extra_status, tags=tags, source_url=stripped)
             return f"Article saved to local library.\n{path}\nPlatform: {platform}"
 
         title = f"Article: {payload.split('|')[0].strip()}"
         body = f"{payload}\nCaptured At: {datetime.now().isoformat(timespec='minutes')}"
-        formatted = _apply_formatting_standard("article", title, body, metadata={"status": "to-read"})
-        path = _capture_entry("article", formatted["title"], formatted["body"], status=formatted["status"], tags=formatted["tags"])
+        formatted = _apply_formatting_standard("article", title, body, metadata={"status": extra_status})
+        tags = formatted["tags"]
+        if extra_tags:
+            tags = list(dict.fromkeys(tags + extra_tags))
+        path = _capture_entry("article", formatted["title"], formatted["body"], status=extra_status, tags=tags)
         return f"Article saved to local library.\n{path}"
 
     if lower.startswith("articles on "):

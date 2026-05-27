@@ -340,3 +340,23 @@ class LibraryApiSourceUrlFilterTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ArticleCommandParsingTests(unittest.TestCase):
+    def test_article_command_parses_tags_and_status(self) -> None:
+        text = (
+            "article: https://example.com/blog-post\n"
+            "tags: ai, ml, research\n"
+            "status: reading"
+        )
+        with patch("src.core.libraries.fetch_url_metadata") as mock_fetch:
+            mock_fetch.return_value = {
+                "title": "Example Blog",
+                "description": "A blog post",
+                "author": "Writer",
+                "platform": "generic",
+                "source_url": "https://example.com/blog-post",
+                "extra": {},
+            }
+            result = libraries._handle_article(text)
+        self.assertIn("Article saved to local library.", result)
