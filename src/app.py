@@ -42,7 +42,13 @@ async def lifespan(_: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # CORS for GitHub Pages frontend
-_origins = ["http://localhost:8080", "http://localhost:3000"]
+_origins = [
+    "http://localhost:8080",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://www.apsmono.com",
+    "https://dashboard.apsmono.com",
+]
 if FRONTEND_ORIGIN:
     _origins.append(FRONTEND_ORIGIN)
 
