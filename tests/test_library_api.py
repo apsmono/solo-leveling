@@ -91,6 +91,57 @@ class LibraryApiTests(unittest.TestCase):
         res = self.client.get("/api/v1/library/sections")
         self.assertEqual(res.status_code, 401)
 
+    @patch("src.api.deps.verify_id_token")
+    @patch("src.api.library.extract_video_id")
+    @patch("src.api.library.fetch_transcript")
+    def test_youtube_transcript_success(self, mock_fetch: MagicMock, mock_extract: MagicMock, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        mock_extract.return_value = "abc123"
+        mock_fetch.return_value = "Hello world"
+
+        res = self.client.post(
+            "/api/v1/library/youtube-transcript",
+            json={"url": "https://youtube.com/watch?v=abc123"},
+            headers={"Authorization": "Bearer valid-token"},
+        )
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data["video_id"], "abc123")
+        self.assertEqual(data["transcript"], "Hello world")
+
+    @patch("src.api.deps.verify_id_token")
+    @patch("src.api.library.extract_video_id")
+    def test_youtube_transcript_no_video_id(self, mock_extract: MagicMock, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        mock_extract.return_value = None
+
+        res = self.client.post(
+            "/api/v1/library/youtube-transcript",
+            json={"url": "https://example.com"},
+            headers={"Authorization": "Bearer valid-token"},
+        )
+        self.assertEqual(res.status_code, 400)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_update_entry_not_found(self, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        res = self.client.put(
+            "/api/v1/library/entries/nonexistent-id-12345",
+            json={"title": "New Title"},
+            headers={"Authorization": "Bearer valid-token"},
+        )
+        self.assertEqual(res.status_code, 404)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_synthesize_entry_not_found(self, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        res = self.client.post(
+            "/api/v1/library/entries/nonexistent-id-12345/synthesize",
+            json={"query": "What is this?"},
+            headers={"Authorization": "Bearer valid-token"},
+        )
+        self.assertEqual(res.status_code, 404)
+
 
 if __name__ == "__main__":
     unittest.main()

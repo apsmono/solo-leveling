@@ -1001,9 +1001,11 @@ def _handle_article(text: str) -> str:
         if len(payload) < 5:
             return "Use: article: <url or title>"
 
-        # Parse optional tags and status from subsequent lines
+        # Parse optional tags, status, transcript flag, and notes from subsequent lines
         extra_tags: list[str] = []
         extra_status = "to-read"
+        include_transcript = False
+        user_notes = ""
         for line in lines[1:]:
             line_lower = line.lower().strip()
             if line_lower.startswith("tags:"):
@@ -1011,6 +1013,11 @@ def _handle_article(text: str) -> str:
                 extra_tags = [t.strip() for t in tag_str.split(",") if t.strip()]
             elif line_lower.startswith("status:"):
                 extra_status = line.split(":", 1)[1].strip()
+            elif line_lower.startswith("transcript:"):
+                tv = line.split(":", 1)[1].strip().lower()
+                include_transcript = tv in ("true", "yes", "1")
+            elif line_lower.startswith("notes:"):
+                user_notes = line.split(":", 1)[1].strip()
 
         # Detect and enrich URLs
         stripped = payload.strip()
@@ -1027,8 +1034,24 @@ def _handle_article(text: str) -> str:
                     if v and k not in ("thumbnail_url", "thumbnail_width", "thumbnail_height"):
                         body_lines.append(f"{k.replace('_', ' ').title()}: {v}")
             body_lines.append(f"Captured At: {datetime.now().isoformat(timespec='minutes')}")
-            body = "\n\n".join(body_lines)
+
+            # Fetch YouTube transcript if requested
             platform = meta.get("platform", "article")
+            if include_transcript and platform == "youtube":
+                video_id = extract_video_id(stripped)
+                if video_id:
+                    transcript = fetch_transcript(video_id)
+                    if transcript:
+                        body_lines.append("\n## Transcript\n")
+                        body_lines.append(transcript)
+                    else:
+                        body_lines.append("\n> Transcript unavailable for this video.\n")
+
+            if user_notes:
+                body_lines.append("\n## My Notes\n")
+                body_lines.append(user_notes)
+
+            body = "\n\n".join(body_lines)
             tags = [platform, "link", extra_status]
             if extra_tags:
                 tags.extend(extra_tags)

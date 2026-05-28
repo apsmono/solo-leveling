@@ -10,6 +10,8 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.api.deps import require_auth
+from src.agents.dispatcher import run_agent
+from src.integrations.youtube import extract_video_id, fetch_transcript
 
 router = APIRouter()
 
@@ -229,3 +231,163 @@ async def list_tags(
             text = path.read_text(encoding="utf-8", errors="ignore")
             all_tags.update(_extract_tags(text))
     return {"tags": sorted(all_tags)}
+
+
+@router.post("/library/youtube-transcript")
+async def youtube_transcript(
+    payload: dict[str, Any],
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    """Fetch YouTube transcript for a given URL."""
+    url = str(payload.get("url", "")).strip()
+    if not url:
+        raise HTTPException(status_code=400, detail="Missing 'url' in request body.")
+
+    video_id = extract_video_id(url)
+    if not video_id:
+        raise HTTPException(status_code=400, detail="Could not extract video ID from URL.")
+
+    transcript = fetch_transcript(video_id)
+    if transcript is None:
+        raise HTTPException(status_code=404, detail="Transcript unavailable for this video.")
+
+    return {
+        "video_id": video_id,
+        "title": "",  # Caller already has title from preview
+        "transcript": transcript,
+        "language": "auto",
+        "is_generated": True,
+    }
+
+
+@router.put("/library/entries/{entry_id}")
+async def update_entry(
+    entry_id: str,
+    payload: dict[str, Any],
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    """Update a library entry's frontmatter and body."""
+    index = _load_index()
+    all_entries = index.get("entries", [])
+
+    matched = None
+    matched_idx = -1
+    for i, e in enumerate(all_entries):
+        if _entry_id_from_path(e.get("path", "")) == entry_id:
+            matched = e
+            matched_idx = i
+            break
+
+    if not matched:
+        raise HTTPException(status_code=404, detail="Entry not found.")
+
+    path = matched.get("path", "")
+    entry_path = _PROJECT_ROOT / path
+    if not entry_path.exists():
+        raise HTTPException(status_code=404, detail="Entry file not found.")
+
+    text = entry_path.read_text(encoding="utf-8", errors="ignore")
+
+    # Extract existing frontmatter
+    title_match = re.search(r"^title:\s*(.+)$", text, flags=re.MULTILINE)
+    section_match = re.search(r"^section:\s*(.+)$", text, flags=re.MULTILINE)
+    status_match = re.search(r"^status:\s*(.+)$", text, flags=re.MULTILINE)
+    captured_at_match = re.search(r"^captured_at:\s*(.+)$", text, flags=re.MULTILINE)
+    source_url_match = re.search(r"^source_url:\s*(.+)$", text, flags=re.MULTILINE)
+
+    # Build updated frontmatter
+    new_title = payload.get("title", title_match.group(1).strip() if title_match else matched.get("title", ""))
+    new_status = payload.get("status", status_match.group(1).strip() if status_match else matched.get("status", "draft"))
+    new_tags = payload.get("tags", _extract_tags(text))
+    new_markdown = payload.get("markdown", "")
+    new_notes = payload.get("notes", "")
+
+    section = section_match.group(1).strip() if section_match else matched.get("section", "")
+    captured_at = captured_at_match.group(1).strip() if captured_at_match else ""
+    source_url = source_url_match.group(1).strip() if source_url_match else ""
+
+    metadata_tags = ", ".join(new_tags) if isinstance(new_tags, list) else str(new_tags)
+    source_url_line = f"source_url: {source_url}\n" if source_url else ""
+
+    # Determine body: if markdown provided, use it; otherwise preserve existing body
+    if new_markdown:
+        body = new_markdown
+    else:
+        # Strip existing frontmatter to preserve body
+        parts = text.split("---\n", 2)
+        body = parts[2].strip() if len(parts) >= 3 else text
+
+    # Append notes if provided
+    if new_notes:
+        body += f"\n\n## My Notes\n\n{new_notes}\n"
+
+    content = (
+        f"---\n"
+        f"title: {new_title}\n"
+        f"section: {section}\n"
+        f"status: {new_status}\n"
+        f"tags: [{metadata_tags}]\n"
+        f"captured_at: {captured_at}\n"
+        f"{source_url_line}"
+        f"---\n\n"
+        f"{body}\n"
+    )
+    entry_path.write_text(content, encoding="utf-8")
+
+    # Rebuild index so subsequent reads reflect the change
+    from src.core.libraries import _build_library_index
+    _build_library_index()
+
+    return {"status": "ok", "id": entry_id}
+
+
+@router.post("/library/entries/{entry_id}/synthesize")
+async def synthesize_entry(
+    entry_id: str,
+    payload: dict[str, Any],
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    """Ask AI a question about a specific library entry."""
+    query = str(payload.get("query", "")).strip()
+    if not query:
+        return {"status": "error", "reply": "Missing 'query' in request body."}
+
+    index = _load_index()
+    all_entries = index.get("entries", [])
+
+    matched = None
+    for e in all_entries:
+        if _entry_id_from_path(e.get("path", "")) == entry_id:
+            matched = e
+            break
+
+    if not matched:
+        raise HTTPException(status_code=404, detail="Entry not found.")
+
+    path = matched.get("path", "")
+    entry_path = _PROJECT_ROOT / path
+    if not entry_path.exists():
+        raise HTTPException(status_code=404, detail="Entry file not found.")
+
+    text = entry_path.read_text(encoding="utf-8", errors="ignore")
+    # Truncate to avoid token limits
+    truncated = text[:4000] + ("\n... [truncated]" if len(text) > 4000 else "")
+
+    task = (
+        f"User question about the following document:\n{query}\n\n"
+        f"Document title: {matched.get('title', '')}\n"
+        f"Document content:\n{truncated}\n\n"
+        f"Answer the question based ONLY on the provided document. "
+        f"If the document does not contain the answer, say so clearly."
+    )
+
+    try:
+        answer = run_agent(task=task)
+    except Exception as e:
+        return {"status": "error", "reply": f"AI synthesis failed: {e}"}
+
+    return {
+        "status": "ok",
+        "answer": answer,
+        "sources": [matched.get("title", entry_id)],
+    }
