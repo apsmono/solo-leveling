@@ -79,8 +79,8 @@ As the project expands, prefer this structure:
 - `docs/architecture/integrations.md` — integration contracts and current status per service.
 - `docs/decisions/` — formal decision records (001: command-center scope, 002: WhatsApp approach, 006: interface and Gemini provider pivot).
 - `docs/ai-working-notes.md` — **AI cross-session memory**: build history, error log, integration patterns, security rules, continuation plan. Read this. Update this after every session.
-- `docs/self-development-system.md` — personal growth and execution design (placeholder, needs real data).
-- `docs/financial-freedom-strategy.md` for income, assets, leverage, and risk planning.
-- `docs/habit-system.md` for repeatable daily and weekly behavior design.
-- `docs/review-rhythm.md` for daily, weekly, monthly, and quarterly review loops.
+- `docs/self-development-system.md` — personal growth and execution design (filled: capability areas, identity targets, failure patterns).
+- `docs/financial-freedom-strategy.md` — income, assets, leverage, and risk planning (filled: strategy pillars, income engine, guardrails).
+- `docs/habit-system.md` — repeatable daily and weekly behavior design (filled: active habits, anti-habits, friction design).
+- `docs/review-rhythm.md` — daily, weekly, monthly, and quarterly review loops (filled: cadence, questions, automation).
 - `docs/decision-log-template.md` for the reusable decision record template.
