@@ -370,6 +370,22 @@ async def synthesize_entry(
         raise HTTPException(status_code=404, detail="Entry file not found.")
 
     text = entry_path.read_text(encoding="utf-8", errors="ignore")
+
+    # Auto-enrich YouTube entries with transcript if the file is a metadata stub
+    source_url_match = re.search(r"^source_url:\s*(.+)$", text, flags=re.MULTILINE)
+    source_url = source_url_match.group(1).strip() if source_url_match else ""
+    if source_url and extract_video_id(source_url):
+        body_start = text.find("\n\n")
+        body = text[body_start + 2 :] if body_start > 0 else ""
+        body_stripped = body.strip()
+        # If the body is empty or looks like a placeholder stub, fetch transcript
+        if not body_stripped or len(body_stripped) < 200:
+            video_id = extract_video_id(source_url)
+            if video_id:
+                transcript = fetch_transcript(video_id)
+                if transcript:
+                    text = f"{text.rstrip()}\n\n## Transcript\n\n{transcript}\n"
+
     # Truncate to avoid token limits
     truncated = text[:4000] + ("\n... [truncated]" if len(text) > 4000 else "")
 
