@@ -46,6 +46,10 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 - 2026-05-04 12-03-53 `GET /api/v1/reminders` now includes `items`, a sorted array of pending reminders (`id`, `message`, `run_at`, …) for the static dashboard. Added `list_pending_reminders_structured()`, `delete_pending_reminder()`, and `_ReminderStore.delete_pending()` (JSON + Firestore). Firestore helper `delete_reminder_doc()`. Dashboard reminders view: table with delete, empty state, error banners; `subprojects/dashboard/README.md`. Tests: `test_delete_reminder_not_found`, expanded `test_list_reminders`.
 
+### Added
+
+- 2026-05-29 08-25-00 Added Kimi (Moonshot) as a supported AI provider in `src/agents/dispatcher.py`. `AGENT_PROVIDER=kimi` routes to `_run_kimi()` which calls Kimi's OpenAI-compatible chat completions API (`https://api.kimi.com/coding/v1`). Configurable via `KIMI_API_KEY`, `KIMI_MODEL`, `KIMI_BASE_URL`, and `KIMI_USER_AGENT`. Added guardrail tests for missing Kimi key and invalid provider. Updated `.env.example` with Kimi variables.
+
 ### Changed
 
 - 2026-05-04 13-09-25 `scripts/sync-subprojects.sh` now excludes `node_modules/`, `dist/`, and `.claude/` from rsync so local mirrors stay lean; run `npm ci` (and `npm run build` when needed) in the target clone after syncing.

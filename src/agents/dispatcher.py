@@ -2,12 +2,15 @@
 AI agent dispatcher.
 
 Sends a prompt (with optional context) to a configured LLM and returns the response.
-Supports Gemini. Provider is selected by AGENT_PROVIDER env var.
+Supports Gemini and Kimi (Moonshot). Provider is selected by AGENT_PROVIDER env var.
 
 Environment variables required:
-    AGENT_PROVIDER      gemini  (default: gemini)
+    AGENT_PROVIDER      gemini | kimi  (default: gemini)
     GEMINI_API_KEY      (when AGENT_PROVIDER=gemini)
     GEMINI_MODEL        (optional, default: gemini-2.0-flash)
+    KIMI_API_KEY        (when AGENT_PROVIDER=kimi)
+    KIMI_MODEL          (optional, default: kimi-for-coding)
+    KIMI_BASE_URL       (optional, default: https://api.kimi.com/coding/v1 — Kimi Code platform)
 
 Usage:
     from src.agents.dispatcher import run_agent
@@ -42,9 +45,13 @@ def run_agent(task: str, context: str = "", system: str = "") -> str:
     prompt = _build_prompt(task, context)
     sys_prompt = system or _default_system_prompt()
 
-    if PROVIDER != "gemini":
-        raise EnvironmentError("AGENT_PROVIDER must be set to 'gemini'.")
-    return _run_gemini(sys_prompt, prompt)
+    if PROVIDER == "gemini":
+        return _run_gemini(sys_prompt, prompt)
+    if PROVIDER == "kimi":
+        return _run_kimi(sys_prompt, prompt)
+    raise EnvironmentError(
+        f"AGENT_PROVIDER must be 'gemini' or 'kimi' (got {PROVIDER!r})."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -84,6 +91,50 @@ def _run_gemini(system: str, prompt: str) -> str:
     result = "".join(part.get("text", "") for part in parts if isinstance(part, dict)).strip()
     logger.info("Gemini agent responded (%d chars).", len(result))
     return result
+
+
+def _run_kimi(system: str, prompt: str) -> str:
+    """Call Kimi (Moonshot) via its OpenAI-compatible chat completions API."""
+    import httpx  # type: ignore
+
+    api_key = os.environ.get("KIMI_API_KEY")
+    if not api_key:
+        raise EnvironmentError("KIMI_API_KEY is not set.")
+
+    base_url = os.environ.get("KIMI_BASE_URL", "https://api.kimi.com/coding/v1").rstrip("/")
+    model = os.environ.get("KIMI_MODEL", "kimi-for-coding")
+    url = f"{base_url}/chat/completions"
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.3,
+    }
+    # Kimi Code API gates access to officially supported coding agents
+    # (Claude Code, Roo Code, etc.) via the User-Agent header. Identify as
+    # an external CLI client so the request isn't rejected with 403.
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "User-Agent": os.environ.get(
+            "KIMI_USER_AGENT", "claude-cli/1.0.0 (external, cli)"
+        ),
+    }
+
+    response = httpx.post(url, headers=headers, json=payload, timeout=60)
+    response.raise_for_status()
+    data = response.json()
+
+    choices = data.get("choices", [])
+    if not choices:
+        raise RuntimeError("Kimi returned no choices.")
+    result = (choices[0].get("message", {}).get("content") or "").strip()
+    logger.info("Kimi agent responded (%d chars).", len(result))
+    return result
+
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -140,6 +140,17 @@ class RouterSmokeTests(unittest.TestCase):
                 with self.assertRaisesRegex(EnvironmentError, "GEMINI_API_KEY is not set"):
                     dispatcher.run_agent("Say OK")
 
+    def test_ai_dispatch_guardrail_without_kimi_key(self) -> None:
+        with patch("src.agents.dispatcher.PROVIDER", "kimi"):
+            with patch.dict(os.environ, {}, clear=True):
+                with self.assertRaisesRegex(EnvironmentError, "KIMI_API_KEY is not set"):
+                    dispatcher.run_agent("Say OK")
+
+    def test_ai_dispatch_guardrail_invalid_provider(self) -> None:
+        with patch("src.agents.dispatcher.PROVIDER", "unknown"):
+            with self.assertRaisesRegex(EnvironmentError, "AGENT_PROVIDER must be 'gemini' or 'kimi'"):
+                dispatcher.run_agent("Say OK")
+
 
 class InlineCredentialSupportTests(unittest.TestCase):
     def test_gdrive_inline_credentials_json(self) -> None:
