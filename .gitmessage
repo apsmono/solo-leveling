@@ -20,5 +20,13 @@
 #
 # Body (optional): explain WHAT and WHY, wrap at 72 chars
 #
+# Footer (required): AI agent assistance trailer
+#   Assisted-by: <agent-name> <agent-email-or-handle>
+#   Examples:
+#     Assisted-by: Kimi <kimi@kimi.moonshot.cn>
+#     Assisted-by: Claude <claude@anthropic.com>
+#     Assisted-by: Cursor <cursor@cursor.com>
+#   Multiple agents: add one line per agent
+#
 # Footer (optional): reference ClickUp task ID
 #   CU-86dxxxxxx

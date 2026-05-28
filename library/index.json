@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-28T01:10",
+  "generated_at": "2026-05-28T03:55",
   "entries": [
     {
       "title": "Example Blog",
@@ -9,7 +9,77 @@
       "status": "reading",
       "type": "entry",
       "source_url": "https://example.com/blog-post",
-      "updated_at": "2026-05-28T01:10"
+      "updated_at": "2026-05-27T18:10"
+    },
+    {
+      "title": "Build A Claude Knowledge Base That Self-Improves!",
+      "path": "library/articles/20260528-022531-build-a-claude-knowledge-base-that-self-improves.md",
+      "section": "article",
+      "category": "article",
+      "status": "to-read",
+      "type": "entry",
+      "source_url": "https://www.youtube.com/watch?v=ib74sLgjIBM",
+      "updated_at": "2026-05-28T02:25"
+    },
+    {
+      "title": "I Tried 100+ Claude Code Skills. These 6 Are The Best",
+      "path": "library/articles/20260528-022655-i-tried-100-claude-code-skills-these-6-are-the-best.md",
+      "section": "article",
+      "category": "article",
+      "status": "to-read",
+      "type": "entry",
+      "source_url": "https://www.youtube.com/watch?v=eRS3CmvrOvA",
+      "updated_at": "2026-05-28T02:26"
+    },
+    {
+      "title": "OpenClaw Agents run my business!",
+      "path": "library/articles/20260528-035036-openclaw-agents-run-my-business.md",
+      "section": "article",
+      "category": "article",
+      "status": "to-read",
+      "type": "entry",
+      "source_url": "https://www.youtube.com/shorts/72BdaZlB1R0",
+      "updated_at": "2026-05-28T03:50"
+    },
+    {
+      "title": "How I'd Start a 1-Person Business + Personal Brand with Claude AI in 21 Days",
+      "path": "library/articles/20260528-035330-how-i-d-start-a-1-person-business-personal-brand-with-claude-ai-in-21-days.md",
+      "section": "article",
+      "category": "article",
+      "status": "to-read",
+      "type": "entry",
+      "source_url": "https://www.youtube.com/watch?v=7GVlF0Rmzxw",
+      "updated_at": "2026-05-28T03:53"
+    },
+    {
+      "title": "Kalian Wajib Jadi AI Native Engineer",
+      "path": "library/articles/20260528-035403-kalian-wajib-jadi-ai-native-engineer.md",
+      "section": "article",
+      "category": "article",
+      "status": "to-read",
+      "type": "entry",
+      "source_url": "https://www.youtube.com/watch?v=Sg5YKhKfweg",
+      "updated_at": "2026-05-28T03:54"
+    },
+    {
+      "title": "The Only 14 Ways to Make Money with AI in 2026",
+      "path": "library/articles/20260528-035508-the-only-14-ways-to-make-money-with-ai-in-2026.md",
+      "section": "article",
+      "category": "article",
+      "status": "to-read",
+      "type": "entry",
+      "source_url": "https://www.youtube.com/watch?v=K8Ros5RhJW4",
+      "updated_at": "2026-05-28T03:55"
+    },
+    {
+      "title": "Example Blog",
+      "path": "library/articles/20260528-082030-example-blog.md",
+      "section": "article",
+      "category": "article",
+      "status": "reading",
+      "type": "entry",
+      "source_url": "https://example.com/blog-post",
+      "updated_at": "2026-05-28T01:20"
     },
     {
       "title": "Book Research \u2014 AI Team Organization and Multi-Agent Project Management",
@@ -19,7 +89,7 @@
       "status": "unknown",
       "type": "bundle-index",
       "source_url": null,
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Book Research \u2014 AI Team Organization: Multiple AI agents working as a compan",
@@ -29,7 +99,7 @@
       "status": "unknown",
       "type": "bundle-index",
       "source_url": null,
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Reference: MCP (Model Context Protocol) \u2014 Architecture and Usage Guide",
@@ -39,7 +109,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "Reference: Book Research \u2014 AI Team Organization and Multi-Agent Project Management",
@@ -49,7 +119,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Reference: Book Research \u2014 AI Team Organization: Multiple AI agents working as a compan",
@@ -59,7 +129,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Reference: AI Team Organization: Positions, Roles, and Multi-Agent Project Management",
@@ -69,7 +139,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "Knowledge Intake \u2014 MCP (Model Context Protocol) is an open protocol for connect",
@@ -79,7 +149,7 @@
       "status": "unknown",
       "type": "bundle-index",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "AI Team Organization: Positions, Roles, and Multi-Agent Project Management",
@@ -89,7 +159,7 @@
       "status": "unknown",
       "type": "bundle-index",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "Term: MCP (Model Context Protocol)",
@@ -99,7 +169,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "Term: Book Research \u2014 AI Team Organization and Multi-Agent Project Management",
@@ -109,7 +179,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Term: Book Research \u2014 AI Team Organization: Multiple AI agents working as a compan",
@@ -119,7 +189,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Term: AI Team Organization: Positions, Roles, and Multi-Agent Project Management",
@@ -129,7 +199,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "Thought: MCP Adoption Plan for This Brain \u2014 Phased Approach",
@@ -139,7 +209,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "Thought: MCP Recommendation \u2014 What I Think You Should Do",
@@ -149,7 +219,7 @@
       "status": "active",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "Thought: Why MCP Matters for This Brain and What To Do About It",
@@ -159,7 +229,7 @@
       "status": "draft",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "Research Reasoning: Book Research \u2014 AI Team Organization and Multi-Agent Project Management",
@@ -169,7 +239,7 @@
       "status": "draft",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Research Reasoning: Book Research \u2014 AI Team Organization: Multiple AI agents working as a compan",
@@ -179,7 +249,7 @@
       "status": "draft",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Research Reasoning: AI Team Organization: Positions, Roles, and Multi-Agent Project Management",
@@ -189,7 +259,7 @@
       "status": "draft",
       "type": "entry",
       "source_url": null,
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     }
   ],
   "bundles": [
@@ -197,25 +267,25 @@
       "title": "Book Research \u2014 AI Team Organization and Multi-Agent Project Management",
       "path": "library/books/20260421-112035-book-research-ai-team-organization-and-multi-agent-project-management-how",
       "category": "book",
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Book Research \u2014 AI Team Organization: Multiple AI agents working as a compan",
       "path": "library/books/20260421-112049-book-research-ai-team-organization-multiple-ai-agents-working-as-a-compan",
       "category": "book",
-      "updated_at": "2026-04-21T12:45"
+      "updated_at": "2026-04-21T05:45"
     },
     {
       "title": "Knowledge Intake \u2014 MCP (Model Context Protocol) is an open protocol for connect",
       "path": "library/research/20260421-082303-knowledge-intake-mcp-model-context-protocol-is-an-open-protocol-for-connect",
       "category": "research",
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     },
     {
       "title": "AI Team Organization: Positions, Roles, and Multi-Agent Project Management",
       "path": "library/research/20260421-112135-ai-team-organization-positions-roles-and-multi-agent-project-management",
       "category": "research",
-      "updated_at": "2026-04-21T11:56"
+      "updated_at": "2026-04-21T04:56"
     }
   ]
 }

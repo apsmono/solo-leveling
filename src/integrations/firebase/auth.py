@@ -41,11 +41,13 @@ def _init_firebase() -> None:
 
 
 def verify_id_token(token: str) -> dict[str, Any]:
-    _init_firebase()
-    from firebase_admin import auth
-
     try:
+        _init_firebase()
+        from firebase_admin import auth
+
         decoded = auth.verify_id_token(token, clock_skew_seconds=10)
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.warning("Firebase ID token verification failed: %s", exc)
         raise HTTPException(
