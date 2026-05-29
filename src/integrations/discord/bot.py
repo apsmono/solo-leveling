@@ -45,7 +45,9 @@ if _discord_available:
 
         def __init__(self) -> None:
             intents = discord.Intents.default()
-            intents.message_content = True
+            # message_content is a privileged intent; we only use slash commands
+            # so it is not required. Enable in the Developer Portal if you add
+            # prefix-based message commands later.
 
             super().__init__(
                 command_prefix="!",
