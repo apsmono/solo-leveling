@@ -39,21 +39,30 @@ class TelegramWebhookTests(unittest.TestCase):
             mock_ensure.return_value = mock_app
             response = self.client.post("/webhook/telegram", json={"update_id": 1})
         self.assertEqual(response.status_code, 200)
+        mock_app.process_update.assert_called_once()
 
     @patch("src.core.config.TELEGRAM_WEBHOOK_SECRET", "secret123")
     def test_webhook_invalid_secret(self) -> None:
-        response = self.client.post("/webhook/telegram", json={"update_id": 1, "secret": "wrong"})
+        response = self.client.post(
+            "/webhook/telegram",
+            json={"update_id": 1},
+            headers={"X-Telegram-Bot-Api-Secret-Token": "wrong"},
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
 
     @patch("src.core.config.TELEGRAM_WEBHOOK_SECRET", "secret123")
     @patch("src.integrations.telegram.webhook._ensure_application")
-    def test_webhook_valid_secret(self, mock_ensure: MagicMock) -> None:
+    def test_webhook_valid_secret_header(self, mock_ensure: MagicMock) -> None:
         from unittest.mock import AsyncMock
         mock_app = MagicMock()
         mock_app.process_update = AsyncMock()
         mock_ensure.return_value = mock_app
-        response = self.client.post("/webhook/telegram", json={"update_id": 1, "secret": "secret123"})
+        response = self.client.post(
+            "/webhook/telegram",
+            json={"update_id": 1},
+            headers={"X-Telegram-Bot-Api-Secret-Token": "secret123"},
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
 

@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Optional
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.deps import optional_auth
@@ -86,14 +86,14 @@ async def command(
 
 
 @app.post("/webhook/telegram")
-async def telegram_webhook(payload: dict[str, Any]) -> dict[str, str]:
+async def telegram_webhook(request: Request, payload: dict[str, Any]) -> dict[str, str]:
     """Receive Telegram webhook updates."""
     from src.core.config import TELEGRAM_WEBHOOK_SECRET
     from src.integrations.telegram.webhook import process_update
 
-    secret = payload.get("secret", "")
+    secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
     if TELEGRAM_WEBHOOK_SECRET and secret != TELEGRAM_WEBHOOK_SECRET:
-        logger.warning("Telegram webhook received with invalid secret.")
+        logger.warning("Telegram webhook received with invalid secret token header.")
         return {"status": "ok"}
 
     try:
