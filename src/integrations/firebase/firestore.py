@@ -365,12 +365,12 @@ def count_library_entries(section: str) -> int:
 
 
 def get_library_index() -> dict[str, Any]:
-    """Get cached index from Firestore, or build from entries."""
-    doc = _client().collection(_INDEX_DOC).document("latest").get()
-    if doc.exists:
-        data = doc.to_dict()
-        if data:
-            return data
+    """Build fresh index from Firestore entries.
+
+    Previously this returned a cached document (library_index/latest)
+    which could become stale after new saves. Now it always rebuilds
+    from the library_entries collection to ensure consistency.
+    """
     return _build_library_index_from_firestore()
 
 

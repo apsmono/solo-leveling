@@ -508,15 +508,21 @@ class _FirestoreLibraryStore(_LibraryStore):
             source_url=source_url,
         )
 
-        # 2. Best-effort Firestore write
+        # 2. Best-effort Firestore write with FULL markdown (frontmatter + body)
         entry_id = Path(result).stem
+        full_path = self._project_root / result
+        full_markdown = (
+            full_path.read_text(encoding="utf-8")
+            if full_path.exists()
+            else body
+        )
         self._save_to_firestore(
             entry_id=entry_id,
             title=title,
             section=section,
             status=status,
             path=result,
-            markdown=body,
+            markdown=full_markdown,
             tags=tags,
             source_url=source_url,
         )

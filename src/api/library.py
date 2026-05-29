@@ -69,24 +69,15 @@ def _extract_source_url(text: str) -> Optional[str]:
 
 def _compute_related(entry: dict[str, Any], all_entries: list[dict[str, Any]]) -> list[str]:
     """Find related entries by shared tags or section."""
-    path = entry.get("path", "")
-    entry_text = ""
-    entry_path = _PROJECT_ROOT / path
-    if entry_path.exists():
-        entry_text = entry_path.read_text(encoding="utf-8", errors="ignore")
-    entry_tags = set(_extract_tags(entry_text))
+    entry_tags = set(entry.get("tags", []))
     if not entry_tags:
         entry_tags = {entry.get("section", ""), entry.get("category", "")}
 
     related: list[tuple[str, int]] = []
     for other in all_entries:
-        if other.get("path") == path:
+        if other.get("path") == entry.get("path"):
             continue
-        other_text = ""
-        other_path = _PROJECT_ROOT / other.get("path", "")
-        if other_path.exists():
-            other_text = other_path.read_text(encoding="utf-8", errors="ignore")
-        other_tags = set(_extract_tags(other_text))
+        other_tags = set(other.get("tags", []))
         if not other_tags:
             other_tags = {other.get("section", ""), other.get("category", "")}
 
@@ -96,6 +87,40 @@ def _compute_related(entry: dict[str, Any], all_entries: list[dict[str, Any]]) -
 
     related.sort(key=lambda x: x[1], reverse=True)
     return [rid for rid, _ in related[:5]]
+
+
+def _enrich_entry(record: dict[str, Any]) -> dict[str, Any]:
+    """Add derived fields (id, tags, captured_at, source_url) to a store record."""
+    path = record.get("path", "")
+    entry_id = _entry_id_from_path(path) if path else record.get("entry_id", "")
+
+    # Tags may come from Firestore; fallback to filesystem extraction
+    tags = record.get("tags", [])
+    captured_at = record.get("captured_at", "")
+    source_url = record.get("source_url")
+
+    if not tags and path:
+        entry_path = _PROJECT_ROOT / path
+        if entry_path.exists():
+            text = entry_path.read_text(encoding="utf-8", errors="ignore")
+            tags = _extract_tags(text)
+            if not captured_at:
+                captured_at = _extract_captured_at(text)
+            if source_url is None:
+                source_url = _extract_source_url(text)
+
+    return {
+        "id": entry_id,
+        "title": record.get("title", ""),
+        "section": record.get("section", ""),
+        "category": record.get("category", ""),
+        "status": record.get("status", ""),
+        "type": record.get("type", ""),
+        "tags": tags if isinstance(tags, list) else [],
+        "captured_at": captured_at,
+        "source_url": source_url,
+        "path": path,
+    }
 
 
 @router.get("/library/entries")
@@ -109,60 +134,40 @@ async def list_entries(
     per_page: int = Query(20, ge=1, le=100),
     _: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
-    index = _load_index()
-    entries = index.get("entries", [])
+    store = _get_store()
 
-    # Filters
-    if section:
-        entries = [e for e in entries if section.lower() in str(e.get("section", "")).lower()]
-    if status:
-        entries = [e for e in entries if status.lower() in str(e.get("status", "")).lower()]
-    if tag:
-        entries = [
-            e for e in entries
-            if tag.lower() in [t.lower() for t in _extract_tags(
-                (_PROJECT_ROOT / e.get("path", "")).read_text(encoding="utf-8", errors="ignore")
-                if (_PROJECT_ROOT / e.get("path", "")).exists() else ""
-            )]
-        ]
-    if source_url:
-        entries = [e for e in entries if e.get("source_url") == source_url]
     if search:
-        q = search.lower()
-        entries = [
-            e for e in entries
-            if q in str(e.get("title", "")).lower()
-            or q in str(e.get("section", "")).lower()
-            or q in str(e.get("category", "")).lower()
-            or q in str(e.get("source_url", "")).lower()
-        ]
+        # Use store search for text queries, then paginate
+        results = store.search_entries(search, section=section, limit=per_page * page)
+        # Apply client-side filters
+        if status:
+            results = [r for r in results if status.lower() in str(r.get("status", "")).lower()]
+        if tag:
+            results = [r for r in results if tag.lower() in [t.lower() for t in r.get("tags", [])]]
+        if source_url:
+            results = [r for r in results if r.get("source_url") == source_url]
 
-    total = len(entries)
-    start = (page - 1) * per_page
-    end = start + per_page
-    page_entries = entries[start:end]
+        total = len(results)
+        start = (page - 1) * per_page
+        page_results = results[start:start + per_page]
+    else:
+        # Use store list for paginated queries
+        result = store.list_entries(
+            section=section,
+            status=status,
+            tag=tag,
+            source_url=source_url,
+            page=page,
+            per_page=per_page,
+        )
+        total = result["total"]
+        page_results = result["entries"]
 
-    # Enrich with id and tags
-    results = []
-    for e in page_entries:
-        path = e.get("path", "")
-        entry_path = _PROJECT_ROOT / path
-        text = entry_path.read_text(encoding="utf-8", errors="ignore") if entry_path.exists() else ""
-        results.append({
-            "id": _entry_id_from_path(path),
-            "title": e.get("title", ""),
-            "section": e.get("section", ""),
-            "category": e.get("category", ""),
-            "status": e.get("status", ""),
-            "type": e.get("type", ""),
-            "tags": _extract_tags(text),
-            "captured_at": _extract_captured_at(text),
-            "source_url": _extract_source_url(text),
-            "path": path,
-        })
+    # Enrich each record with derived fields
+    entries = [_enrich_entry(e) for e in page_results]
 
     return {
-        "entries": results,
+        "entries": entries,
         "total": total,
         "page": page,
         "per_page": per_page,
@@ -174,39 +179,29 @@ async def get_entry(
     entry_id: str,
     _: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
+    store = _get_store()
+    data = store.get_entry(entry_id)
+
+    if not data:
+        raise HTTPException(status_code=404, detail="Entry not found.")
+
+    # Build related entries from the full index
     index = _load_index()
     all_entries = index.get("entries", [])
 
-    # Find entry by id
-    matched = None
-    for e in all_entries:
-        if _entry_id_from_path(e.get("path", "")) == entry_id:
-            matched = e
-            break
-
-    if not matched:
-        raise HTTPException(status_code=404, detail="Entry not found.")
-
-    path = matched.get("path", "")
-    entry_path = _PROJECT_ROOT / path
-    if not entry_path.exists():
-        raise HTTPException(status_code=404, detail="Entry file not found.")
-
-    text = entry_path.read_text(encoding="utf-8", errors="ignore")
-
     return {
         "id": entry_id,
-        "title": matched.get("title", ""),
-        "section": matched.get("section", ""),
-        "category": matched.get("category", ""),
-        "status": matched.get("status", ""),
-        "type": matched.get("type", ""),
-        "tags": _extract_tags(text),
-        "captured_at": _extract_captured_at(text),
-        "source_url": _extract_source_url(text),
-        "path": path,
-        "markdown": text,
-        "related": _compute_related(matched, all_entries),
+        "title": data.get("title", ""),
+        "section": data.get("section", ""),
+        "category": data.get("category", ""),
+        "status": data.get("status", ""),
+        "type": data.get("type", ""),
+        "tags": data.get("tags", []) if isinstance(data.get("tags"), list) else [],
+        "captured_at": data.get("captured_at", ""),
+        "source_url": data.get("source_url"),
+        "path": data.get("path", ""),
+        "markdown": data.get("markdown", ""),
+        "related": _compute_related(data, all_entries),
     }
 
 
@@ -258,21 +253,13 @@ async def update_entry(
     _: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
     """Update a library entry's frontmatter and body."""
-    index = _load_index()
-    all_entries = index.get("entries", [])
+    store = _get_store()
+    data = store.get_entry(entry_id)
 
-    matched = None
-    matched_idx = -1
-    for i, e in enumerate(all_entries):
-        if _entry_id_from_path(e.get("path", "")) == entry_id:
-            matched = e
-            matched_idx = i
-            break
-
-    if not matched:
+    if not data:
         raise HTTPException(status_code=404, detail="Entry not found.")
 
-    path = matched.get("path", "")
+    path = data.get("path", "")
     entry_path = _PROJECT_ROOT / path
     if not entry_path.exists():
         raise HTTPException(status_code=404, detail="Entry file not found.")
@@ -286,25 +273,24 @@ async def update_entry(
     captured_at_match = re.search(r"^captured_at:\s*(.+)$", text, flags=re.MULTILINE)
     source_url_match = re.search(r"^source_url:\s*(.+)$", text, flags=re.MULTILINE)
 
-    # Build updated frontmatter
-    new_title = payload.get("title", title_match.group(1).strip() if title_match else matched.get("title", ""))
-    new_status = payload.get("status", status_match.group(1).strip() if status_match else matched.get("status", "draft"))
+    # Build updated values
+    new_title = payload.get("title", title_match.group(1).strip() if title_match else data.get("title", ""))
+    new_status = payload.get("status", status_match.group(1).strip() if status_match else data.get("status", "draft"))
     new_tags = payload.get("tags", _extract_tags(text))
     new_markdown = payload.get("markdown", "")
     new_notes = payload.get("notes", "")
 
-    section = section_match.group(1).strip() if section_match else matched.get("section", "")
+    section = section_match.group(1).strip() if section_match else data.get("section", "")
     captured_at = captured_at_match.group(1).strip() if captured_at_match else ""
     source_url = source_url_match.group(1).strip() if source_url_match else ""
 
     metadata_tags = ", ".join(new_tags) if isinstance(new_tags, list) else str(new_tags)
     source_url_line = f"source_url: {source_url}\n" if source_url else ""
 
-    # Determine body: if markdown provided, use it; otherwise preserve existing body
+    # Determine body
     if new_markdown:
         body = new_markdown
     else:
-        # Strip existing frontmatter to preserve body
         parts = text.split("---\n", 2)
         body = parts[2].strip() if len(parts) >= 3 else text
 
@@ -329,9 +315,9 @@ async def update_entry(
     from src.core.libraries import _build_library_index
     _build_library_index()
 
-    # Best-effort Firestore update
+    # Best-effort Firestore update with full content
     try:
-        _get_store().update_entry(
+        store.update_entry(
             entry_id,
             {
                 "title": new_title,
@@ -358,28 +344,16 @@ async def synthesize_entry(
     if not query:
         return {"status": "error", "reply": "Missing 'query' in request body."}
 
-    index = _load_index()
-    all_entries = index.get("entries", [])
+    store = _get_store()
+    data = store.get_entry(entry_id)
 
-    matched = None
-    for e in all_entries:
-        if _entry_id_from_path(e.get("path", "")) == entry_id:
-            matched = e
-            break
-
-    if not matched:
+    if not data:
         raise HTTPException(status_code=404, detail="Entry not found.")
 
-    path = matched.get("path", "")
-    entry_path = _PROJECT_ROOT / path
-    if not entry_path.exists():
-        raise HTTPException(status_code=404, detail="Entry file not found.")
-
-    text = entry_path.read_text(encoding="utf-8", errors="ignore")
+    text = data.get("markdown", "")
 
     # Auto-enrich YouTube entries with transcript if the file is a metadata stub
-    source_url_match = re.search(r"^source_url:\s*(.+)$", text, flags=re.MULTILINE)
-    source_url = source_url_match.group(1).strip() if source_url_match else ""
+    source_url = data.get("source_url", "")
     if source_url and extract_video_id(source_url):
         body_start = text.find("\n\n")
         body = text[body_start + 2 :] if body_start > 0 else ""
@@ -397,7 +371,7 @@ async def synthesize_entry(
 
     task = (
         f"User question about the following document:\n{query}\n\n"
-        f"Document title: {matched.get('title', '')}\n"
+        f"Document title: {data.get('title', '')}\n"
         f"Document content:\n{truncated}\n\n"
         f"Answer the question based ONLY on the provided document. "
         f"If the document does not contain the answer, say so clearly."
@@ -411,5 +385,5 @@ async def synthesize_entry(
     return {
         "status": "ok",
         "answer": answer,
-        "sources": [matched.get("title", entry_id)],
+        "sources": [data.get("title", entry_id)],
     }

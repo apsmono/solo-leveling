@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-29T12:24",
+  "generated_at": "2026-05-29T12:42",
   "entries": [
     {
       "title": "Example Blog",
@@ -159,6 +159,21 @@
         "research"
       ],
       "updated_at": "2026-05-29T02:01"
+    },
+    {
+      "title": "Cara testing otomatis FULL pake AI! Cocok untuk aplikasi hasil vibe coding  - TestSprite 3.0",
+      "path": "library/articles/20260529-123643-cara-testing-otomatis-full-pake-ai-cocok-untuk-aplikasi-hasil-vibe-coding-testsp.md",
+      "section": "article",
+      "category": "article",
+      "status": "to-read",
+      "type": "entry",
+      "source_url": "https://www.youtube.com/watch?v=1jxRib55Zqk",
+      "tags": [
+        "youtube",
+        "link",
+        "to-read"
+      ],
+      "updated_at": "2026-05-29T12:36"
     },
     {
       "title": "Book Research \u2014 AI Team Organization and Multi-Agent Project Management",
