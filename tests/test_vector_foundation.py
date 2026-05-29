@@ -51,8 +51,24 @@ class VectorDBTests(unittest.TestCase):
         from src.vector.db import get_pool, open_pool
 
         async def _run() -> None:
+            mock_cur = AsyncMock()
+            mock_cur_cm = AsyncMock()
+            mock_cur_cm.__aenter__ = AsyncMock(return_value=mock_cur)
+            mock_cur_cm.__aexit__ = AsyncMock(return_value=False)
+
+            mock_conn = MagicMock()
+            mock_conn.cursor.return_value = mock_cur_cm
+            mock_conn.commit = AsyncMock()
+            mock_conn_cm = AsyncMock()
+            mock_conn_cm.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_conn_cm.__aexit__ = AsyncMock(return_value=False)
+
             mock_pool = MagicMock()
-            with patch("src.vector.db.AsyncConnectionPool") as MockPool:
+            mock_pool.open = AsyncMock()
+            mock_pool.connection.return_value = mock_conn_cm
+
+            with patch("src.vector.db.AsyncConnectionPool") as MockPool, \
+                 patch("src.vector.db.register_vector_async", new_callable=AsyncMock):
                 MockPool.return_value = mock_pool
                 await open_pool("postgresql://test@localhost/db")
                 self.assertEqual(get_pool(), mock_pool)
@@ -64,8 +80,25 @@ class VectorDBTests(unittest.TestCase):
         from src.vector.db import close_pool, get_pool, open_pool
 
         async def _run() -> None:
+            mock_cur = AsyncMock()
+            mock_cur_cm = AsyncMock()
+            mock_cur_cm.__aenter__ = AsyncMock(return_value=mock_cur)
+            mock_cur_cm.__aexit__ = AsyncMock(return_value=False)
+
+            mock_conn = MagicMock()
+            mock_conn.cursor.return_value = mock_cur_cm
+            mock_conn.commit = AsyncMock()
+            mock_conn_cm = AsyncMock()
+            mock_conn_cm.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_conn_cm.__aexit__ = AsyncMock(return_value=False)
+
             mock_pool = MagicMock()
-            with patch("src.vector.db.AsyncConnectionPool") as MockPool:
+            mock_pool.open = AsyncMock()
+            mock_pool.connection.return_value = mock_conn_cm
+            mock_pool.close = AsyncMock()
+
+            with patch("src.vector.db.AsyncConnectionPool") as MockPool, \
+                 patch("src.vector.db.register_vector_async", new_callable=AsyncMock):
                 MockPool.return_value = mock_pool
                 await open_pool("postgresql://test@localhost/db")
                 self.assertEqual(get_pool(), mock_pool)
@@ -80,12 +113,27 @@ class VectorDBTests(unittest.TestCase):
         from src.vector.db import _apply_migrations
 
         async def _run() -> None:
-            mock_conn = AsyncMock()
-            # First call
-            await _apply_migrations(mock_conn)
-            # Second call — idempotent, should not raise
-            await _apply_migrations(mock_conn)
-            self.assertTrue(mock_conn.execute.called)
+            mock_cur = AsyncMock()
+            mock_cur_cm = AsyncMock()
+            mock_cur_cm.__aenter__ = AsyncMock(return_value=mock_cur)
+            mock_cur_cm.__aexit__ = AsyncMock(return_value=False)
+
+            mock_conn = MagicMock()
+            mock_conn.cursor.return_value = mock_cur_cm
+            mock_conn.commit = AsyncMock()
+            mock_conn_cm = AsyncMock()
+            mock_conn_cm.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_conn_cm.__aexit__ = AsyncMock(return_value=False)
+
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value = mock_conn_cm
+
+            with patch("src.vector.db._pool", mock_pool):
+                # First call
+                await _apply_migrations()
+                # Second call — idempotent, should not raise
+                await _apply_migrations()
+                self.assertTrue(mock_pool.connection.called)
 
         asyncio.run(_run())
 
