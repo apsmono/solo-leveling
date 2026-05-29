@@ -34,9 +34,21 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ## Unreleased
 
+### Added
+
+- 2026-05-29 02-01-00 Research bundle: `library/research/20260529-claude-kimi-maximization-research/` — comprehensive 7-file research on maximizing Claude Code + Kimi API for coding agents, covering prompt engineering, context window management, anti-hallucination six-layer stack, and multi-agent coordination patterns. Sources: Anthropic docs, Kimi platform docs, Promptfoo, arXiv papers, community guides.
+- 2026-05-29 02-01-00 Decision record `docs/decisions/007-dependency-version-management.md` — strategy for pinning requirements.txt to tested versions, lazy-loading inactive integration dependencies, and quarterly dependency audits.
+
 ### Changed
 
+- 2026-05-29 02-01-00 `requirements.txt` synced to actually-installed `.venv` versions: fastapi>=0.136.0, uvicorn>=0.45.0, httpx>=0.28.0, notion-client>=3.0.0, firebase-admin>=7.4.0, apscheduler>=3.11.0, python-dotenv>=1.2.0, google-api-python-client>=2.194.0. Inactive dependencies (`python-telegram-bot`, `litellm`) commented with activation instructions.
 - 2026-05-23 21-58-15 Removed `subprojects/` directory and all sync infrastructure. `solo-leveling` is now backend-only. Frontend/static projects (`dashboard`, `wedding-invitation`, `koperasi`, `scrapers`, `microservices`) live as standalone repos managed by the parent workspace repo `apsmono/projects` via git submodules. See updated `AGENTS.md` in parent repo for submodule workflow.
+
+### Docs
+
+- 2026-05-29 02-01-00 Filled 4 placeholder strategy documents: `docs/self-development-system.md` (capability areas, identity targets, failure patterns), `docs/financial-freedom-strategy.md` (strategy pillars, income engine, guardrails), `docs/habit-system.md` (active habits, anti-habits, friction design), `docs/review-rhythm.md` (4-level cadence, questions, automation hooks).
+- 2026-05-29 02-01-00 Added `docs/SESSION-RECAP-2026-05-29.md` — comprehensive session handoff documenting findings, errors, solutions, plan, and missed items.
+- 2026-05-04 13-09-25 Clarified `docs/subproject-linking-workflow.md`: `apsmono/wedding-invitation` receives **`dist/` output from CI**, while `subprojects/wedding-invitation/` remains the Vite/React source; documented when to use `./scripts/sync-subprojects.sh` versus `git pull` in the standalone clone.
 
 ### Docs
 
