@@ -68,6 +68,7 @@ class RouterSmokeTests(unittest.TestCase):
                 "GEMINI_API_KEY": "x",
                 "FIREBASE_CREDENTIALS_PATH": "/tmp/fb-creds.json",
                 "GITHUB_PAT": "ghp_test",
+                "TELEGRAM_BOT_TOKEN": "bot_token",
             },
             clear=True,
         ):

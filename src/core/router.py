@@ -250,6 +250,8 @@ def _handle_health(_: str) -> str:
         ]
     )
 
+    telegram_ready = bool(os.environ.get("TELEGRAM_BOT_TOKEN"))
+
     checks = [
         ("Notion", ["NOTION_API_TOKEN"]),
         ("Google Drive", [] if drive_ready else ["GOOGLE_DRIVE_CREDENTIALS_PATH"]),
@@ -257,6 +259,7 @@ def _handle_health(_: str) -> str:
         ("Gemini", ["GEMINI_API_KEY"]),
         ("Firebase", [] if firebase_ready else ["FIREBASE_CREDENTIALS_PATH or FIREBASE_CREDENTIALS_JSON"]),
         ("GitHub", [] if os.environ.get("GITHUB_PAT") else ["GITHUB_PAT"]),
+        ("Telegram", [] if telegram_ready else ["TELEGRAM_BOT_TOKEN"]),
     ]
     lines = ["System health check:\n"]
     missing = []
@@ -272,6 +275,23 @@ def _handle_health(_: str) -> str:
         lines.append("See docs/SETUP_SECRETS.md to configure them.")
     else:
         lines.append("\nAll integrations configured.")
+
+    # Telegram webhook info (best-effort)
+    if telegram_ready:
+        try:
+            from src.integrations.telegram.cli import _get_bot
+            import asyncio
+            bot = _get_bot()
+            info = asyncio.run(bot.get_webhook_info())
+            if info.url:
+                lines.append(f"   Webhook: {info.url}")
+                if info.pending_update_count:
+                    lines.append(f"   Pending: {info.pending_update_count}")
+            else:
+                lines.append("   Webhook: not set (use 'python -m src.integrations.telegram.cli set <url>')")
+        except Exception:
+            pass  # Best-effort, don't fail health check
+
     return "\n".join(lines)
 
 
