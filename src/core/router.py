@@ -216,6 +216,9 @@ def _handle_help(_: str) -> str:
         "• github status — check GitHub integration health\n"
         "• autopilot start: <goal> — queue an autonomous task\n"
         "• autopilot status — show active and pending tasks\n"
+        "• autopilot approvals — list pending approvals\n"
+        "• autopilot pause <task_id> — pause a running task\n"
+        "• autopilot approve <task_id> — resume a task awaiting approval\n"
         "• help — show this message"
     )
 
@@ -346,6 +349,9 @@ def _handle_autopilot(text: str) -> str:
     if normalized in {"autopilot status", "autopilot tasks"}:
         return get_loop().get_status()
 
+    if normalized == "autopilot approvals":
+        return _format_approvals(get_loop().approval_store._load_all())
+
     if normalized.startswith("autopilot pause "):
         task_id = text[len("autopilot pause "):].strip()
         return get_loop().pause_task(task_id)
@@ -474,6 +480,19 @@ def _handle_github_status(_: str) -> str:
     if result["ok"]:
         return f"GitHub integration is healthy.\n• Authenticated as: {result['user']}"
     return f"GitHub integration unhealthy.\n• {result['error']}"
+
+
+def _format_approvals(approvals: list[dict[str, Any]]) -> str:
+    pending = [a for a in approvals if a.get("status") == "pending"]
+    if not pending:
+        return "No pending approvals."
+    lines = [f"Pending approvals ({len(pending)}):"]
+    for a in pending:
+        lines.append(
+            f"• {a.get('id', 'unknown')}: task {a.get('task_id', 'unknown')} "
+            f"step {a.get('step', '?')} | tool: {a.get('tool', '?')} | {a.get('reason', '')[:60]}"
+        )
+    return "\n".join(lines)
 
 
 def _handle_unknown(text: str) -> str:

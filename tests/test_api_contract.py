@@ -104,6 +104,25 @@ class ApiContractTests(unittest.TestCase):
         self.assertIn("status", data)
         self.assertIn("reply", data)
 
+    @patch("src.api.deps.verify_id_token")
+    @patch("src.autopilot.loop.plan_steps", return_value=[])
+    def test_autopilot_tasks_contract(self, _mock_plan: MagicMock, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        res = self.client.get("/api/v1/autopilot/tasks", headers={"Authorization": "Bearer valid-token"})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertIn("tasks", data)
+        self.assertIsInstance(data["tasks"], list)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_autopilot_approvals_contract(self, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        res = self.client.get("/api/v1/autopilot/approvals", headers={"Authorization": "Bearer valid-token"})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertIn("approvals", data)
+        self.assertIsInstance(data["approvals"], list)
+
 
 if __name__ == "__main__":
     unittest.main()

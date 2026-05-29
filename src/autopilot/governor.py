@@ -31,6 +31,8 @@ _TOOL_RL_REQUIREMENTS: dict[str, ResponsibilityLevel] = {
     "read": ResponsibilityLevel.ASSISTED,
     "bash": ResponsibilityLevel.INDEPENDENT,
     "edit": ResponsibilityLevel.INDEPENDENT,
+    "write": ResponsibilityLevel.INDEPENDENT,
+    "claude_code": ResponsibilityLevel.CROSS_MODULE,
     "web_search": ResponsibilityLevel.ASSISTED,
     "gmail_read": ResponsibilityLevel.ASSISTED,
     "notion_create": ResponsibilityLevel.CROSS_MODULE,

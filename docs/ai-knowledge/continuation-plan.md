@@ -58,6 +58,20 @@ Last updated: 2026-04-17 21-05-00 (Stage 8 workflows expanded) → 2026-04-17 22
 
 ## Latest Session Notes
 
+### 2026-05-29 — Autopilot Phase 2 Implemented
+
+- Added `write` tool to `src/autopilot/tools.py`: sandboxed file creation/editing within repo, atomic temp+rename, supports `write` and `append` modes. RL2 (INDEPENDENT) minimum.
+- Added `claude_code` tool: checks for `claude` binary, runs `claude -p <prompt>` subprocess (non-interactive), falls back to `run_agent()` with coding system prompt if unavailable. RL3 (CROSS_MODULE) minimum.
+- Updated planner system prompt in `src/autopilot/planner.py` to include both new tools.
+- Enhanced `_ApprovalStore` in `src/autopilot/loop.py` with unique IDs per approval, `get()`, `approve_by_id()`, `reject_by_id()`.
+- Added `AutopilotLoop.approve_approval()` and `reject_approval()` for per-approval control.
+- Created `src/api/autopilot.py` with 8 REST endpoints: task list/get/create/approve/pause, approval list/approve/reject. All require Firebase auth.
+- Wired autopilot router into `src/api/v1_router.py`.
+- Added `autopilot approvals` text command to `src/core/router.py`.
+- Expanded `tests/test_autopilot.py` from 16 to 34 tests: write tool sandboxing, claude_code fallback/subprocess/timeout, RL gating for new tools, approval by ID, API endpoints.
+- Added autopilot contract tests to `tests/test_api_contract.py`.
+- All 81 tests passing (34 autopilot + 10 contract + 37 stage9/integration). Zero regressions.
+
 ### 2026-04-22 — AI Employer Governance System Adopted
 
 - Added `docs/ai-employer-operating-system.md` as canonical governance for multi-AI execution.

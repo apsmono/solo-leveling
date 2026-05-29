@@ -129,14 +129,14 @@ class AutopilotLoop:
                 task["observations"].append(f"Step {current_step} blocked: {reason}")
                 task["updated_at"] = _now_iso()
                 self.task_store.save(task)
-                self.approval_store.create(
+                approval_id = self.approval_store.create(
                     task_id=active_id,
                     step=current_step,
                     tool=tool_name,
                     args=tool_args,
                     reason=reason,
                 )
-                logger.info("Autopilot task %s paused for approval at step %s", active_id, current_step)
+                logger.info("Autopilot task %s paused for approval at step %s (approval %s)", active_id, current_step, approval_id)
                 return
 
             logger.info("Autopilot task %s executing step %s: %s", active_id, current_step, tool_name)
@@ -162,6 +162,52 @@ class AutopilotLoop:
         self.approval_store.resolve(task_id)
         logger.info("Autopilot task %s approved and resumed", task_id)
         return f"Task {task_id} approved and resumed."
+
+    def approve_approval(self, approval_id: str) -> str:
+        """Approve a specific approval request and resume its task."""
+        approval = self.approval_store.get(approval_id)
+        if not approval:
+            return f"Approval {approval_id} not found."
+        if approval.get("status") != "pending":
+            return f"Approval {approval_id} is already {approval.get('status')}."
+
+        task_id = approval["task_id"]
+        self.approval_store.approve_by_id(approval_id)
+
+        task = self.task_store.load(task_id)
+        if task and task.get("status") == "awaiting_approval":
+            task["status"] = "in_progress"
+            task["updated_at"] = _now_iso()
+            self.task_store.save(task)
+            logger.info("Autopilot task %s approved via approval %s and resumed", task_id, approval_id)
+            return f"Approval {approval_id} approved. Task {task_id} resumed."
+        return f"Approval {approval_id} approved."
+
+    def reject_approval(self, approval_id: str) -> str:
+        """Reject a specific approval request and fail its task."""
+        approval = self.approval_store.get(approval_id)
+        if not approval:
+            return f"Approval {approval_id} not found."
+        if approval.get("status") != "pending":
+            return f"Approval {approval_id} is already {approval.get('status')}."
+
+        task_id = approval["task_id"]
+        self.approval_store.reject_by_id(approval_id)
+
+        task = self.task_store.load(task_id)
+        if task and task.get("status") == "awaiting_approval":
+            task["status"] = "failed"
+            task["observations"].append(f"Approval {approval_id} rejected by user.")
+            task["updated_at"] = _now_iso()
+            self.task_store.save(task)
+            state = self.state_store.load()
+            if state.get("active_task_id") == task_id:
+                state["active_task_id"] = None
+                state["current_step"] = 0
+                self.state_store.save(state)
+            logger.info("Autopilot task %s rejected via approval %s", task_id, approval_id)
+            return f"Approval {approval_id} rejected. Task {task_id} marked as failed."
+        return f"Approval {approval_id} rejected."
 
     def pause_task(self, task_id: str) -> str:
         task = self.task_store.load(task_id)
@@ -266,10 +312,12 @@ class _ApprovalStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
-    def create(self, task_id: str, step: int, tool: str, args: dict[str, Any], reason: str) -> None:
+    def create(self, task_id: str, step: int, tool: str, args: dict[str, Any], reason: str) -> str:
         items = self._load_all()
+        approval_id = _generate_task_id()
         items.append(
             {
+                "id": approval_id,
                 "task_id": task_id,
                 "step": step,
                 "tool": tool,
@@ -280,12 +328,41 @@ class _ApprovalStore:
             }
         )
         self._save_all(items)
+        return approval_id
+
+    def get(self, approval_id: str) -> dict[str, Any] | None:
+        items = self._load_all()
+        for item in items:
+            if item.get("id") == approval_id:
+                return item
+        return None
+
+    def approve_by_id(self, approval_id: str) -> bool:
+        items = self._load_all()
+        for item in items:
+            if item.get("id") == approval_id and item.get("status") == "pending":
+                item["status"] = "approved"
+                item["resolved_at"] = _now_iso()
+                self._save_all(items)
+                return True
+        return False
+
+    def reject_by_id(self, approval_id: str) -> bool:
+        items = self._load_all()
+        for item in items:
+            if item.get("id") == approval_id and item.get("status") == "pending":
+                item["status"] = "rejected"
+                item["resolved_at"] = _now_iso()
+                self._save_all(items)
+                return True
+        return False
 
     def resolve(self, task_id: str) -> None:
         items = self._load_all()
         for item in items:
             if item.get("task_id") == task_id and item.get("status") == "pending":
                 item["status"] = "approved"
+                item["resolved_at"] = _now_iso()
         self._save_all(items)
 
 

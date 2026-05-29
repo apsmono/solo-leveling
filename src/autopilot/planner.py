@@ -23,6 +23,8 @@ _PLANNER_SYSTEM_PROMPT = (
     "Available tools and their args:\n"
     "- read: {path: string, offset?: int, limit?: int}\n"
     "- bash: {command: string, timeout?: int}\n"
+    "- write: {path: string, content: string, mode?: 'write' | 'append'}\n"
+    "- claude_code: {prompt: string, timeout?: int}\n"
     "- gmail_read: {query?: string, limit?: int}\n"
     "- library_index: {rebuild?: bool}\n"
     "Rules:\n"

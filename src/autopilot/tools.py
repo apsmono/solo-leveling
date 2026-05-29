@@ -9,6 +9,7 @@ the result as a string observation.
 from __future__ import annotations
 
 import logging
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Any, Callable
@@ -48,6 +49,8 @@ class ToolRegistry:
     def _register_defaults(self) -> None:
         self.register("read", _tool_read)
         self.register("bash", _tool_bash)
+        self.register("write", _tool_write)
+        self.register("claude_code", _tool_claude_code)
         self.register("gmail_read", _tool_gmail_read)
         self.register("library_index", _tool_library_index)
 
@@ -87,6 +90,58 @@ def _tool_bash(command: str, timeout: int = 30) -> str:
         return output or "(no output)"
     except subprocess.TimeoutExpired:
         return f"Error: command timed out after {timeout}s"
+    except Exception as e:
+        return f"Error: {type(e).__name__}: {e}"
+
+
+def _tool_write(path: str, content: str, mode: str = "write") -> str:
+    """Create or append to a file within the repo sandbox."""
+    target = Path(path).resolve()
+    repo_root = Path.cwd().resolve()
+    if repo_root not in target.parents and target != repo_root:
+        return f"Error: path '{path}' is outside the repository sandbox."
+    if mode not in ("write", "append"):
+        return f"Error: invalid mode '{mode}'. Use 'write' or 'append'."
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = target.with_suffix(target.suffix + ".tmp")
+        if mode == "append" and target.exists():
+            existing = target.read_text(encoding="utf-8")
+            temp_path.write_text(existing + content, encoding="utf-8")
+        else:
+            temp_path.write_text(content, encoding="utf-8")
+        temp_path.replace(target)
+        action = "Appended" if mode == "append" else "Wrote"
+        return f"{action} {len(content)} chars to {path}"
+    except Exception as e:
+        return f"Error writing {path}: {type(e).__name__}: {e}"
+
+
+def _tool_claude_code(prompt: str, timeout: int = 120) -> str:
+    """Spawn Claude Code subprocess or fall back to run_agent."""
+    binary = shutil.which("claude")
+    if not binary:
+        logger.info("claude binary not found; falling back to run_agent")
+        from src.agents.dispatcher import run_agent
+        return run_agent(
+            task=prompt,
+            system="You are Claude Code, an expert software engineer. Follow the user's instructions precisely.",
+        )
+    logger.info("[claude_code] %s", prompt[:80])
+    try:
+        result = subprocess.run(
+            [binary, "-p", prompt],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            cwd=Path.cwd(),
+        )
+        output = result.stdout.strip()
+        if result.returncode != 0:
+            output += f"\n[exit code {result.returncode}]\n{result.stderr.strip()}"
+        return output or "(no output)"
+    except subprocess.TimeoutExpired:
+        return f"Error: Claude Code timed out after {timeout}s"
     except Exception as e:
         return f"Error: {type(e).__name__}: {e}"
 
