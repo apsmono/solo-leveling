@@ -7,9 +7,9 @@ This repository is the central brain for the owner's personal operating system: 
 ## Current Phase
 
 - Phase: Stage 8 complete; Stage 9 in progress; Firebase/Telegram/Dashboard infrastructure landed
-- Main assets: working integration code (Notion, Drive, Gmail, Gemini), notification scheduler with Firestore/JSON dual backend, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, deep research-bundle capture flow, indexed search with LRU cache, Firebase Auth + Firestore integration, Telegram bot webhook, static dashboard frontend for GitHub Pages (standalone repo), versioned REST API (`/api/v1`), Docker Compose for MacMini
+- Main assets: working integration code (Notion, Drive, Gmail, Gemini), notification scheduler with Firestore/JSON dual backend, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, deep research-bundle capture flow, indexed search with LRU cache, Firebase Auth + Firestore integration, **Telegram bot webhook with proactive messaging + CLI management**, static dashboard frontend for GitHub Pages (standalone repo), versioned REST API (`/api/v1`), Docker Compose for MacMini
 - Current work: backend runs on MacMini via Docker; Telegram and HTTP `/command` both route through `route_command()`; Firestore stores reminders and command history when `USE_FIRESTORE_REMINDERS=true`; single-user Firebase Auth gates `/dashboard` endpoints; frontend projects (`dashboard`, `wedding-invitation`, `koperasi`) live as standalone repos managed by the parent workspace repo
-- Primary need: configure Firebase credentials and `FRONTEND_ORIGIN`, deploy dashboard to GitHub Pages, set Telegram webhook via `scripts/set-telegram-webhook.py`, verify end-to-end auth flow, then continue Stage 9 improvements
+- Primary need: configure Firebase credentials and `FRONTEND_ORIGIN`, deploy dashboard to GitHub Pages, verify end-to-end auth flow, then continue Stage 9 improvements
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth
