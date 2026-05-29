@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi.testclient import TestClient
 
@@ -149,6 +149,56 @@ class TelegramWebhookTests(unittest.TestCase):
 
         os.unlink(temp_path)
         os.unlink(processed_path)
+
+
+class TelegramClientTests(unittest.TestCase):
+    @patch("src.integrations.telegram.client._get_bot")
+    def test_send_message_success(self, mock_get_bot: MagicMock) -> None:
+        from src.integrations.telegram.client import send_message
+        mock_bot = MagicMock()
+        mock_bot.send_message = AsyncMock()
+        mock_get_bot.return_value = mock_bot
+
+        import asyncio
+        result = asyncio.run(send_message(123456, "Hello!"))
+        self.assertTrue(result)
+        mock_bot.send_message.assert_called_once_with(chat_id=123456, text="Hello!")
+
+    @patch("src.integrations.telegram.client._get_bot")
+    def test_send_message_splits_long_text(self, mock_get_bot: MagicMock) -> None:
+        from src.integrations.telegram.client import send_message
+        mock_bot = MagicMock()
+        mock_bot.send_message = AsyncMock()
+        mock_get_bot.return_value = mock_bot
+
+        long_text = "A" * 5000
+        import asyncio
+        result = asyncio.run(send_message(123456, long_text))
+        self.assertTrue(result)
+        self.assertEqual(mock_bot.send_message.call_count, 2)
+
+    @patch("src.integrations.telegram.client.get_stored_chat_ids")
+    @patch("src.integrations.telegram.client._get_bot")
+    def test_broadcast(self, mock_get_bot: MagicMock, mock_get_chats: MagicMock) -> None:
+        from src.integrations.telegram.client import broadcast
+        mock_bot = MagicMock()
+        mock_bot.send_message = AsyncMock()
+        mock_get_bot.return_value = mock_bot
+        mock_get_chats.return_value = [111, 222]
+
+        import asyncio
+        results = asyncio.run(broadcast("Hello all!"))
+        self.assertEqual(results, {111: True, 222: True})
+        self.assertEqual(mock_bot.send_message.call_count, 2)
+
+    @patch("src.integrations.telegram.client.get_stored_chat_ids")
+    def test_broadcast_no_chats(self, mock_get_chats: MagicMock) -> None:
+        from src.integrations.telegram.client import broadcast
+        mock_get_chats.return_value = []
+
+        import asyncio
+        results = asyncio.run(broadcast("Hello!"))
+        self.assertEqual(results, {})
 
 
 if __name__ == "__main__":
