@@ -73,17 +73,165 @@ def _read_planning_entries(kind: str) -> list[dict[str, Any]]:
     return entries
 
 
+def _read_goals() -> list[dict[str, Any]]:
+    """Read goals with parent_id and progress from YAML frontmatter."""
+    entries: list[dict[str, Any]] = []
+    dir_path = _LIBRARY_ROOT / "goals"
+    if not dir_path.exists():
+        return entries
+
+    for path in sorted(dir_path.rglob("*.md")):
+        if path.name == ".gitkeep":
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        title_match = re.search(r"^title:\s*(.+)$", text, flags=re.MULTILINE)
+        title = title_match.group(1).strip() if title_match else path.stem
+        status = _extract_status(text)
+        cap = _extract_captured_at(text)
+
+        # Extract parent_id
+        parent_id: Optional[str] = None
+        parent_match = re.search(r"^parent_id:\s*(.*)$", text, flags=re.MULTILINE)
+        if parent_match:
+            val = parent_match.group(1).strip()
+            if val and val.lower() != "null":
+                parent_id = val
+
+        # Extract progress (0-100)
+        progress = 0
+        progress_match = re.search(r"^progress:\s*(\d+)$", text, flags=re.MULTILINE)
+        if progress_match:
+            progress = int(progress_match.group(1))
+
+        entries.append({
+            "id": path.stem,
+            "title": title,
+            "status": status,
+            "parent_id": parent_id,
+            "progress": progress,
+            "path": str(path.relative_to(_PROJECT_ROOT)),
+            "captured_at": cap.isoformat() if cap else None,
+            "preview": text[:300] + ("..." if len(text) > 300 else ""),
+        })
+
+    return entries
+
+
+def _build_goal_tree(goals: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Build hierarchical tree from flat goals and compute rolled-up progress."""
+    # Create lookup
+    by_id = {g["id"]: g for g in goals}
+
+    # Find children for each goal
+    for g in goals:
+        g["children"] = []
+
+    roots: list[dict[str, Any]] = []
+    for g in goals:
+        parent_id = g.get("parent_id")
+        if parent_id and parent_id in by_id:
+            by_id[parent_id]["children"].append(g)
+        else:
+            roots.append(g)
+
+    # Compute progress recursively
+    def _compute_progress(goal: dict[str, Any]) -> int:
+        children = goal.get("children", [])
+        if not children:
+            # Leaf goal: use its own progress or 0/100 based on status
+            if goal.get("status") == "completed":
+                goal["progress"] = 100
+            return goal.get("progress", 0)
+
+        # Parent goal: average of children
+        total = sum(_compute_progress(c) for c in children)
+        avg = round(total / len(children))
+        goal["progress"] = avg
+        return avg
+
+    for root in roots:
+        _compute_progress(root)
+
+    return roots
+
+
+class GoalUpdate(BaseModel):
+    title: Optional[str] = None
+    status: Optional[str] = None
+    parent_id: Optional[str] = None
+    progress: Optional[int] = None
+
+
+def _write_goal(goal_id: str, data: dict[str, Any]) -> None:
+    """Write a goal as a markdown file with YAML frontmatter."""
+    dir_path = _LIBRARY_ROOT / "goals"
+    dir_path.mkdir(parents=True, exist_ok=True)
+    path = dir_path / f"{goal_id}.md"
+
+    frontmatter_lines = ["---"]
+    frontmatter_lines.append(f'title: "{data["title"]}"')
+    frontmatter_lines.append(f"status: {data.get('status', 'active')}")
+    frontmatter_lines.append(f"parent_id: {data.get('parent_id') or 'null'}")
+    frontmatter_lines.append(f"progress: {data.get('progress', 0)}")
+    if data.get("captured_at"):
+        frontmatter_lines.append(f"captured_at: {data['captured_at']}")
+    else:
+        frontmatter_lines.append(f"captured_at: {datetime.now().isoformat()}")
+    frontmatter_lines.append("---")
+
+    body = data.get("body", "").strip()
+    content = "\n".join(frontmatter_lines)
+    if body:
+        content += "\n\n" + body
+
+    path.write_text(content, encoding="utf-8")
+
+
 @router.get("/planning/goals")
 async def get_goals(
     _: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
-    goals = _read_planning_entries("goals")
+    goals = _read_goals()
+    tree = _build_goal_tree(goals)
     return {
         "goals": goals,
+        "tree": tree,
         "active": [g for g in goals if g.get("status") == "active"],
         "completed": [g for g in goals if g.get("status") == "completed"],
         "paused": [g for g in goals if g.get("status") not in ("active", "completed")],
     }
+
+
+@router.put("/planning/goals/{goal_id}")
+async def update_goal(
+    goal_id: str,
+    payload: GoalUpdate,
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    goals = _read_goals()
+    goal = next((g for g in goals if g["id"] == goal_id), None)
+    if not goal:
+        return {"status": "error", "message": "Goal not found"}
+
+    # Read body if exists
+    path = _LIBRARY_ROOT / "goals" / f"{goal_id}.md"
+    body = ""
+    if path.exists():
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        frontmatter_match = re.search(r"^---\s*\n.*?\n---\s*(.*)$", text, re.DOTALL)
+        if frontmatter_match:
+            body = frontmatter_match.group(1).strip()
+
+    data = {
+        "title": payload.title if payload.title is not None else goal["title"],
+        "status": payload.status if payload.status is not None else goal["status"],
+        "parent_id": payload.parent_id if payload.parent_id is not None else goal.get("parent_id"),
+        "progress": payload.progress if payload.progress is not None else goal.get("progress", 0),
+        "captured_at": goal.get("captured_at"),
+        "body": body,
+    }
+    _write_goal(goal_id, data)
+    return {"status": "ok", "id": goal_id, **data}
 
 
 @router.get("/planning/projects")
