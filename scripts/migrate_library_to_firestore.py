@@ -26,8 +26,15 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Auto-detect and use project venv if available
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+_VENV_PYTHON = _PROJECT_ROOT / ".venv" / "bin" / "python3"
+if _VENV_PYTHON.exists() and sys.executable != str(_VENV_PYTHON):
+    import os
+    os.execv(str(_VENV_PYTHON), [str(_VENV_PYTHON), __file__] + sys.argv[1:])
+
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(_PROJECT_ROOT))
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
