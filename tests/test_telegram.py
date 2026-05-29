@@ -201,5 +201,53 @@ class TelegramClientTests(unittest.TestCase):
         self.assertEqual(results, {})
 
 
+class TelegramCliTests(unittest.TestCase):
+    @patch("src.integrations.telegram.cli._get_bot")
+    def test_cli_set(self, mock_get_bot: MagicMock) -> None:
+        from src.integrations.telegram.cli import cmd_set
+        mock_bot = MagicMock()
+        mock_bot.set_webhook = AsyncMock(return_value=True)
+        mock_get_bot.return_value = mock_bot
+
+        import asyncio
+        result = asyncio.run(cmd_set("https://example.com/webhook/telegram"))
+        self.assertEqual(result, 0)
+        mock_bot.set_webhook.assert_called_once()
+        call_kwargs = mock_bot.set_webhook.call_args.kwargs
+        self.assertEqual(call_kwargs["url"], "https://example.com/webhook/telegram")
+        self.assertTrue(call_kwargs["drop_pending_updates"])
+
+    @patch("src.integrations.telegram.cli._get_bot")
+    def test_cli_info(self, mock_get_bot: MagicMock) -> None:
+        from src.integrations.telegram.cli import cmd_info
+        mock_info = MagicMock()
+        mock_info.url = "https://example.com/webhook/telegram"
+        mock_info.pending_update_count = 0
+        mock_info.max_connections = 40
+        mock_info.last_error_date = None
+        mock_info.last_error_message = None
+
+        mock_bot = MagicMock()
+        mock_bot.get_webhook_info = AsyncMock(return_value=mock_info)
+        mock_get_bot.return_value = mock_bot
+
+        import asyncio
+        result = asyncio.run(cmd_info())
+        self.assertEqual(result, 0)
+        mock_bot.get_webhook_info.assert_called_once()
+
+    @patch("src.integrations.telegram.cli._get_bot")
+    def test_cli_delete(self, mock_get_bot: MagicMock) -> None:
+        from src.integrations.telegram.cli import cmd_delete
+        mock_bot = MagicMock()
+        mock_bot.delete_webhook = AsyncMock(return_value=True)
+        mock_get_bot.return_value = mock_bot
+
+        import asyncio
+        result = asyncio.run(cmd_delete())
+        self.assertEqual(result, 0)
+        mock_bot.delete_webhook.assert_called_once_with(drop_pending_updates=True)
+
+
 if __name__ == "__main__":
     unittest.main()
