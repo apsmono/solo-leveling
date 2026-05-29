@@ -100,22 +100,16 @@ class EmbedTests(unittest.TestCase):
         """embed_text returns a list of length 768."""
         from src.vector.embed import _EMBED_DIM, embed_text
 
-        async def _run() -> None:
-            with patch("src.vector.embed._get_client") as mock_get_client:
-                mock_client = MagicMock()
-                mock_embedder = MagicMock()
-                mock_embedder.embed_content.return_value = MagicMock(
-                    embeddings=[MagicMock(values=[0.1] * _EMBED_DIM)]
-                )
-                mock_client.models = MagicMock()
-                mock_client.models.get_embedder.return_value = mock_embedder
-                mock_get_client.return_value = mock_client
+        mock_response = MagicMock()
+        mock_response.embeddings = [MagicMock(values=[0.1] * _EMBED_DIM)]
 
-                result = await embed_text("hello world", task_type="RETRIEVAL_DOCUMENT")
-                self.assertIsInstance(result, list)
-                self.assertEqual(len(result), _EMBED_DIM)
+        mock_client = MagicMock()
+        mock_client.models.embed_content.return_value = mock_response
 
-        asyncio.run(_run())
+        with patch("src.vector.embed._get_client", return_value=mock_client):
+            result = embed_text("hello world", task_type="RETRIEVAL_DOCUMENT")
+            self.assertIsInstance(result, list)
+            self.assertEqual(len(result), _EMBED_DIM)
 
     def test_content_hash_stable(self) -> None:
         """Same input yields the same SHA-256 hex digest."""
@@ -137,49 +131,40 @@ class EmbedTests(unittest.TestCase):
 
     def test_on_entry_saved_inserts_row(self) -> None:
         """Calling on_entry_saved creates a DB row via get_pool."""
-        from src.vector.embed import on_entry_saved
+        from src.vector.hooks import on_entry_saved
 
         async def _run() -> None:
             mock_conn = AsyncMock()
-            mock_pool = AsyncMock()
-            mock_pool.__aenter__ = AsyncMock(return_value=mock_conn)
-            mock_pool.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("src.vector.embed.get_pool", return_value=mock_pool):
-                with patch("src.vector.embed.embed_text", return_value=[0.1] * 768):
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
+
+            with patch("src.vector.hooks.get_pool", return_value=mock_pool):
+                with patch("src.vector.hooks.embed_text", return_value=[0.1] * 768):
                     await on_entry_saved(
                         entry_id="test-entry-1",
-                        title="Test Title",
-                        body="Test body content.",
+                        text="Test body content.",
+                        section="terms",
                         owner_id="owner@example.com",
                     )
                     self.assertTrue(mock_conn.execute.called)
 
         asyncio.run(_run())
 
-    def test_backfill_count(self) -> None:
-        """backfill_library_embeddings returns non-zero for seeded library."""
-        from src.vector.embed import backfill_library_embeddings
+    def test_on_entry_saved_never_raises(self) -> None:
+        """on_entry_saved catches all exceptions and never propagates."""
+        from src.vector.hooks import on_entry_saved
 
         async def _run() -> None:
-            mock_conn = AsyncMock()
-            mock_conn.execute.return_value = MagicMock()
-            # Simulate 2 rows needing backfill
-            mock_cursor = MagicMock()
-            mock_cursor.fetchall.return_value = [
-                ("entry-1", "Title 1", "Body 1"),
-                ("entry-2", "Title 2", "Body 2"),
-            ]
-            mock_conn.execute.return_value = mock_cursor
-
-            mock_pool = AsyncMock()
-            mock_pool.__aenter__ = AsyncMock(return_value=mock_conn)
-            mock_pool.__aexit__ = AsyncMock(return_value=False)
-
-            with patch("src.vector.embed.get_pool", return_value=mock_pool):
-                with patch("src.vector.embed.embed_text", return_value=[0.1] * 768):
-                    count = await backfill_library_embeddings(owner_id="owner@example.com")
-                    self.assertGreater(count, 0)
+            with patch("src.vector.hooks.get_pool", side_effect=RuntimeError("boom")):
+                # Should not raise
+                await on_entry_saved(
+                    entry_id="test-entry-1",
+                    text="Test body content.",
+                    section="terms",
+                    owner_id="owner@example.com",
+                )
 
         asyncio.run(_run())
 
@@ -196,17 +181,16 @@ class TokenCacheTests(unittest.TestCase):
 
         async def _run() -> None:
             mock_conn = AsyncMock()
-            mock_cursor = MagicMock()
-            mock_cursor.fetchone.return_value = None
-            mock_conn.execute.return_value = mock_cursor
+            mock_conn.fetchone.return_value = None
 
-            mock_pool = AsyncMock()
-            mock_pool.__aenter__ = AsyncMock(return_value=mock_conn)
-            mock_pool.__aexit__ = AsyncMock(return_value=False)
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
 
             with patch("src.vector.cache.get_pool", return_value=mock_pool):
-                result = await check_cache("unseen text", owner_id="owner@example.com")
-                self.assertIsNone(result)
+                with patch("src.vector.cache.embed_text", return_value=[0.1] * 768):
+                    result = await check_cache("unseen text", owner_id="owner@example.com")
+                    self.assertIsNone(result)
 
         asyncio.run(_run())
 
@@ -216,18 +200,17 @@ class TokenCacheTests(unittest.TestCase):
 
         async def _run() -> None:
             mock_conn = AsyncMock()
-            mock_cursor = MagicMock()
             expected_summary = "This is the cached summary."
-            mock_cursor.fetchone.return_value = (expected_summary,)
-            mock_conn.execute.return_value = mock_cursor
+            mock_conn.fetchone.return_value = {"summary": expected_summary, "similarity": 0.95}
 
-            mock_pool = AsyncMock()
-            mock_pool.__aenter__ = AsyncMock(return_value=mock_conn)
-            mock_pool.__aexit__ = AsyncMock(return_value=False)
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
 
             with patch("src.vector.cache.get_pool", return_value=mock_pool):
-                result = await check_cache("similar text", owner_id="owner@example.com")
-                self.assertEqual(result, expected_summary)
+                with patch("src.vector.cache.embed_text", return_value=[0.1] * 768):
+                    result = await check_cache("similar text", owner_id="owner@example.com")
+                    self.assertEqual(result, expected_summary)
 
         asyncio.run(_run())
 
@@ -237,17 +220,16 @@ class TokenCacheTests(unittest.TestCase):
 
         async def _run() -> None:
             mock_conn = AsyncMock()
-            mock_cursor = MagicMock()
-            mock_cursor.fetchone.return_value = ("Cached summary.",)
-            mock_conn.execute.return_value = mock_cursor
+            mock_conn.fetchone.return_value = {"summary": "Cached summary.", "similarity": 0.95}
 
-            mock_pool = AsyncMock()
-            mock_pool.__aenter__ = AsyncMock(return_value=mock_conn)
-            mock_pool.__aexit__ = AsyncMock(return_value=False)
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
 
             with self.assertLogs("src.vector.cache", level=logging.INFO) as cm:
                 with patch("src.vector.cache.get_pool", return_value=mock_pool):
-                    await check_cache("some text", owner_id="owner@example.com")
+                    with patch("src.vector.cache.embed_text", return_value=[0.1] * 768):
+                        await check_cache("some text", owner_id="owner@example.com")
 
             self.assertTrue(
                 any("cache hit" in msg.lower() for msg in cm.output),
@@ -262,9 +244,10 @@ class TokenCacheTests(unittest.TestCase):
 
         async def _run() -> None:
             mock_conn = AsyncMock()
-            mock_pool = AsyncMock()
-            mock_pool.__aenter__ = AsyncMock(return_value=mock_conn)
-            mock_pool.__aexit__ = AsyncMock(return_value=False)
+
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
 
             with patch("src.vector.cache.get_pool", return_value=mock_pool):
                 with patch("src.vector.cache.embed_text", return_value=[0.1] * 768):
@@ -305,9 +288,10 @@ class TenantTests(unittest.TestCase):
 
         async def _run() -> None:
             mock_conn = AsyncMock()
-            mock_pool = AsyncMock()
-            mock_pool.__aenter__ = AsyncMock(return_value=mock_conn)
-            mock_pool.__aexit__ = AsyncMock(return_value=False)
+
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
 
             test_owner = "test-owner@example.com"
 

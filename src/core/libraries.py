@@ -15,6 +15,7 @@ This keeps Stage 9 local-first and file-based for predictable versioning.
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
 import json
 import logging
@@ -24,7 +25,7 @@ from time import time
 from typing import Any, Optional
 
 from src.agents.dispatcher import run_agent
-from src.core.config import USE_FIRESTORE_LIBRARY
+from src.core.config import SIGNAL_OWNER_ID, SIGNAL_POSTGRES_DSN, USE_FIRESTORE_LIBRARY
 from src.core.library_store import _FileLibraryStore, _FirestoreLibraryStore, _LibraryStore
 from src.integrations.web_fetch import fetch_url_metadata
 from src.integrations.youtube import extract_video_id, fetch_transcript
@@ -179,6 +180,38 @@ def _resolve_section_dir(section: str) -> str:
     return _get_store()._resolve_section_dir(section)
 
 
+def _fire_embedding_hook(
+    entry_id: str,
+    markdown_text: str,
+    section: str,
+    source_url: Optional[str] = None,
+) -> None:
+    """Fire the vector embedding hook asynchronously if the event loop is running."""
+    if not SIGNAL_POSTGRES_DSN:
+        return
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        # No event loop — sync context (tests, scripts). Skip silently.
+        return
+
+    try:
+        from src.vector.hooks import on_entry_saved
+
+        loop.create_task(
+            on_entry_saved(
+                entry_id=entry_id,
+                text=markdown_text,
+                section=section,
+                owner_id=SIGNAL_OWNER_ID,
+                source_url=source_url,
+            )
+        )
+    except Exception:
+        logger.warning("Failed to schedule embedding hook", exc_info=True)
+
+
 def _capture_entry(
     section: str,
     title: str,
@@ -197,6 +230,14 @@ def _capture_entry(
         source_url=source_url,
     )
     _search_cache.invalidate()  # Clear cache on new entry
+
+    # Fire vector embedding hook asynchronously
+    _fire_embedding_hook(
+        entry_id=Path(result).stem,
+        markdown_text=body,
+        section=section,
+        source_url=source_url,
+    )
     return result
 
 
