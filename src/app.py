@@ -73,8 +73,10 @@ app.add_middleware(
 )
 
 # Versioned API routers
+from src.api.auth_session import router as auth_router
 from src.api.v1_router import router as v1_router
 
+app.include_router(auth_router)
 app.include_router(v1_router)
 
 

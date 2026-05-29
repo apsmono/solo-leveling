@@ -68,6 +68,11 @@ USE_FIRESTORE_REMINDERS: bool = _get_bool("USE_FIRESTORE_REMINDERS", False)
 USE_FIRESTORE_LIBRARY: bool = _get_bool("USE_FIRESTORE_LIBRARY", False)
 
 # ---------------------------------------------------------------------------
+# Auth session cookies
+# ---------------------------------------------------------------------------
+SESSION_COOKIE_SECURE: bool = _get_bool("SESSION_COOKIE_SECURE", True)
+
+# ---------------------------------------------------------------------------
 # Telegram
 # ---------------------------------------------------------------------------
 TELEGRAM_BOT_TOKEN: str = os.environ.get("TELEGRAM_BOT_TOKEN", "")
