@@ -103,3 +103,10 @@ AUTOPILOT_MAX_STEPS_PER_TASK: int = _get_int("AUTOPILOT_MAX_STEPS_PER_TASK", 50)
 AUTOPILOT_TASK_STORE_PATH: str = os.environ.get("AUTOPILOT_TASK_STORE_PATH", "data/autopilot_tasks.json")
 AUTOPILOT_STATE_PATH: str = os.environ.get("AUTOPILOT_STATE_PATH", "data/autopilot_state.json")
 AUTOPILOT_APPROVALS_PATH: str = os.environ.get("AUTOPILOT_APPROVALS_PATH", "data/autopilot_approvals.json")
+
+# ---------------------------------------------------------------------------
+# Signal / Vector DB
+# ---------------------------------------------------------------------------
+SIGNAL_POSTGRES_DSN: str = os.environ.get("SIGNAL_POSTGRES_DSN", "")
+SIGNAL_OWNER_ID: str = os.environ.get("SIGNAL_OWNER_ID", ALLOWED_USER_EMAIL)
+SIGNAL_COSINE_THRESHOLD: float = float(os.environ.get("SIGNAL_COSINE_THRESHOLD", "0.08"))
