@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 _SESSION_DURATION = datetime.timedelta(days=7)
 
+# Module-level import so tests can patch fb_auth.create_session_cookie
+import firebase_admin.auth as fb_auth
+
 
 @router.post("/auth/session-login")
 async def session_login(payload: dict[str, Any], response: Response) -> dict[str, str]:
@@ -37,7 +40,6 @@ async def session_login(payload: dict[str, Any], response: Response) -> dict[str
         ) from exc
 
     _init_firebase()
-    import firebase_admin.auth as fb_auth
 
     try:
         cookie = fb_auth.create_session_cookie(id_token, expires_in=_SESSION_DURATION)

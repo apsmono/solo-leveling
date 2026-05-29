@@ -334,36 +334,35 @@ class AuthSessionTests(unittest.TestCase):
         from fastapi.testclient import TestClient
         from src.app import app
 
-        with patch("src.api.auth_session._init_firebase") as mock_init, \
+        with patch("src.api.auth_session._init_firebase"), \
+             patch("src.api.auth_session.verify_id_token", return_value={"uid": "test-uid"}), \
              patch("src.api.auth_session.fb_auth") as mock_fb_auth:
             mock_fb_auth.create_session_cookie.return_value = "mock_session_cookie"
 
             client = TestClient(app)
             response = client.post("/auth/session-login", json={"idToken": "valid-token"})
 
-            if response.status_code == 404:
-                self.skipTest("Route not yet registered — expected in Wave 1")
-
             self.assertEqual(response.status_code, 200)
             set_cookie = response.headers.get("set-cookie", "")
             self.assertIn("__session=mock_session_cookie", set_cookie)
             self.assertIn("HttpOnly", set_cookie)
+            self.assertIn("SameSite=strict", set_cookie)
 
     def test_session_login_invalid_token(self) -> None:
         """POST with bad token returns 401."""
+        from fastapi import HTTPException, status
         from fastapi.testclient import TestClient
         from src.app import app
 
-        with patch("src.api.auth_session._init_firebase") as mock_init, \
-             patch("src.api.auth_session.fb_auth") as mock_fb_auth:
-            from firebase_admin import auth as firebase_auth
-            mock_fb_auth.create_session_cookie.side_effect = firebase_auth.InvalidIdTokenError("bad token")
+        with patch("src.api.auth_session._init_firebase"), \
+             patch("src.api.auth_session.verify_id_token") as mock_verify:
+            mock_verify.side_effect = HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication token.",
+            )
 
             client = TestClient(app)
             response = client.post("/auth/session-login", json={"idToken": "bad-token"})
-
-            if response.status_code == 404:
-                self.skipTest("Route not yet registered — expected in Wave 1")
 
             self.assertEqual(response.status_code, 401)
 
@@ -372,15 +371,10 @@ class AuthSessionTests(unittest.TestCase):
         from fastapi.testclient import TestClient
         from src.app import app
 
-        with patch("src.api.auth_session._init_firebase") as mock_init, \
-             patch("src.api.auth_session.fb_auth") as mock_fb_auth:
-            mock_fb_auth.verify_session_cookie.return_value = {"uid": "test-uid"}
-
+        with patch("src.api.auth_session._init_firebase"), \
+             patch("src.api.auth_session.fb_auth"):
             client = TestClient(app)
-            response = client.post("/auth/session-logout", cookies={"__session": "valid-cookie"})
-
-            if response.status_code == 404:
-                self.skipTest("Route not yet registered — expected in Wave 1")
+            response = client.post("/auth/session-logout")
 
             self.assertEqual(response.status_code, 200)
             set_cookie = response.headers.get("set-cookie", "")
@@ -399,9 +393,6 @@ class AuthSessionTests(unittest.TestCase):
         with patch("src.api.auth_session._init_firebase"):
             client = TestClient(app)
             response = client.post("/auth/session-login", json={})
-
-            if response.status_code == 404:
-                self.skipTest("Route not yet registered — expected in Wave 1")
 
             self.assertEqual(response.status_code, 400)
 
