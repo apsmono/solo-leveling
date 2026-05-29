@@ -182,6 +182,16 @@
       "updated_at": "2026-04-21T11:56"
     },
     {
+      "title": "Research: Maximizing Claude Code + Kimi API for Coding Agents",
+      "path": "library/research/20260529-claude-kimi-maximization-research/index.md",
+      "section": "20260529-claude-kimi-maximization-research",
+      "category": "research",
+      "status": "active",
+      "type": "bundle-index",
+      "source_url": null,
+      "updated_at": "2026-05-29T02:01"
+    },
+    {
       "title": "Term: MCP (Model Context Protocol)",
       "path": "library/terms/20260421-110205-term-mcp-model-context-protocol.md",
       "section": "term",
@@ -306,6 +316,12 @@
       "path": "library/research/20260421-112135-ai-team-organization-positions-roles-and-multi-agent-project-management",
       "category": "research",
       "updated_at": "2026-04-21T11:56"
+    },
+    {
+      "title": "Research: Maximizing Claude Code + Kimi API for Coding Agents",
+      "path": "library/research/20260529-claude-kimi-maximization-research",
+      "category": "research",
+      "updated_at": "2026-05-29T02:01"
     }
   ]
 }
