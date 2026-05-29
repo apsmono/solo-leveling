@@ -18,7 +18,7 @@ def _client() -> Any:
     if _firestore_client is None:
         _init_firebase()
         from google.cloud import firestore
-        _firestore_client = firestore.client()
+        _firestore_client = firestore.Client()
     return _firestore_client
 
 
