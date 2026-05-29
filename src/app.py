@@ -16,10 +16,11 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.deps import optional_auth
-from src.core.config import FRONTEND_ORIGIN
+from src.core.config import FRONTEND_ORIGIN, SIGNAL_POSTGRES_DSN
 from src.core.router import route_command
 from src.core.scheduler import shutdown_scheduler, start_scheduler
 from src.integrations.discord import start_bot as start_discord_bot, stop_bot as stop_discord_bot
+from src.vector import db as vector_db
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,15 @@ async def lifespan(_: FastAPI):
     _startup_checks()
     start_scheduler()
     await start_discord_bot()
+
+    if SIGNAL_POSTGRES_DSN:
+        await vector_db.open_pool(SIGNAL_POSTGRES_DSN)
+    else:
+        logger.warning("SIGNAL_POSTGRES_DSN is not set; vector DB will not be available.")
+
     yield
+
+    await vector_db.close_pool()
     await stop_discord_bot()
     shutdown_scheduler()
 

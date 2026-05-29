@@ -40,3 +40,11 @@ youtube-transcript-api>=1.2.0
 # NOTE: litellm>=1.40.0 is listed but not currently installed in venv.
 # Install when Autopilot Phase 2 is activated:
 # litellm>=1.66.0
+
+# Signal / Vector DB (pgvector + async Postgres)
+psycopg[binary]>=3.3.4
+psycopg-pool>=3.3.1
+pgvector>=0.4.2
+
+# Gemini AI SDK (for embedding generation)
+google-genai>=2.7.0
