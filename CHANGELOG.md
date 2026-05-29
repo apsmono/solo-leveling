@@ -36,6 +36,18 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Added
 
+- 2026-05-29 14-30-00 Telegram proactive messaging: `send_message()`, `broadcast()` via `src/integrations/telegram/client.py`
+- 2026-05-29 14-30-00 Telegram webhook management CLI: `python -m src.integrations.telegram.cli {set,info,delete,poll}`
+- 2026-05-29 14-30-00 `update_id` deduplication to prevent duplicate processing on Telegram retries
+- 2026-05-29 14-30-00 Chat ID persistence in `data/telegram_chats.json` for proactive messaging
+- 2026-05-29 14-30-00 Native `/help` command handler in Telegram bot
+- 2026-05-29 14-30-00 Telegram status to health check (`health` command)
+- 2026-05-29 14-30-00 Long reply splitting (messages > 4096 chars are split into multiple messages)
+
+### Fixed
+
+- 2026-05-29 14-30-00 Webhook secret verification now uses Telegram's native `X-Telegram-Bot-Api-Secret-Token` header instead of a non-existent body field
+
 - 2026-05-29 08-37-08 Autopilot Phase 2: `write` tool (sandboxed file creation/editing with atomic temp+rename), `claude_code` tool (Claude Code CLI subprocess via `claude -p` with fallback to `run_agent`), REST API endpoints for task and approval management (`/api/v1/autopilot/*`), `autopilot approvals` text command, expanded RL gating tests. 34 autopilot tests passing, 10 API contract tests passing, zero regressions.
 - 2026-05-29 02-01-00 Research bundle: `library/research/20260529-claude-kimi-maximization-research/` — comprehensive 7-file research on maximizing Claude Code + Kimi API for coding agents, covering prompt engineering, context window management, anti-hallucination six-layer stack, and multi-agent coordination patterns. Sources: Anthropic docs, Kimi platform docs, Promptfoo, arXiv papers, community guides.
 - 2026-05-29 02-01-00 Decision record `docs/decisions/007-dependency-version-management.md` — strategy for pinning requirements.txt to tested versions, lazy-loading inactive integration dependencies, and quarterly dependency audits.
