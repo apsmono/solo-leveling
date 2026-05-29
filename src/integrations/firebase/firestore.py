@@ -6,7 +6,10 @@ import logging
 from datetime import datetime
 from typing import Any
 
+import os
+
 from src.integrations.firebase.auth import _init_firebase
+from src.core.config import FIREBASE_CREDENTIALS_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +20,9 @@ def _client() -> Any:
     global _firestore_client
     if _firestore_client is None:
         _init_firebase()
+        # Ensure ADC can find credentials for google.cloud.firestore.Client
+        if FIREBASE_CREDENTIALS_PATH and os.path.exists(FIREBASE_CREDENTIALS_PATH):
+            os.environ.setdefault("GOOGLE_APPLICATION_CREDENTIALS", FIREBASE_CREDENTIALS_PATH)
         from google.cloud import firestore
         _firestore_client = firestore.Client()
     return _firestore_client
