@@ -36,6 +36,7 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Added
 
+- 2026-05-29 16-45-00 Discord bot integration: `src/integrations/discord/` package with slash commands (`/brain`, `/status`, `/help`), defer pattern for slow AI responses, embed formatting, chat persistence in `data/discord_chats.json`, proactive messaging (`send_message`, `broadcast`), and CLI (`python -m src.integrations.discord.cli {sync,clear}`). Optional dependency (`discord.py>=2.7.0`) with graceful fallback when not installed. 15 unit tests in `tests/test_discord.py`.
 - 2026-05-29 14-30-00 Telegram proactive messaging: `send_message()`, `broadcast()` via `src/integrations/telegram/client.py`
 - 2026-05-29 14-30-00 Telegram webhook management CLI: `python -m src.integrations.telegram.cli {set,info,delete,poll}`
 - 2026-05-29 14-30-00 `update_id` deduplication to prevent duplicate processing on Telegram retries

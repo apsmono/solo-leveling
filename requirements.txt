@@ -30,6 +30,9 @@ firebase-admin>=7.4.0
 # Install when Telegram integration is activated:
 # python-telegram-bot>=21.0
 
+# Discord bot
+discord.py>=2.7.0
+
 # YouTube transcript extraction
 youtube-transcript-api>=1.2.0
 

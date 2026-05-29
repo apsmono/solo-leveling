@@ -65,12 +65,18 @@ FIREBASE_CREDENTIALS_JSON: str = os.environ.get("FIREBASE_CREDENTIALS_JSON", "")
 FIREBASE_PROJECT_ID: str = os.environ.get("FIREBASE_PROJECT_ID", "")
 ALLOWED_USER_EMAIL: str = os.environ.get("ALLOWED_USER_EMAIL", "")
 USE_FIRESTORE_REMINDERS: bool = _get_bool("USE_FIRESTORE_REMINDERS", False)
+USE_FIRESTORE_LIBRARY: bool = _get_bool("USE_FIRESTORE_LIBRARY", False)
 
 # ---------------------------------------------------------------------------
 # Telegram
 # ---------------------------------------------------------------------------
 TELEGRAM_BOT_TOKEN: str = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_WEBHOOK_SECRET: str = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "")
+
+# ---------------------------------------------------------------------------
+# Discord
+# ---------------------------------------------------------------------------
+DISCORD_BOT_TOKEN: str = os.environ.get("DISCORD_BOT_TOKEN", "")
 
 # ---------------------------------------------------------------------------
 # CORS / Deployment

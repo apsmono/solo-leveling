@@ -19,6 +19,7 @@ from src.api.deps import optional_auth
 from src.core.config import FRONTEND_ORIGIN
 from src.core.router import route_command
 from src.core.scheduler import shutdown_scheduler, start_scheduler
+from src.integrations.discord import start_bot as start_discord_bot, stop_bot as stop_discord_bot
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,9 @@ def _startup_checks() -> None:
 async def lifespan(_: FastAPI):
     _startup_checks()
     start_scheduler()
+    await start_discord_bot()
     yield
+    await stop_discord_bot()
     shutdown_scheduler()
 
 
