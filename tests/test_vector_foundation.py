@@ -470,21 +470,21 @@ class VectorDBIntegrationTests(unittest.TestCase):
 
     def test_live_migration_creates_tables(self) -> None:
         """Migrations create expected tables."""
-        from src.vector.db import _apply_migrations, close_pool, open_pool
+        from src.vector.db import _apply_migrations, close_pool, get_pool, open_pool
 
         async def _run() -> None:
             dsn = os.environ["SIGNAL_POSTGRES_DSN_TEST"]
             await open_pool(dsn)
             pool = get_pool()
             async with pool.connection() as conn:
-                await _apply_migrations(conn)
+                await _apply_migrations()
                 # Verify tables exist
                 cur = await conn.execute(
                     "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
                 )
                 tables = {row[0] for row in await cur.fetchall()}
                 self.assertTrue(
-                    "library_embeddings" in tables or "token_cache" in tables,
+                    "signal_embeddings" in tables or "signal_token_cache" in tables,
                     f"Expected vector tables, found: {tables}",
                 )
             await close_pool()

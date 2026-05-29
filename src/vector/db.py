@@ -26,10 +26,11 @@ async def open_pool(dsn: str) -> None:
     _pool = AsyncConnectionPool(conninfo=dsn, open=False)
     await _pool.open()
 
+    await _apply_migrations()
+
     async with _pool.connection() as conn:
         await register_vector_async(conn)
 
-    await _apply_migrations()
     logger.info("Vector DB pool ready")
 
 
