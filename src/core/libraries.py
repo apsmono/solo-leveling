@@ -24,6 +24,8 @@ from time import time
 from typing import Any, Optional
 
 from src.agents.dispatcher import run_agent
+from src.core.config import USE_FIRESTORE_LIBRARY
+from src.core.library_store import _FileLibraryStore, _FirestoreLibraryStore, _LibraryStore
 from src.integrations.web_fetch import fetch_url_metadata
 from src.integrations.youtube import extract_video_id, fetch_transcript
 
@@ -111,6 +113,112 @@ _SENSITIVE_TOKENS = (
 # Global search cache instance
 _search_cache = SearchCache(max_size=1000, ttl_seconds=300)
 
+# Module-level store singleton (refreshed on each access to handle test patches)
+_library_store: _LibraryStore | None = None
+
+
+def _get_store() -> _LibraryStore:
+    """Return the current library store instance."""
+    global _library_store
+    if USE_FIRESTORE_LIBRARY:
+        _library_store = _FirestoreLibraryStore(
+            project_root=_PROJECT_ROOT,
+            library_root=_LIBRARY_ROOT,
+            index_path=_INDEX_PATH,
+        )
+    else:
+        _library_store = _FileLibraryStore(
+            project_root=_PROJECT_ROOT,
+            library_root=_LIBRARY_ROOT,
+            index_path=_INDEX_PATH,
+        )
+    return _library_store
+
+
+def _ensure_library_dirs() -> None:
+    _get_store()._ensure_library_dirs()
+
+
+def _build_library_index() -> dict[str, Any]:
+    return _get_store().build_index()
+
+
+def _load_library_index() -> dict[str, Any]:
+    return _get_store().load_index()
+
+
+def _match_index_records(records: list[dict[str, Any]], query: str, limit: int = 8) -> list[dict[str, Any]]:
+    return _FileLibraryStore._match_index_records(records, query, limit)
+
+
+def _find_bundle_by_query(query: str, limit: int = 5) -> list[dict[str, Any]]:
+    return _get_store().find_bundles(query, limit=limit)
+
+
+def _find_entries_by_query(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    cache_key = (query, limit)
+
+    # Check cache first
+    cached = _search_cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    # Cache miss: search via store
+    results = _get_store().search_entries(query, limit=limit)
+
+    # Store in cache for future calls
+    _search_cache.set(cache_key, results)
+    return results
+
+
+def _extract_summary_from_bundle(bundle_path: str) -> str:
+    return _get_store().get_bundle_summary(bundle_path)
+
+
+def _resolve_section_dir(section: str) -> str:
+    return _get_store()._resolve_section_dir(section)
+
+
+def _capture_entry(
+    section: str,
+    title: str,
+    body: str,
+    *,
+    status: str = "draft",
+    tags: list[str] | None = None,
+    source_url: Optional[str] = None,
+) -> str:
+    result = _get_store().save_entry(
+        section=section,
+        title=title,
+        body=body,
+        status=status,
+        tags=tags,
+        source_url=source_url,
+    )
+    _search_cache.invalidate()  # Clear cache on new entry
+    return result
+
+
+def _search_entries(section: str, query: str, limit: int = 8) -> list[str]:
+    results = _get_store().search_all_entries(query, limit=limit)
+    # Filter to section
+    dirname = _resolve_section_dir(section)
+    prefix = f"library/{dirname}/"
+    return [r for r in results if r.startswith(prefix)]
+
+
+def _count_entries(section: str) -> int:
+    return _get_store().count_entries(section)
+
+
+def _recent_entries(section: str, limit: int = 10) -> list[str]:
+    return _get_store().recent_entries(section, limit)
+
+
+def _search_all_entries(query: str, limit: int = 12) -> list[str]:
+    return _get_store().search_all_entries(query, limit)
+
 
 def handle_library_command(text: str, intent: str) -> str:
     """Route library command to the right handler."""
@@ -141,218 +249,9 @@ def handle_library_command(text: str, intent: str) -> str:
     return "Library command not recognized."
 
 
-def _ensure_library_dirs() -> None:
-    _LIBRARY_ROOT.mkdir(parents=True, exist_ok=True)
-    for dirname in _SECTION_DIRS.values():
-        (_LIBRARY_ROOT / dirname).mkdir(parents=True, exist_ok=True)
-
-
-def _build_library_index() -> dict[str, Any]:
-    _ensure_library_dirs()
-    entries: list[dict[str, Any]] = []
-    bundles: list[dict[str, Any]] = []
-
-    for path in sorted(_LIBRARY_ROOT.rglob("*.md")):
-        if path == _INDEX_PATH:
-            continue
-        rel_path = str(path.relative_to(_PROJECT_ROOT))
-        if any(part.startswith(".") for part in path.parts):
-            continue
-        if path.parent != _LIBRARY_ROOT / path.parent.name and path.name != "index.md":
-            continue
-        text = path.read_text(encoding="utf-8", errors="ignore")
-        title_match = re.search(r"^title:\s*(.+)$", text, flags=re.MULTILINE)
-        section_match = re.search(r"^section:\s*(.+)$", text, flags=re.MULTILINE)
-        category_match = re.search(r"^category:\s*(.+)$", text, flags=re.MULTILINE)
-        status_match = re.search(r"^status:\s*(.+)$", text, flags=re.MULTILINE)
-        title = title_match.group(1).strip() if title_match else path.stem
-        section = section_match.group(1).strip() if section_match else path.parent.name
-        category = category_match.group(1).strip() if category_match else section
-        status = status_match.group(1).strip() if status_match else "unknown"
-        source_url_match = re.search(r"^source_url:\s*(.+)$", text, flags=re.MULTILINE)
-        source_url = source_url_match.group(1).strip() if source_url_match else None
-        record = {
-            "title": title,
-            "path": rel_path,
-            "section": section,
-            "category": category,
-            "status": status,
-            "type": "bundle-index" if path.name == "index.md" and path.parent != (_LIBRARY_ROOT / _resolve_section_dir(section)) else "entry",
-            "source_url": source_url,
-            "updated_at": datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="minutes"),
-        }
-        entries.append(record)
-
-    for path in sorted(_LIBRARY_ROOT.rglob("index.md")):
-        if path.parent == _LIBRARY_ROOT:
-            continue
-        rel_path = str(path.parent.relative_to(_PROJECT_ROOT))
-        text = path.read_text(encoding="utf-8", errors="ignore")
-        title_match = re.search(r"^title:\s*(.+)$", text, flags=re.MULTILINE)
-        category_match = re.search(r"^category:\s*(.+)$", text, flags=re.MULTILINE)
-        title = title_match.group(1).strip() if title_match else path.parent.name
-        category = category_match.group(1).strip() if category_match else path.parent.parent.name
-        bundles.append(
-            {
-                "title": title,
-                "path": rel_path,
-                "category": category,
-                "updated_at": datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="minutes"),
-            }
-        )
-
-    index = {
-        "generated_at": datetime.now().isoformat(timespec="minutes"),
-        "entries": entries,
-        "bundles": bundles,
-    }
-    _INDEX_PATH.write_text(json.dumps(index, indent=2), encoding="utf-8")
-    return index
-
-
-def _load_library_index() -> dict[str, Any]:
-    return _build_library_index()
-
-
-def _match_index_records(records: list[dict[str, Any]], query: str, limit: int = 8) -> list[dict[str, Any]]:
-    q = query.lower().strip()
-    results = []
-    for record in records:
-        haystacks = [
-            str(record.get("title", "")).lower(),
-            str(record.get("path", "")).lower(),
-            str(record.get("section", "")).lower(),
-            str(record.get("category", "")).lower(),
-        ]
-        if any(q in value for value in haystacks):
-            results.append(record)
-            if len(results) >= limit:
-                break
-    return results
-
-
-def _find_bundle_by_query(query: str, limit: int = 5) -> list[dict[str, Any]]:
-    index = _load_library_index()
-    return _match_index_records(index.get("bundles", []), query, limit=limit)
-
-
-def _find_entries_by_query(query: str, limit: int = 8) -> list[dict[str, Any]]:
-    cache_key = (query, limit)
-
-    # Check cache first
-    cached = _search_cache.get(cache_key)
-    if cached is not None:
-        return cached
-
-    # Cache miss: rebuild index and search
-    index = _load_library_index()
-    results = _match_index_records(index.get("entries", []), query, limit=limit)
-
-    # Store in cache for future calls
-    _search_cache.set(cache_key, results)
-    return results
-
-
-def _extract_summary_from_bundle(bundle_path: str) -> str:
-    index_file = _PROJECT_ROOT / bundle_path / "index.md"
-    if not index_file.exists():
-        return "Bundle index not found."
-    text = index_file.read_text(encoding="utf-8", errors="ignore")
-    summary_match = re.search(r"## Summary\n\n(.+?)(\n## |$)", text, flags=re.DOTALL)
-    track_match = re.search(r"## Information To Track\n\n(.+?)(\n## |$)", text, flags=re.DOTALL)
-    parts = []
-    if summary_match:
-        parts.append("Summary:\n" + summary_match.group(1).strip())
-    if track_match:
-        lines = [line.strip() for line in track_match.group(1).splitlines() if line.strip()]
-        parts.append("Track:\n" + "\n".join(lines[:5]))
-    return "\n\n".join(parts) if parts else "Bundle summary not available."
-
-
-def _resolve_section_dir(section: str) -> str:
-    known = _SECTION_DIRS.get(section)
-    if known:
-        return known
-    return _slugify(section)
-
-
 def _contains_sensitive_content(text: str) -> bool:
     lower = text.lower()
     return any(token in lower for token in _SENSITIVE_TOKENS)
-
-
-def _capture_entry(
-    section: str,
-    title: str,
-    body: str,
-    *,
-    status: str = "draft",
-    tags: list[str] | None = None,
-    source_url: Optional[str] = None,
-) -> str:
-    _ensure_library_dirs()
-    dirname = _resolve_section_dir(section)
-    ts = datetime.now().strftime("%Y%m%d-%H%M%S")
-    slug = _slugify(title)
-    path = _LIBRARY_ROOT / dirname / f"{ts}-{slug}.md"
-    metadata_tags = ", ".join(tags or [])
-    source_url_line = f"source_url: {source_url}\n" if source_url else ""
-    content = (
-        f"---\n"
-        f"title: {title}\n"
-        f"section: {section}\n"
-        f"status: {status}\n"
-        f"tags: [{metadata_tags}]\n"
-        f"captured_at: {datetime.now().isoformat(timespec='minutes')}\n"
-        f"{source_url_line}"
-        f"---\n\n"
-        f"{body}\n"
-    )
-    path.write_text(content, encoding="utf-8")
-    _build_library_index()
-    _search_cache.invalidate()  # Clear cache on new entry
-    return str(path.relative_to(_PROJECT_ROOT))
-
-
-def _search_entries(section: str, query: str, limit: int = 8) -> list[str]:
-    _ensure_library_dirs()
-    dirname = _resolve_section_dir(section)
-    root = _LIBRARY_ROOT / dirname
-    q = query.lower().strip()
-    matches: list[Path] = []
-    for path in sorted(root.rglob("*.md"), reverse=True):
-        text = path.read_text(encoding="utf-8", errors="ignore").lower()
-        if q in text:
-            matches.append(path)
-            if len(matches) >= limit:
-                break
-    return [str(p.relative_to(_PROJECT_ROOT)) for p in matches]
-
-
-def _count_entries(section: str) -> int:
-    _ensure_library_dirs()
-    dirname = _resolve_section_dir(section)
-    return sum(1 for _ in (_LIBRARY_ROOT / dirname).glob("*.md"))
-
-
-def _recent_entries(section: str, limit: int = 10) -> list[str]:
-    _ensure_library_dirs()
-    dirname = _resolve_section_dir(section)
-    paths = sorted((_LIBRARY_ROOT / dirname).rglob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)
-    return [str(p.relative_to(_PROJECT_ROOT)) for p in paths[:limit]]
-
-
-def _search_all_entries(query: str, limit: int = 12) -> list[str]:
-    _ensure_library_dirs()
-    q = query.lower().strip()
-    matches: list[Path] = []
-    for path in sorted(_LIBRARY_ROOT.rglob("*.md"), reverse=True):
-        text = path.read_text(encoding="utf-8", errors="ignore").lower()
-        if q in text:
-            matches.append(path)
-            if len(matches) >= limit:
-                break
-    return [str(p.relative_to(_PROJECT_ROOT)) for p in matches]
 
 
 def _slugify(text: str) -> str:

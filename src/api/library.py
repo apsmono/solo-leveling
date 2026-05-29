@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from src.api.deps import require_auth
 from src.agents.dispatcher import run_agent
+from src.core.libraries import _get_store
 from src.integrations.youtube import extract_video_id, fetch_transcript
 
 router = APIRouter()
@@ -31,9 +32,7 @@ _SECTION_DIRS = {
 
 
 def _load_index() -> dict[str, Any]:
-    if _INDEX_PATH.exists():
-        return json.loads(_INDEX_PATH.read_text(encoding="utf-8"))
-    return {"entries": [], "bundles": []}
+    return _get_store().build_index()
 
 
 def _entry_id_from_path(path: str) -> str:
@@ -215,22 +214,14 @@ async def get_entry(
 async def list_sections(
     _: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
-    return {"sections": list(_SECTION_DIRS.keys())}
+    return {"sections": _get_store().list_sections()}
 
 
 @router.get("/library/tags")
 async def list_tags(
     _: dict[str, Any] = Depends(require_auth),
 ) -> dict[str, Any]:
-    index = _load_index()
-    entries = index.get("entries", [])
-    all_tags: set[str] = set()
-    for e in entries:
-        path = _PROJECT_ROOT / e.get("path", "")
-        if path.exists():
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            all_tags.update(_extract_tags(text))
-    return {"tags": sorted(all_tags)}
+    return {"tags": _get_store().list_tags()}
 
 
 @router.post("/library/youtube-transcript")
@@ -337,6 +328,21 @@ async def update_entry(
     # Rebuild index so subsequent reads reflect the change
     from src.core.libraries import _build_library_index
     _build_library_index()
+
+    # Best-effort Firestore update
+    try:
+        _get_store().update_entry(
+            entry_id,
+            {
+                "title": new_title,
+                "status": new_status,
+                "tags": new_tags,
+                "markdown": content,
+            },
+        )
+    except Exception:
+        import logging
+        logging.getLogger(__name__).warning("Firestore update failed", exc_info=True)
 
     return {"status": "ok", "id": entry_id}
 
