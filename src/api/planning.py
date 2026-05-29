@@ -380,6 +380,247 @@ async def delete_task(
     return {"status": "error", "message": "Task not found"}
 
 
+# ---------------------------------------------------------------------------
+# Habits
+# ---------------------------------------------------------------------------
+
+class HabitCreate(BaseModel):
+    name: str
+    frequency: str = "daily"
+    color: Optional[str] = None
+
+
+class HabitUpdate(BaseModel):
+    name: Optional[str] = None
+    frequency: Optional[str] = None
+    color: Optional[str] = None
+
+
+def _parse_habit(path: Path) -> dict[str, Any]:
+    """Read a single habit markdown file and compute streak."""
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    name = path.stem
+    frequency = "daily"
+    color: Optional[str] = None
+    created_at: Optional[str] = None
+    checkins: list[str] = []
+
+    frontmatter_match = re.search(r"^---\s*\n(.*?)\n---", text, re.DOTALL)
+    if frontmatter_match:
+        fm = frontmatter_match.group(1)
+        name_match = re.search(r"^name:\s*(.+)$", fm, re.MULTILINE)
+        if name_match:
+            name = name_match.group(1).strip().strip('"').strip("'")
+        freq_match = re.search(r"^frequency:\s*(.+)$", fm, re.MULTILINE)
+        if freq_match:
+            frequency = freq_match.group(1).strip()
+        color_match = re.search(r"^color:\s*(.+)$", fm, re.MULTILINE)
+        if color_match:
+            color = color_match.group(1).strip().strip('"').strip("'")
+        cap_match = re.search(r"^created_at:\s*(.+)$", fm, re.MULTILINE)
+        if cap_match:
+            created_at = cap_match.group(1).strip()
+
+    # Parse check-in dates from body (one date per line, YYYY-MM-DD)
+    body = ""
+    body_match = re.search(r"^---\s*\n.*?\n---\s*(.*)$", text, re.DOTALL)
+    if body_match:
+        body = body_match.group(1).strip()
+
+    for line in body.splitlines():
+        line = line.strip()
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", line):
+            checkins.append(line)
+
+    checkins = sorted(set(checkins))
+    streak = _compute_streak(checkins, frequency)
+    checked_today = datetime.now().strftime("%Y-%m-%d") in checkins
+
+    return {
+        "id": path.stem,
+        "name": name,
+        "frequency": frequency,
+        "color": color,
+        "created_at": created_at,
+        "checkins": checkins,
+        "streak": streak,
+        "checked_today": checked_today,
+        "path": str(path.relative_to(_PROJECT_ROOT)),
+    }
+
+
+def _compute_streak(checkins: list[str], frequency: str) -> int:
+    """Compute current streak from sorted check-in dates."""
+    if not checkins:
+        return 0
+
+    today = datetime.now().date()
+    dates = sorted([datetime.strptime(d, "%Y-%m-%d").date() for d in checkins])
+
+    if frequency == "weekly":
+        # Weekly: count consecutive weeks with at least one check-in
+        streak = 0
+        current_week = today.isocalendar()[:2]
+        week_set = {d.isocalendar()[:2] for d in dates}
+        while current_week in week_set:
+            streak += 1
+            # Move to previous week
+            year, week = current_week
+            if week == 1:
+                # Go to last week of previous year (simplified)
+                break
+            current_week = (year, week - 1)
+        return streak
+
+    # Daily streak
+    streak = 0
+    check_date = today
+    date_set = set(dates)
+
+    # If no check-in today, start from yesterday
+    if check_date not in date_set:
+        check_date = check_date - __import__("datetime").timedelta(days=1)
+
+    while check_date in date_set:
+        streak += 1
+        check_date = check_date - __import__("datetime").timedelta(days=1)
+
+    return streak
+
+
+def _read_habits() -> list[dict[str, Any]]:
+    """Read all habits from library/habits/ directory."""
+    entries: list[dict[str, Any]] = []
+    dir_path = _LIBRARY_ROOT / "habits"
+    if not dir_path.exists():
+        return entries
+
+    for path in sorted(dir_path.rglob("*.md")):
+        if path.name == ".gitkeep":
+            continue
+        entries.append(_parse_habit(path))
+
+    return entries
+
+
+def _write_habit(habit_id: str, data: dict[str, Any]) -> None:
+    """Write a habit as a markdown file with YAML frontmatter."""
+    dir_path = _LIBRARY_ROOT / "habits"
+    dir_path.mkdir(parents=True, exist_ok=True)
+    path = dir_path / f"{habit_id}.md"
+
+    frontmatter_lines = ["---"]
+    frontmatter_lines.append(f'name: "{data["name"]}"')
+    frontmatter_lines.append(f"frequency: {data.get('frequency', 'daily')}")
+    frontmatter_lines.append(f'color: "{data.get("color") or "accent"}"')
+    frontmatter_lines.append(f"created_at: {data.get('created_at', datetime.now().isoformat())}")
+    frontmatter_lines.append("---")
+
+    checkins = sorted(set(data.get("checkins", [])))
+    body = "\n".join(checkins)
+
+    content = "\n".join(frontmatter_lines)
+    if body:
+        content += "\n\n" + body
+
+    path.write_text(content, encoding="utf-8")
+
+
+@router.get("/planning/habits")
+async def get_habits(
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    habits = _read_habits()
+    return {
+        "habits": habits,
+        "active": [h for h in habits if h.get("streak", 0) >= 0],
+        "total_checkins": sum(len(h.get("checkins", [])) for h in habits),
+        "longest_streak": max((h.get("streak", 0) for h in habits), default=0),
+    }
+
+
+@router.post("/planning/habits")
+async def create_habit(
+    payload: HabitCreate,
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    habit_id = str(uuid.uuid4())[:8]
+    now = datetime.now().isoformat()
+    data = {
+        "name": payload.name,
+        "frequency": payload.frequency,
+        "color": payload.color,
+        "created_at": now,
+        "checkins": [],
+    }
+    _write_habit(habit_id, data)
+    return {"status": "ok", "id": habit_id, **data, "streak": 0, "checked_today": False}
+
+
+@router.put("/planning/habits/{habit_id}/checkin")
+async def checkin_habit(
+    habit_id: str,
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    habits = _read_habits()
+    habit = next((h for h in habits if h["id"] == habit_id), None)
+    if not habit:
+        return {"status": "error", "message": "Habit not found"}
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    checkins = habit.get("checkins", [])
+    if today not in checkins:
+        checkins.append(today)
+
+    data = {
+        "name": habit["name"],
+        "frequency": habit["frequency"],
+        "color": habit.get("color"),
+        "created_at": habit.get("created_at"),
+        "checkins": checkins,
+    }
+    _write_habit(habit_id, data)
+    updated = _parse_habit(_LIBRARY_ROOT / "habits" / f"{habit_id}.md")
+    return {"status": "ok", **updated}
+
+
+@router.put("/planning/habits/{habit_id}/uncheckin")
+async def uncheckin_habit(
+    habit_id: str,
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    habits = _read_habits()
+    habit = next((h for h in habits if h["id"] == habit_id), None)
+    if not habit:
+        return {"status": "error", "message": "Habit not found"}
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    checkins = [c for c in habit.get("checkins", []) if c != today]
+
+    data = {
+        "name": habit["name"],
+        "frequency": habit["frequency"],
+        "color": habit.get("color"),
+        "created_at": habit.get("created_at"),
+        "checkins": checkins,
+    }
+    _write_habit(habit_id, data)
+    updated = _parse_habit(_LIBRARY_ROOT / "habits" / f"{habit_id}.md")
+    return {"status": "ok", **updated}
+
+
+@router.delete("/planning/habits/{habit_id}")
+async def delete_habit(
+    habit_id: str,
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    path = _LIBRARY_ROOT / "habits" / f"{habit_id}.md"
+    if path.exists():
+        path.unlink()
+        return {"status": "ok", "id": habit_id}
+    return {"status": "error", "message": "Habit not found"}
+
+
 @router.get("/planning/focus")
 async def get_focus(
     _: dict[str, Any] = Depends(require_auth),
