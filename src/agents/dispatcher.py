@@ -65,7 +65,7 @@ def _run_gemini(system: str, prompt: str) -> str:
     if not api_key:
         raise EnvironmentError("GEMINI_API_KEY is not set.")
 
-    model = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+    model = "gemini-1.5-flash"  # Free tier for Q&A synthesis
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
     payload = {

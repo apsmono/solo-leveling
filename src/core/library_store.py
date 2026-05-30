@@ -379,6 +379,8 @@ class _FileLibraryStore(_LibraryStore):
             tags_match = re.search(r"^tags:\s*(.+)$", text, flags=re.MULTILINE)
             tags_str = tags_match.group(1).strip() if tags_match else ""
             tags = [t.strip() for t in tags_str.strip("[]").split(",") if t.strip()]
+            captured_at_match = re.search(r"^captured_at:\s*(.+)$", text, flags=re.MULTILINE)
+            captured_at = captured_at_match.group(1).strip() if captured_at_match else datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="minutes")
             record = {
                 "title": title,
                 "path": rel_path,
@@ -388,6 +390,7 @@ class _FileLibraryStore(_LibraryStore):
                 "type": "bundle-index" if path.name == "index.md" and path.parent != (self._library_root / self._resolve_section_dir(section)) else "entry",
                 "source_url": source_url,
                 "tags": tags,
+                "captured_at": captured_at,
                 "updated_at": datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="minutes"),
             }
             entries.append(record)
