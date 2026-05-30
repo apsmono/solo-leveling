@@ -60,10 +60,25 @@ INTENT_MAP: dict[str, list[str]] = {
 
 
 def route_command(text: str, source: str = "api") -> str:
-    """Parse intent from text and dispatch to the correct handler."""
-    intent = _detect_intent(text)
-    logger.info("Intent detected: %s", intent)
-    reply = _dispatch(intent, text)
+    """Parse intent from text and dispatch to the correct handler.
+
+    Uses LLM-driven intent parsing (parse_intent) for structured classification.
+    Falls back to keyword-based detection automatically inside parse_intent.
+    """
+    try:
+        from src.core.intent_parser import parse_intent
+
+        parsed = parse_intent(text)
+        intent = parsed["intent"]
+        params = parsed.get("params", {})
+        confidence = parsed.get("confidence", 0.0)
+        logger.info("Intent detected: %s (confidence=%.2f)", intent, confidence)
+        reply = _dispatch(intent, text, params)
+    except Exception:
+        logger.exception("Intent parsing failed; falling back to keyword detection")
+        intent = _detect_intent(text)
+        logger.info("Intent detected (fallback): %s", intent)
+        reply = _dispatch(intent, text)
     _log_command(text, intent, reply, source)
     return reply
 
@@ -131,7 +146,14 @@ def _detect_intent(text: str) -> str:
 # Dispatch
 # ---------------------------------------------------------------------------
 
-def _dispatch(intent: str, original_text: str) -> str:
+def _dispatch(intent: str, original_text: str, params: dict[str, Any] | None = None) -> str:
+    """Dispatch to the correct handler based on intent.
+
+    Args:
+        intent: The detected intent string.
+        original_text: The user's raw command text.
+        params: Optional parameters extracted by the LLM intent parser.
+    """
     handlers = {
         "help": _handle_help,
         "status": _handle_status,
@@ -162,8 +184,23 @@ def _dispatch(intent: str, original_text: str) -> str:
         "unknown": _handle_unknown,
     }
     handler = handlers.get(intent, _handle_unknown)
+
+    # Build the effective text: if params has a query/text key, prepend it so
+    # the existing keyword-based handlers still work correctly.
+    effective_text = original_text
+    if params:
+        if intent == "library_search" and "query" in params:
+            effective_text = f"search library: {params['query']}"
+        elif intent == "library_capture" and "text" in params:
+            effective_text = f"add to library: {params['text']}"
+        elif intent == "library_qa":
+            query = params.get("query", original_text)
+            effective_text = f"ask: {query}"
+        elif intent == "park_distraction" and "text" in params:
+            effective_text = f"thought: {params['text']}"
+
     try:
-        return handler(original_text)
+        return handler(effective_text)
     except EnvironmentError as e:
         logger.error("Configuration error in handler '%s': %s", intent, e)
         return f"Configuration error: {e}\nCheck your .env file."
