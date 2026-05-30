@@ -36,6 +36,18 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Added
 
+- 2026-05-30 10-36-49 **Phase 3 — Signal Knowledge Library + Conceptual Search + AI Guide** (Wave 4 complete): Full offline test suite green (255 tests, 6 skipped); vector search integration tests pass with live Postgres. Phase 3 requirements verified (LIB-01, LIB-02, LIB-03, LIB-05, GUIDE-01, GUIDE-02, GUIDE-03, GUIDE-05).
+- 2026-05-30 10-36-49 **Phase 3 — backend** (Waves 1–2): `src/vector/search.py` — semantic library search with keyword/vector/hybrid modes and owner scoping; `src/core/intent_parser.py` — LLM-driven intent parsing with keyword fallback; `src/api/guide.py` — AI Guide REST endpoints (`POST /guide/command`, `GET /guide/status`, `POST /guide/park`). Test modules: `tests/test_vector_search.py`, `tests/test_intent_parser.py`, `tests/test_guide_api.py`.
+- 2026-05-30 10-36-49 **Phase 3 — dashboard** (Wave 3): Persistent AI Guide panel — `AIGuidePanel`, `CommandBar`, `StatusBanner`, `DistractionGate`; layout customization (`LayoutProvider`, `LayoutSettingsPanel`, `useLayout` with localStorage). Guide API client functions and hooks in `dashboard/src/lib/api.ts` and `dashboard/src/hooks/useApi.ts`.
+
+### Changed
+
+- 2026-05-30 10-36-49 **Phase 3 — backend evolved**: `src/core/router.py` — `route_command` now uses LLM intent parsing (all interfaces benefit); `src/api/library.py` — added `POST /library/search` and `GET /library/recent`; `src/api/v1_router.py` — registered guide router.
+
+### Fixed
+
+- 2026-05-30 10-36-49 **Phase 3 — test isolation**: Guide API tests patch `src.api.deps.verify_id_token`; library/stage9/url-ingestion tests force filesystem store when `USE_FIRESTORE_LIBRARY=true` in `.env`; Firestore fallback tests explicitly mock Firestore failures; Firebase auth test patches `ALLOWED_USER_EMAIL`.
+
 - 2026-05-29 22-30-01 **Phase 1 — Signal Data & Auth Foundation** (Wave 4 complete): Full integration verification, test suite green, documentation updated. All 5 requirements (INFRA-01 through INFRA-04, ONB-01) verified end-to-end.
 - 2026-05-29 22-15-00 **Phase 1 — Signal Data & Auth Foundation** (Wave 3): Firebase session cookie auth — `POST /auth/session-login` verifies Firebase ID token and sets `__session` cookie (httpOnly, Secure, SameSite=Strict, 7-day TTL); `POST /auth/session-logout` clears the cookie. `SESSION_COOKIE_SECURE` env config for local HTTP dev. Auth router registered at top-level `/auth/*`. 4 offline contract tests in `AuthSessionTests`.
 - 2026-05-29 21-38-00 **Phase 1 — Signal Data & Auth Foundation** (Wave 2): Gemini embedding pipeline + token cache — `src/vector/embed.py` (Gemini `text-embedding-004`, 768-dim), `src/vector/cache.py` (cosine deduplication with `SIGNAL_COSINE_THRESHOLD`), `src/vector/hooks.py` (fire-and-forget `on_entry_saved()` hook). Library saves automatically trigger vector indexing via `asyncio.create_task()`. `src/core/libraries.py` updated with `_fire_embedding_hook()`.

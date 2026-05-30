@@ -446,6 +446,12 @@ class _FirestoreLibraryStore(_LibraryStore):
         self._file_store = _FileLibraryStore(project_root, library_root, index_path)
         self._project_root = project_root
 
+    def _ensure_library_dirs(self) -> None:
+        self._file_store._ensure_library_dirs()
+
+    def _resolve_section_dir(self, section: str) -> str:
+        return self._file_store._resolve_section_dir(section)
+
     def _save_to_firestore(
         self,
         entry_id: str,

@@ -30,6 +30,7 @@ class FirebaseAuthTests(unittest.TestCase):
         _mock_firebase_admin.auth.verify_id_token.reset_mock(side_effect=True)
 
     @patch("src.integrations.firebase.auth.FIREBASE_CREDENTIALS_JSON", '{"type": "service_account"}')
+    @patch("src.integrations.firebase.auth.ALLOWED_USER_EMAIL", "owner@example.com")
     def test_verify_id_token_success(self) -> None:
         _mock_firebase_admin.auth.verify_id_token.return_value = {"email": "owner@example.com"}
         result = fb_auth.verify_id_token("valid-token")
@@ -65,6 +66,7 @@ class FirebaseFirestoreTests(unittest.TestCase):
         fb_firestore._firestore_client = None
         self.mock_client = MagicMock()
         _mock_google_cloud.firestore.client.return_value = self.mock_client
+        fb_firestore._firestore_client = self.mock_client
 
     @patch("src.integrations.firebase.auth.FIREBASE_CREDENTIALS_JSON", '{"type": "service_account"}')
     def test_create_reminder_doc(self) -> None:

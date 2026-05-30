@@ -6,10 +6,10 @@ This repository is the central brain for the owner's personal operating system: 
 
 ## Current Phase
 
-- Phase: Stage 8 complete; Stage 9 in progress; **Phase 1 (Signal Data & Auth Foundation) complete** — vector spine + persistent auth now available for downstream phases
-- Main assets: working integration code (Notion, Drive, Gmail, Gemini), notification scheduler with Firestore/JSON dual backend, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, deep research-bundle capture flow, indexed search with LRU cache, Firebase Auth + Firestore integration, **Telegram bot webhook with proactive messaging + CLI management**, static dashboard frontend for GitHub Pages (standalone repo), versioned REST API (`/api/v1`), Docker Compose for MacMini, **pgvector vector spine (`src/vector/`) with Gemini embeddings, token cache, and automatic library indexing**, **Firebase session cookie auth (`/auth/session-login`, `/auth/session-logout`) with httpOnly Secure SameSite=Strict cookies**
-- Current work: backend runs on MacMini via Docker; Telegram and HTTP `/command` both route through `route_command()`; Firestore stores reminders and command history when `USE_FIRESTORE_REMINDERS=true`; single-user Firebase Auth gates `/dashboard` endpoints; frontend projects (`dashboard`, `wedding-invitation`, `koperasi`) live as standalone repos managed by the parent workspace repo; **vector DB ready for Phase 3 (Knowledge Library + Conceptual Search + AI Guide)**
-- Primary need: continue Stage 9 improvements; Phase 3 (Knowledge Library + Conceptual Search + AI Guide) can now leverage the vector spine for semantic search and AI-guided recommendations
+- Phase: **Phase 3 (Signal Knowledge Library + Conceptual Search + AI Guide) complete** — ready for Phase 4 (Zen Shell + Clarity Board)
+- Main assets: working integration code (Notion, Drive, Gmail, Gemini), notification scheduler with Firestore/JSON dual backend, Stage 8 workflow set, Stage 9 library handlers, local `library/` folder structure, generated `library/index.json`, comprehensive formatting standard, deep research-bundle capture flow, indexed search with LRU cache, Firebase Auth + Firestore integration, **Telegram bot webhook with proactive messaging + CLI management**, static dashboard frontend for GitHub Pages (standalone repo), versioned REST API (`/api/v1`), Docker Compose for MacMini, **pgvector vector spine (`src/vector/`) with Gemini embeddings, token cache, and automatic library indexing**, **Firebase session cookie auth (`/auth/session-login`, `/auth/session-logout`) with httpOnly Secure SameSite=Strict cookies**, **conceptual vector search (`src/vector/search.py`) with keyword/vector/hybrid modes**, **LLM intent parser (`src/core/intent_parser.py`) driving `route_command`**, **AI Guide REST API (`src/api/guide.py`)**, **dashboard AI Guide panel (persistent right-hand Command Bar + Status Banner + Distraction Gate)**
+- Current work: Phase 4 — Zen Shell + Clarity Board (70/30 split-screen, migrate Guide panel into locked Panel B)
+- Primary need: Build the Zen workspace shell around the Phase 3 Knowledge Library and AI Guide surfaces
 - Device note: owner switches between devices frequently; treat `docs/ai-working-notes.md` as the cross-session memory
 
 ## Source Of Truth
@@ -49,15 +49,11 @@ As the project expands, prefer this structure:
 
 ## Current Priorities
 
-1. ~~Expand Stage 8 from starter workflow to multiple robust workflow chains~~ **DONE (3 workflows implemented)**
-2. **ACTIVE: Deploy and verify Firebase + Dashboard + Telegram end-to-end** — configure Firebase credentials, verify dashboard CORS from standalone repo, set Telegram webhook, verify auth flow
-3. ~~Implement Stage 9 — Personal Knowledge Libraries command layer~~ **DONE** (`library/` folder is canonical storage; all handlers are local-library-first)
-4. **ACTIVE: Multi-AI Team Execution** — governance upgraded with role-branch-authority policy, responsibility-level testing, and OKR valuation in `docs/ai-employer-operating-system.md`; upcoming coordinated tasks must use this model.
-5. ~~**Autopilot System**~~ **Phase 2 DONE** — `write` tool (sandboxed file creation/editing, atomic temp+rename), `claude_code` tool (Claude Code CLI subprocess via `claude -p` with `run_agent` fallback), REST API for task/approval management (`/api/v1/autopilot/*`), `autopilot approvals` text command. 34 autopilot tests passing.
-6. ~~Sub-project Deployment~~ **DONE** — `wedding-invitation` and `koperasi` are standalone repos with their own CI/CD.
-7. ~~Choose a deployment target~~ **DONE** — MacMini (backend via Docker Compose) + GitHub Pages (static dashboard frontend)
-8. ~~Deploy static sub-projects~~ **DONE** — Projects are standalone repos deployed independently.
-6. ~~Add tests with at least one integration smoke test per service~~ **DONE** — 59 tests (Firebase auth, Firestore, dashboard API, Telegram webhook, Stage 9 libraries, integration smoke)
+1. **ACTIVE: Phase 4 — Zen Shell + Clarity Board** — 70/30 split-screen workspace; migrate AI Guide panel into locked Panel B; Core Dashboard focus block + Context Nest
+2. ~~**Phase 3 — Knowledge Library + Conceptual Search + AI Guide**~~ **DONE** — vector search, LLM intent parser, Guide API, dashboard AI Guide panel
+3. ~~**Phase 1 — Signal Data & Auth Foundation**~~ **DONE** — vector spine + persistent Google OAuth session cookies
+4. ~~Expand Stage 8 from starter workflow to multiple robust workflow chains~~ **DONE (3 workflows implemented)**
+5. ~~Implement Stage 9 — Personal Knowledge Libraries command layer~~ **DONE** (`library/` folder is canonical storage; all handlers are local-library-first)
 
 ## Completed Stages
 

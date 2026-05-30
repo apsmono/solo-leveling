@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-29T12:42",
+  "generated_at": "2026-05-30T10:36",
   "entries": [
     {
       "title": "Example Blog",
@@ -176,6 +176,147 @@
       "updated_at": "2026-05-29T12:36"
     },
     {
+      "title": "My Personal Dashboard - 2025 Edition",
+      "path": "library/articles/20260529-144051-my-personal-dashboard-2025-edition.md",
+      "section": "article",
+      "category": "article",
+      "status": "to-read",
+      "type": "entry",
+      "source_url": "https://www.youtube.com/watch?v=W1bq6pqMCrI",
+      "tags": [
+        "youtube",
+        "link",
+        "to-read"
+      ],
+      "updated_at": "2026-05-29T21:40"
+    },
+    {
+      "title": "Example Blog",
+      "path": "library/articles/20260530-103239-example-blog.md",
+      "section": "article",
+      "category": "article",
+      "status": "reading",
+      "type": "entry",
+      "source_url": "https://example.com/blog-post",
+      "tags": [
+        "generic",
+        "link",
+        "reading",
+        "ai",
+        "ml",
+        "research"
+      ],
+      "updated_at": "2026-05-30T10:32"
+    },
+    {
+      "title": "Example Blog",
+      "path": "library/articles/20260530-103350-example-blog.md",
+      "section": "article",
+      "category": "article",
+      "status": "reading",
+      "type": "entry",
+      "source_url": "https://example.com/blog-post",
+      "tags": [
+        "generic",
+        "link",
+        "reading",
+        "ai",
+        "ml",
+        "research"
+      ],
+      "updated_at": "2026-05-30T10:33"
+    },
+    {
+      "title": "Example Blog",
+      "path": "library/articles/20260530-103443-example-blog.md",
+      "section": "article",
+      "category": "article",
+      "status": "reading",
+      "type": "entry",
+      "source_url": "https://example.com/blog-post",
+      "tags": [
+        "generic",
+        "link",
+        "reading",
+        "ai",
+        "ml",
+        "research"
+      ],
+      "updated_at": "2026-05-30T10:34"
+    },
+    {
+      "title": "Example Blog",
+      "path": "library/articles/20260530-103457-example-blog.md",
+      "section": "article",
+      "category": "article",
+      "status": "reading",
+      "type": "entry",
+      "source_url": "https://example.com/blog-post",
+      "tags": [
+        "generic",
+        "link",
+        "reading",
+        "ai",
+        "ml",
+        "research"
+      ],
+      "updated_at": "2026-05-30T10:34"
+    },
+    {
+      "title": "Example Blog",
+      "path": "library/articles/20260530-103601-example-blog.md",
+      "section": "article",
+      "category": "article",
+      "status": "reading",
+      "type": "entry",
+      "source_url": "https://example.com/blog-post",
+      "tags": [
+        "generic",
+        "link",
+        "reading",
+        "ai",
+        "ml",
+        "research"
+      ],
+      "updated_at": "2026-05-30T10:36"
+    },
+    {
+      "title": "Example Blog",
+      "path": "library/articles/20260530-103614-example-blog.md",
+      "section": "article",
+      "category": "article",
+      "status": "reading",
+      "type": "entry",
+      "source_url": "https://example.com/blog-post",
+      "tags": [
+        "generic",
+        "link",
+        "reading",
+        "ai",
+        "ml",
+        "research"
+      ],
+      "updated_at": "2026-05-30T10:36"
+    },
+    {
+      "title": "Example Blog",
+      "path": "library/articles/20260530-103644-example-blog.md",
+      "section": "article",
+      "category": "article",
+      "status": "reading",
+      "type": "entry",
+      "source_url": "https://example.com/blog-post",
+      "tags": [
+        "generic",
+        "link",
+        "reading",
+        "ai",
+        "ml",
+        "research"
+      ],
+      "updated_at": "2026-05-30T10:36"
+    },
+    {
       "title": "Book Research \u2014 AI Team Organization and Multi-Agent Project Management",
       "path": "library/books/20260421-112035-book-research-ai-team-organization-and-multi-agent-project-management-how/index.md",
       "section": "20260421-112035-book-research-ai-team-organization-and-multi-agent-project-management-how",
@@ -204,6 +345,17 @@
         "critical-knowledge"
       ],
       "updated_at": "2026-04-21T12:45"
+    },
+    {
+      "title": "Profile: Skill - Python",
+      "path": "library/profile/20260529-135026-profile-skill-python.md",
+      "section": "profile",
+      "category": "profile",
+      "status": "active",
+      "type": "entry",
+      "source_url": null,
+      "tags": [],
+      "updated_at": "2026-05-29T21:41"
     },
     {
       "title": "Reference: MCP (Model Context Protocol) \u2014 Architecture and Usage Guide",

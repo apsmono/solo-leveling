@@ -11,6 +11,15 @@ from src.app import app
 
 
 class LibraryApiTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.firestore_patch = patch("src.core.libraries.USE_FIRESTORE_LIBRARY", False)
+        cls.firestore_patch.start()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.firestore_patch.stop()
+
     def setUp(self) -> None:
         self.client = TestClient(app)
         self.mock_user = {"email": "owner@example.com", "uid": "abc123"}

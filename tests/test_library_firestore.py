@@ -28,8 +28,11 @@ class FirestoreLibraryStoreTests(unittest.TestCase):
         file_store = _FileLibraryStore(self.temp_root, self.library_root, self.index_path)
         file_store.save_entry("term", "Test Term", "A test definition", status="active")
 
-        # Firestore will fail (no mock client), but file store fallback should work
-        result = store.search_entries("Test", limit=5)
+        with patch(
+            "src.integrations.firebase.firestore.search_library_entries",
+            side_effect=RuntimeError("firestore unavailable"),
+        ):
+            result = store.search_entries("Test", limit=5)
         self.assertTrue(len(result) > 0)
         self.assertIn("Test Term", str(result))
 
@@ -43,8 +46,11 @@ class FirestoreLibraryStoreTests(unittest.TestCase):
         file_store.save_entry("term", "T1", "D1", status="active")
         file_store.save_entry("term", "T2", "D2", status="active")
 
-        # Should count from filesystem since Firestore has no mock
-        count = store.count_entries("term")
+        with patch(
+            "src.integrations.firebase.firestore.count_library_entries",
+            side_effect=RuntimeError("firestore unavailable"),
+        ):
+            count = store.count_entries("term")
         self.assertEqual(count, 2)
 
     def test_firestore_store_dual_write_creates_local_file(self) -> None:

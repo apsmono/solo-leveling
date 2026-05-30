@@ -285,6 +285,14 @@ def search_library_entries(
             if len(results) >= limit:
                 break
 
+    # Sort by updated_at descending for consistent ordering
+    def _updated_at(entry):
+        val = entry.get("updated_at")
+        if val and hasattr(val, "timestamp"):
+            return val.timestamp()
+        return val or 0
+
+    results.sort(key=_updated_at, reverse=True)
     return results
 
 
@@ -309,16 +317,30 @@ def list_library_entries(
     if source_url:
         q = q.where("source_url", "==", source_url)
 
-    from google.cloud.firestore import Query
-    q = q.order_by("updated_at", direction=Query.DESCENDING)
+    # Firestore requires composite indexes for where + order_by combinations.
+    # To avoid index creation friction, we fetch and sort client-side.
+    # For libraries under a few thousand entries this is negligible.
+    all_docs = list(q.stream())
 
-    # Simple pagination: fetch all up to page * per_page, then slice
-    # For large libraries, cursor-based pagination would be better
-    all_docs = list(q.limit(page * per_page).stream())
+    # Exclude bundle-index entries BEFORE sorting/pagination
+    # (mirrors _FileLibraryStore.list_entries behaviour)
+    entry_docs = [d for d in all_docs if d.to_dict() and d.to_dict().get("type") != "bundle-index"]
 
-    total = len(all_docs)
+    # Sort by updated_at descending (client-side)
+    def _updated_at(doc):
+        data = doc.to_dict()
+        if data and "updated_at" in data:
+            val = data["updated_at"]
+            if hasattr(val, "timestamp"):
+                return val.timestamp()
+            return val
+        return 0
+
+    entry_docs.sort(key=_updated_at, reverse=True)
+
+    total = len(entry_docs)
     start = (page - 1) * per_page
-    page_docs = all_docs[start : start + per_page]
+    page_docs = entry_docs[start : start + per_page]
 
     entries = []
     for doc in page_docs:

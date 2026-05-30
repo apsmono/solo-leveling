@@ -24,6 +24,11 @@ class Stage9LibraryTests(unittest.TestCase):
         libraries._INDEX_PATH = libraries._LIBRARY_ROOT / "index.json"
         libraries._ensure_library_dirs()
 
+        # Force filesystem store — temp dirs are not mirrored in Firestore.
+        self.firestore_patch = patch("src.core.libraries.USE_FIRESTORE_LIBRARY", False)
+        self.firestore_patch.start()
+        self.addCleanup(self.firestore_patch.stop)
+
         self.addCleanup(self._restore_globals)
 
     def _restore_globals(self) -> None:

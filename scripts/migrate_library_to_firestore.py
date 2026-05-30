@@ -67,6 +67,27 @@ def parse_frontmatter(text: str) -> dict:
     return result
 
 
+def _should_include_file(path: Path, library_root: Path) -> bool:
+    """Mirror _FileLibraryStore.build_index() logic: skip bundle sub-files.
+
+    Only include:
+    - Top-level files directly in a section dir (e.g. library/articles/*.md)
+    - Bundle index.md files (e.g. library/research/2024.../index.md)
+
+    Skip bundle sub-files like 01-raw-input.md, 02-search-history.md, etc.
+    """
+    if path.name == "index.json":
+        return False
+    if any(part.startswith(".") for part in path.parts):
+        return False
+    # Skip files in sub-subdirectories that are NOT index.md
+    # (path.parent is the immediate parent; if it's not a direct child of
+    # library_root, then it's inside a bundle subdirectory)
+    if path.parent != library_root / path.parent.name and path.name != "index.md":
+        return False
+    return True
+
+
 def find_library_files(project_root: Path, sections: list[str] | None = None) -> list[Path]:
     """Find all markdown files in the library directory."""
     library_root = project_root / "library"
@@ -92,9 +113,8 @@ def find_library_files(project_root: Path, sections: list[str] | None = None) ->
         if not dir_path.exists():
             continue
         for path in sorted(dir_path.rglob("*.md")):
-            if path.name == "index.json":
-                continue
-            files.append(path)
+            if _should_include_file(path, library_root):
+                files.append(path)
 
     return files
 
@@ -108,20 +128,48 @@ def migrate_file(
 ) -> bool:
     """Migrate a single markdown file to Firestore. Returns True if migrated."""
     rel_path = str(path.relative_to(project_root))
-    entry_id = path.stem
+
+    # Derive entry_id matching _FileLibraryStore._entry_id_from_path()
+    parts = rel_path.split("/")
+    filename = parts[-1]
+    if filename == "index.md" and len(parts) > 1:
+        entry_id = parts[-2]
+    else:
+        entry_id = Path(filename).stem
 
     text = path.read_text(encoding="utf-8", errors="ignore")
     fm = parse_frontmatter(text)
 
-    section = str(fm.get("section", path.parent.name))
+    # Determine entry type first (needed for section fallback logic)
+    section_dir_name = path.parent.name
+    library_root = project_root / "library"
+    is_bundle_index = path.name == "index.md" and path.parent != library_root / section_dir_name
+
+    # For bundle indexes, derive section from the grandparent directory (e.g. library/books/ → book)
+    # For top-level files, use frontmatter section or parent directory name
+    if is_bundle_index:
+        # path = library/books/2024.../index.md → grandparent = library/books → dirname = books
+        grandparent_dirname = path.parent.parent.name if len(path.parent.parts) > len(library_root.parts) else section_dir_name
+        # Reverse-map dirname to section key
+        _DIR_TO_SECTION = {v: k for k, v in {
+            "profile": "profile",
+            "term": "terms",
+            "book": "books",
+            "article": "articles",
+            "thought": "thoughts",
+            "reference": "references",
+            "research": "research",
+        }.items()}
+        section = str(fm.get("section", _DIR_TO_SECTION.get(grandparent_dirname, grandparent_dirname)))
+    else:
+        section = str(fm.get("section", path.parent.name))
+
     title = str(fm.get("title", path.stem))
     category = str(fm.get("category", section))
     status = str(fm.get("status", "draft"))
     tags = fm.get("tags", [])
     source_url = fm.get("source_url")
 
-    # Determine entry type
-    is_bundle_index = path.name == "index.md" and path.parent != (project_root / "library" / section)
     entry_type = "bundle-index" if is_bundle_index else "entry"
 
     if dry_run:
