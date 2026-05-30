@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 import re
+import shutil
 from typing import Any, Optional
 
 # Sort field map: named sort shortcuts -> (field_name, reverse)
@@ -237,6 +238,26 @@ class _FileLibraryStore(_LibraryStore):
         return False
 
     def delete_entry(self, entry_id: str) -> bool:
+        """Delete an entry by ID. Removes file from disk and rebuilds index.
+
+        For bundle entries (index.md), removes the entire parent directory.
+        Returns True if the entry was found and deleted, False otherwise.
+        """
+        index = self.load_index()
+        for record in index.get("entries", []):
+            path = record.get("path", "")
+            rec_id = self._entry_id_from_path(path)
+            if rec_id == entry_id:
+                full_path = self._project_root / path
+                if full_path.exists():
+                    if full_path.name == "index.md":
+                        # Bundle: remove entire parent directory
+                        shutil.rmtree(full_path.parent)
+                    else:
+                        # Single file: remove just the file
+                        full_path.unlink()
+                self.build_index()
+                return True
         return False
 
     # --- Read operations ---
