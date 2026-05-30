@@ -228,6 +228,19 @@ async def get_entry(
     }
 
 
+@router.delete("/library/entries/{entry_id}")
+async def delete_entry_endpoint(
+    entry_id: str,
+    _: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    """Delete a library entry by ID."""
+    store = _get_store()
+    deleted = store.delete_entry(entry_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail=f"Entry not found: {entry_id}")
+    return {"status": "ok", "id": entry_id}
+
+
 @router.get("/library/sections")
 async def list_sections(
     _: dict[str, Any] = Depends(require_auth),
