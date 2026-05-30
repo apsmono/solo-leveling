@@ -64,6 +64,53 @@ class LibraryApiTests(unittest.TestCase):
         self.assertIsInstance(data["entries"], list)
 
     @patch("src.api.deps.verify_id_token")
+    def test_list_entries_sort_newest(self, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        res = self.client.get("/api/v1/library/entries?sort=newest&page=1&per_page=20", headers={"Authorization": "Bearer valid-token"})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        entries = data["entries"]
+        if len(entries) < 2:
+            self.skipTest("Need at least 2 entries for sort comparison.")
+        # Verify descending order by captured_at
+        for i in range(len(entries) - 1):
+            a = entries[i].get("captured_at", "")
+            b = entries[i + 1].get("captured_at", "")
+            self.assertGreaterEqual(a, b)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_list_entries_sort_title_asc(self, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        res = self.client.get("/api/v1/library/entries?sort=title_asc&page=1&per_page=20", headers={"Authorization": "Bearer valid-token"})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        entries = data["entries"]
+        if len(entries) < 2:
+            self.skipTest("Need at least 2 entries for sort comparison.")
+        # Verify ascending order by title
+        titles = [e.get("title", "") for e in entries]
+        self.assertEqual(titles, sorted(titles, key=str.lower))
+
+    @patch("src.api.deps.verify_id_token")
+    def test_list_entries_sort_invalid_fallback(self, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        res = self.client.get("/api/v1/library/entries?sort=nonexistent", headers={"Authorization": "Bearer valid-token"})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertIsInstance(data["entries"], list)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_list_entries_sort_with_search(self, mock_verify: MagicMock) -> None:
+        mock_verify.return_value = self.mock_user
+        res = self.client.get("/api/v1/library/entries?search=test&sort=title_asc", headers={"Authorization": "Bearer valid-token"})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        entries = data["entries"]
+        if len(entries) >= 2:
+            titles = [e.get("title", "") for e in entries]
+            self.assertEqual(titles, sorted(titles, key=str.lower))
+
+    @patch("src.api.deps.verify_id_token")
     def test_get_entry_found(self, mock_verify: MagicMock) -> None:
         mock_verify.return_value = self.mock_user
         list_res = self.client.get("/api/v1/library/entries?per_page=1", headers={"Authorization": "Bearer valid-token"})
