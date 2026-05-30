@@ -43,6 +43,7 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Changed
 
+- 2026-05-30 09-49-00 **Phase 3 — Table View backend sort**: `GET /api/v1/library/entries` now accepts `sort` and `order` query params. Named sort shortcuts (newest, oldest, title_asc, title_desc, updated) map to backend fields via `SORT_FIELD_MAP`; raw field names (captured_at, title, updated_at, section, status, type) accepted with `order=asc|desc` override. Invalid sort params silently fall back to default (newest first). Sort applied before pagination in both search and non-search code paths. `src/core/library_store.py` — added `SORT_FIELD_MAP`, `_resolve_sort`, updated `list_entries` signature. `src/api/library.py` — added sort/order Query params. 4 new test cases in `tests/test_library_api.py`.
 - 2026-05-30 12-08-58 **Phase 2 — wiring**: `src/core/router.py` — added `n8n_workflow` intent + `_handle_n8n_workflow` so owner automation phrases reach `execute_intent` and render all executor outcomes (ok/declined/needs_approval/error) as replies; `src/api/auth_session.py` — connect-time best-effort credential sync into n8n on sign-in (D-05, never blocks login); `src/autopilot/governor.py` — added `n8n_workflow` tool at RL4; `src/api/v1_router.py` — registered n8n callback router.
 - 2026-05-30 10-36-49 **Phase 3 — backend evolved**: `src/core/router.py` — `route_command` now uses LLM intent parsing (all interfaces benefit); `src/api/library.py` — added `POST /library/search` and `GET /library/recent`; `src/api/v1_router.py` — registered guide router.
 
