@@ -36,6 +36,7 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ### Fixed
 
+- 2026-05-30 16-48-00 **Library delete_entry stub**: Replaced `_FileLibraryStore.delete_entry()` stub (always returned `False`) with working implementation — finds entry by ID via index, removes file from disk (`unlink()` for single files, `shutil.rmtree()` for bundle directories), rebuilds index. Prerequisite for DELETE endpoint in Phase 3.1.
 - 2026-05-30 15-42-00 **Dashboard Table View Sort**: Removed client-side sorting conflict in TableView component. Library sort dropdown now properly controls server-side sort across all views (cards, compact, table). Table displays entries in backend sort order instead of overriding with React Table's local sorting state.
 
 ### Added
