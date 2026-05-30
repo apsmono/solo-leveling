@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from src.api.deps import require_auth
 from src.agents.dispatcher import run_agent
 from src.core.libraries import _get_store
+from src.core.library_store import SORT_FIELD_MAP
 from src.integrations.youtube import extract_video_id, fetch_transcript
 from src.vector.search import search_library
 
@@ -124,6 +125,16 @@ def _enrich_entry(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _resolve_sort_param(sort: Optional[str], order: Optional[str]) -> tuple[str, bool]:
+    """Resolve sort param to (field_name, reverse) tuple. Duplicates store logic for search path."""
+    if sort and sort in SORT_FIELD_MAP:
+        return SORT_FIELD_MAP[sort]
+    if sort in ("captured_at", "updated_at", "title", "section", "status", "type"):
+        reverse = (order or "desc").lower() == "desc"
+        return sort, reverse
+    return "captured_at", True  # default: newest first
+
+
 @router.get("/library/entries")
 async def list_entries(
     section: Optional[str] = Query(None),
@@ -131,6 +142,8 @@ async def list_entries(
     tag: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
     source_url: Optional[str] = Query(None),
+    sort: Optional[str] = Query(None),
+    order: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     _: dict[str, Any] = Depends(require_auth),
@@ -148,6 +161,13 @@ async def list_entries(
         if source_url:
             results = [r for r in results if r.get("source_url") == source_url]
 
+        # Sort before paginating in search path
+        sort_field, reverse = _resolve_sort_param(sort, order)
+        def _sort_key(entry: dict[str, Any]) -> str:
+            val = entry.get(sort_field, "")
+            return str(val) if val is not None else ""
+        results.sort(key=_sort_key, reverse=reverse)
+
         total = len(results)
         start = (page - 1) * per_page
         page_results = results[start:start + per_page]
@@ -160,6 +180,8 @@ async def list_entries(
             source_url=source_url,
             page=page,
             per_page=per_page,
+            sort=sort,
+            order=order,
         )
         total = result["total"]
         page_results = result["entries"]
