@@ -19,26 +19,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Conditional import — module does not exist yet in Wave 0
-_try_imported = False
-_vector_search = None
-
-try:
-    from src.vector import search as _vector_search
-
-    _try_imported = True
-except ImportError:
-    pass
+from src.vector.search import search_library
 
 
-@unittest.skipUnless(_try_imported, "src.vector.search not yet implemented — skipping")
 class VectorSearchTests(unittest.TestCase):
     """Contract tests for src.vector.search (unit tests, always run when module exists)."""
 
     def test_search_library_keyword_mode(self) -> None:
         """Keyword mode calls store.search_entries() and returns its results."""
-        from src.vector.search import search_library
-
         async def _run() -> None:
             mock_store = MagicMock()
             mock_store.search_entries.return_value = [
@@ -46,7 +34,7 @@ class VectorSearchTests(unittest.TestCase):
                 {"id": "entry-2", "title": "Machine Learning", "section": "terms"},
             ]
 
-            with patch("src.vector.search._get_store", return_value=mock_store):
+            with patch("src.core.libraries._get_store", return_value=mock_store):
                 result = await search_library("test", owner_id="owner", mode="keyword")
 
             self.assertEqual(len(result), 2)
@@ -57,8 +45,6 @@ class VectorSearchTests(unittest.TestCase):
 
     def test_search_library_vector_mode(self) -> None:
         """Vector mode embeds query and returns similarity-scored results."""
-        from src.vector.search import search_library
-
         async def _run() -> None:
             mock_conn = AsyncMock()
             mock_conn.fetchall.return_value = [
@@ -70,9 +56,17 @@ class VectorSearchTests(unittest.TestCase):
             mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
             mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("src.vector.search.get_pool", return_value=mock_pool):
-                with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
-                    result = await search_library("ai", owner_id="owner", mode="vector")
+            mock_store = MagicMock()
+            mock_store.get_entry.side_effect = [
+                {"entry_id": "entry-1", "title": "AI Basics", "section": "terms"},
+                {"entry_id": "entry-2", "title": "Machine Learning", "section": "terms"},
+            ]
+
+            with patch("src.vector.search.SIGNAL_POSTGRES_DSN", "postgres://test"):
+                with patch("src.vector.search.get_pool", return_value=mock_pool):
+                    with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
+                        with patch("src.core.libraries._get_store", return_value=mock_store):
+                            result = await search_library("ai", owner_id="owner", mode="vector")
 
             self.assertEqual(len(result), 2)
             self.assertIn("similarity", result[0])
@@ -83,8 +77,6 @@ class VectorSearchTests(unittest.TestCase):
 
     def test_search_library_hybrid_prefers_keyword(self) -> None:
         """Hybrid mode returns keyword results when count >= limit//2 (no vector call)."""
-        from src.vector.search import search_library
-
         async def _run() -> None:
             mock_store = MagicMock()
             # Return 6 results (>= 12//2 = 6), so vector search should NOT be called
@@ -93,7 +85,7 @@ class VectorSearchTests(unittest.TestCase):
                 for i in range(6)
             ]
 
-            with patch("src.vector.search._get_store", return_value=mock_store):
+            with patch("src.core.libraries._get_store", return_value=mock_store):
                 with patch("src.vector.search.get_pool") as mock_get_pool:
                     result = await search_library("test", owner_id="owner", mode="hybrid", limit=12)
 
@@ -105,13 +97,15 @@ class VectorSearchTests(unittest.TestCase):
 
     def test_search_library_hybrid_falls_back_to_vector(self) -> None:
         """Hybrid mode calls vector search when keyword returns < limit//2 results."""
-        from src.vector.search import search_library
-
         async def _run() -> None:
             mock_store = MagicMock()
             # Return only 1 result (< 12//2 = 6), so vector search SHOULD be called
             mock_store.search_entries.return_value = [
                 {"id": "entry-kw", "title": "Keyword Result", "section": "terms"},
+            ]
+            mock_store.get_entry.side_effect = [
+                {"entry_id": "entry-v1", "title": "Vector Result 1", "section": "terms"},
+                {"entry_id": "entry-v2", "title": "Vector Result 2", "section": "terms"},
             ]
 
             mock_conn = AsyncMock()
@@ -124,10 +118,11 @@ class VectorSearchTests(unittest.TestCase):
             mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
             mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
 
-            with patch("src.vector.search._get_store", return_value=mock_store):
-                with patch("src.vector.search.get_pool", return_value=mock_pool):
-                    with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
-                        result = await search_library("test", owner_id="owner", mode="hybrid", limit=12)
+            with patch("src.vector.search.SIGNAL_POSTGRES_DSN", "postgres://test"):
+                with patch("src.core.libraries._get_store", return_value=mock_store):
+                    with patch("src.vector.search.get_pool", return_value=mock_pool):
+                        with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
+                            result = await search_library("test", owner_id="owner", mode="hybrid", limit=12)
 
             # Should have keyword result + vector results (deduplicated)
             self.assertGreater(len(result), 1)
@@ -138,8 +133,6 @@ class VectorSearchTests(unittest.TestCase):
 
     def test_search_library_owner_id_scoped(self) -> None:
         """SQL parameters include owner_id in the execute call args."""
-        from src.vector.search import search_library
-
         async def _run() -> None:
             mock_conn = AsyncMock()
             mock_conn.fetchall.return_value = []
@@ -150,13 +143,14 @@ class VectorSearchTests(unittest.TestCase):
 
             test_owner = "owner@example.com"
 
-            with patch("src.vector.search.get_pool", return_value=mock_pool):
-                with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
-                    await search_library("ai", owner_id=test_owner, mode="vector")
+            with patch("src.vector.search.SIGNAL_POSTGRES_DSN", "postgres://test"):
+                with patch("src.vector.search.get_pool", return_value=mock_pool):
+                    with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
+                        await search_library("ai", owner_id=test_owner, mode="vector")
 
-            # Verify the execute call included owner_id in parameters
-            self.assertTrue(mock_conn.execute.called)
-            call_args = mock_conn.execute.call_args
+            # Verify the fetchall call included owner_id in parameters
+            self.assertTrue(mock_conn.fetchall.called)
+            call_args = mock_conn.fetchall.call_args
             params = call_args[0][1] if len(call_args[0]) > 1 else call_args[1]
             param_str = str(params)
             self.assertIn(test_owner, param_str)
@@ -165,12 +159,10 @@ class VectorSearchTests(unittest.TestCase):
 
     def test_search_library_empty_query_returns_empty(self) -> None:
         """Empty query string returns empty list without calling store or DB."""
-        from src.vector.search import search_library
-
         async def _run() -> None:
             mock_store = MagicMock()
 
-            with patch("src.vector.search._get_store", return_value=mock_store):
+            with patch("src.core.libraries._get_store", return_value=mock_store):
                 with patch("src.vector.search.get_pool") as mock_get_pool:
                     result = await search_library("", owner_id="owner", mode="hybrid")
 
@@ -180,21 +172,101 @@ class VectorSearchTests(unittest.TestCase):
 
         asyncio.run(_run())
 
+    def test_search_library_enriches_from_store(self) -> None:
+        """Vector results are enriched with store metadata via get_entry."""
+        async def _run() -> None:
+            mock_conn = AsyncMock()
+            mock_conn.fetchall.return_value = [
+                {"entry_id": "entry-1", "similarity": 0.95},
+            ]
+
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
+
+            mock_store = MagicMock()
+            mock_store.get_entry.return_value = {
+                "entry_id": "entry-1",
+                "title": "Enriched Title",
+                "section": "terms",
+                "tags": ["ai"],
+            }
+
+            with patch("src.vector.search.SIGNAL_POSTGRES_DSN", "postgres://test"):
+                with patch("src.vector.search.get_pool", return_value=mock_pool):
+                    with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
+                        with patch("src.core.libraries._get_store", return_value=mock_store):
+                            result = await search_library("ai", owner_id="owner", mode="vector")
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["title"], "Enriched Title")
+            self.assertEqual(result[0]["similarity"], 0.95)
+            mock_store.get_entry.assert_called_once_with("entry-1")
+
+        asyncio.run(_run())
+
+    def test_search_library_skips_stale_embeddings(self) -> None:
+        """Entries where get_entry returns None (stale embeddings) are skipped."""
+        async def _run() -> None:
+            mock_conn = AsyncMock()
+            mock_conn.fetchall.return_value = [
+                {"entry_id": "deleted-entry", "similarity": 0.95},
+            ]
+
+            mock_pool = MagicMock()
+            mock_pool.connection.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
+            mock_pool.connection.return_value.__aexit__ = AsyncMock(return_value=False)
+
+            mock_store = MagicMock()
+            mock_store.get_entry.return_value = None
+
+            with patch("src.vector.search.SIGNAL_POSTGRES_DSN", "postgres://test"):
+                with patch("src.vector.search.get_pool", return_value=mock_pool):
+                    with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
+                        with patch("src.core.libraries._get_store", return_value=mock_store):
+                            result = await search_library("ai", owner_id="owner", mode="vector")
+
+            self.assertEqual(len(result), 0)
+            mock_store.get_entry.assert_called_once_with("deleted-entry")
+
+        asyncio.run(_run())
+
+    def test_search_library_graceful_fallback_on_db_failure(self) -> None:
+        """When vector DB fails in hybrid mode, fall back to keyword results."""
+        async def _run() -> None:
+            mock_store = MagicMock()
+            mock_store.search_entries.return_value = [
+                {"id": "entry-kw", "title": "Keyword Result", "section": "terms"},
+            ]
+
+            mock_pool = MagicMock()
+            mock_pool.connection.side_effect = RuntimeError("DB connection failed")
+
+            with patch("src.vector.search.SIGNAL_POSTGRES_DSN", "postgres://test"):
+                with patch("src.core.libraries._get_store", return_value=mock_store):
+                    with patch("src.vector.search.get_pool", return_value=mock_pool):
+                        with patch("src.vector.search.embed_text", return_value=[0.1] * 768):
+                            result = await search_library("test", owner_id="owner", mode="hybrid", limit=12)
+
+            # Should fall back to keyword result
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["id"], "entry-kw")
+
+        asyncio.run(_run())
+
 
 # ---------------------------------------------------------------------------
 # Integration tests (gated behind SIGNAL_POSTGRES_DSN_TEST)
 # ---------------------------------------------------------------------------
 @unittest.skipUnless(
-    os.environ.get("SIGNAL_POSTGRES_DSN_TEST") and _try_imported,
-    "SIGNAL_POSTGRES_DSN_TEST not set or src.vector.search not implemented — skipping integration tests",
+    os.environ.get("SIGNAL_POSTGRES_DSN_TEST"),
+    "SIGNAL_POSTGRES_DSN_TEST not set — skipping integration tests",
 )
 class VectorSearchIntegrationTests(unittest.TestCase):
     """Live DB tests — require a running pgvector instance + Gemini API key."""
 
     def test_live_vector_search_returns_results(self) -> None:
         """Embed a test document, search for it, assert result contains the document."""
-        from src.vector.search import search_library
-
         async def _run() -> None:
             # This test requires live Postgres + Gemini; it embeds a known document
             # and searches for it to verify end-to-end vector search works.

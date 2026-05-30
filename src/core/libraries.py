@@ -701,12 +701,37 @@ def _handle_library_search(text: str) -> str:
     if not query:
         return "Use: search library: <query>"
     results = _find_entries_by_query(query, limit=10)
+
+    # Fallback to vector search when keyword results are sparse
+    if len(results) < 3 and SIGNAL_POSTGRES_DSN:
+        try:
+            # Lazy import to avoid circular dependencies at module level
+            from src.vector.search import search_library
+
+            vector_results = asyncio.run(
+                search_library(
+                    query,
+                    owner_id=SIGNAL_OWNER_ID,
+                    mode="vector",
+                    limit=12,
+                )
+            )
+            # Deduplicate by entry_id, keeping keyword results first
+            seen_ids = {r.get("id", r.get("entry_id", "")) for r in results}
+            for vr in vector_results:
+                vid = vr.get("id", vr.get("entry_id", ""))
+                if vid and vid not in seen_ids:
+                    results.append(vr)
+                    seen_ids.add(vid)
+        except Exception:
+            logger.warning("Vector search fallback failed for '%s', using keyword results only", query, exc_info=True)
+
     if not results:
         return f"No library matches found for: {query}"
     lines = [f"Library matches for '{query}':\n"]
     for idx, item in enumerate(results, 1):
         lines.append(f"{idx}. {item['title']}")
-        path = item["path"]
+        path = item.get("path", "")
         if item.get("type") == "bundle-index":
             path = path.rsplit("/", 1)[0]
         lines.append(f"   {path}")
