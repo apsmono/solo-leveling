@@ -9,7 +9,6 @@ import logging
 from typing import Any, Literal
 
 from src.core.config import SIGNAL_POSTGRES_DSN
-from src.core.library_store import _get_store
 from src.vector.db import get_pool
 from src.vector.embed import embed_text
 
@@ -40,7 +39,8 @@ async def search_library(
 
     # --- Keyword search path ---
     if mode in ("keyword", "hybrid"):
-        keyword_results = _get_store().search_entries(query, limit=limit)
+        from src.core.libraries import _get_store as _get_library_store
+        keyword_results = _get_library_store().search_entries(query, limit=limit)
         if mode == "keyword":
             logger.info(
                 "Keyword search: query='%s' mode=%s limit=%d results=%d",
@@ -95,7 +95,8 @@ async def search_library(
         # Skip duplicates already in keyword results
         if entry_id in seen_ids:
             continue
-        entry = _get_store().get_entry(entry_id)
+        from src.core.libraries import _get_store as _get_library_store
+        entry = _get_library_store().get_entry(entry_id)
         if entry is None:
             # Stale embedding — entry was deleted since embedding was stored
             continue

@@ -13,6 +13,7 @@ from src.api.deps import require_auth
 from src.agents.dispatcher import run_agent
 from src.core.libraries import _get_store
 from src.integrations.youtube import extract_video_id, fetch_transcript
+from src.vector.search import search_library
 
 router = APIRouter()
 
@@ -331,6 +332,67 @@ async def update_entry(
         logging.getLogger(__name__).warning("Firestore update failed", exc_info=True)
 
     return {"status": "ok", "id": entry_id}
+
+
+@router.post("/library/search")
+async def search_library_endpoint(
+    payload: dict[str, Any],
+    user: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    """Search library entries by keyword, vector, or hybrid mode."""
+    query = str(payload.get("query", "")).strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Missing 'query' in request body.")
+
+    mode = str(payload.get("mode", "hybrid")).strip().lower()
+    if mode not in ("keyword", "vector", "hybrid"):
+        raise HTTPException(status_code=400, detail="Invalid mode. Use: keyword, vector, or hybrid.")
+
+    limit = int(payload.get("limit", 12))
+    if limit < 1:
+        limit = 1
+    elif limit > 50:
+        limit = 50
+
+    owner_id = user.get("email", user.get("uid", "default-owner"))
+
+    results = await search_library(query, owner_id, mode=mode, limit=limit)
+    entries = [_enrich_entry(e) for e in results]
+
+    return {
+        "entries": entries,
+        "total": len(entries),
+        "mode": mode,
+        "query": query,
+    }
+
+
+@router.get("/library/recent")
+async def list_recent_entries(
+    limit: int = Query(4, ge=1, le=10),
+    user: dict[str, Any] = Depends(require_auth),
+) -> dict[str, Any]:
+    """Return the N most recent library entries sorted by updated_at."""
+    index = _load_index()
+    all_entries = index.get("entries", [])
+
+    # Sort by updated_at descending, fallback to captured_at if updated_at missing
+    def _sort_key(entry: dict[str, Any]) -> str:
+        return str(entry.get("updated_at", entry.get("captured_at", "")))
+
+    sorted_entries = sorted(
+        all_entries,
+        key=_sort_key,
+        reverse=True,
+    )
+
+    recent = sorted_entries[:limit]
+    entries = [_enrich_entry(e) for e in recent]
+
+    return {
+        "entries": entries,
+        "total": len(entries),
+    }
 
 
 @router.post("/library/entries/{entry_id}/synthesize")
