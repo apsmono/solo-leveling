@@ -10,6 +10,7 @@ Adding new commands:
     3. Wire it into _dispatch().
 """
 
+import asyncio
 import logging
 import os
 from pathlib import Path
@@ -56,6 +57,7 @@ INTENT_MAP: dict[str, list[str]] = {
     "github_issue": ["github create issue", "create issue in"],
     "github_workflow": ["github trigger", "trigger workflow"],
     "github_status": ["github status", "github health"],
+    "n8n_workflow": ["automate", "run workflow", "run automation", "n8n workflow"],
 }
 
 
@@ -126,6 +128,11 @@ def _detect_intent(text: str) -> str:
     if lower.startswith("list my repos"):
         return "github_repos"
 
+    # n8n automation intents — explicit prefixes so they don't shadow
+    # single-step intents like gmail_summary ("email") or ask_ai ("draft").
+    if lower.startswith(("automate ", "run workflow", "run automation", "run the automation")):
+        return "n8n_workflow"
+
     # Stage 8 compound workflow detection should run before keyword map because
     # terms like "notion", "inbox", "drive" also match single-step intents.
     # Detect inbox-to-notion, inbox-to-drive, notion-to-drive workflows
@@ -181,6 +188,7 @@ def _dispatch(intent: str, original_text: str, params: dict[str, Any] | None = N
         "github_issue": _handle_github_issue,
         "github_workflow": _handle_github_workflow,
         "github_status": _handle_github_status,
+        "n8n_workflow": _handle_n8n_workflow,
         "unknown": _handle_unknown,
     }
     handler = handlers.get(intent, _handle_unknown)
@@ -538,6 +546,32 @@ def _handle_github_status(_: str) -> str:
     if result["ok"]:
         return f"GitHub integration is healthy.\n• Authenticated as: {result['user']}"
     return f"GitHub integration unhealthy.\n• {result['error']}"
+
+
+def _handle_n8n_workflow(text: str) -> str:
+    """Route an owner automation intent to the n8n execution layer (N8N-01)."""
+    from src.n8n.executor import execute_intent
+
+    try:
+        result = asyncio.run(execute_intent(text, {}))
+    except RuntimeError:
+        # Already inside an event loop — run on a private loop instead.
+        loop = asyncio.new_event_loop()
+        try:
+            result = loop.run_until_complete(execute_intent(text, {}))
+        finally:
+            loop.close()
+    return _format_n8n_result(result)
+
+
+def _format_n8n_result(result: dict[str, Any]) -> str:
+    """Render an executor result dict into an owner-facing reply."""
+    status = result.get("status")
+    if status == "ok":
+        return "Done. Your automation ran successfully."
+    if status in ("declined", "needs_approval", "error"):
+        return result.get("message", "I couldn't complete that automation.")
+    return "I couldn't complete that automation."
 
 
 def _format_approvals(approvals: list[dict[str, Any]]) -> str:

@@ -1,0 +1,23 @@
+{
+  "id": "gmail_send_draft",
+  "name": "Gmail Send Draft",
+  "description": "Draft and send an email via Gmail",
+  "integration": "gmail",
+  "n8n_workflow_id": 0,
+  "keywords": ["gmail", "email", "send", "draft", "compose"],
+  "side_effecting": true,
+  "parameter_schema": {
+    "to": {
+      "type": "string",
+      "description": "Recipient email address"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Email subject line"
+    },
+    "body": {
+      "type": "string",
+      "description": "Email body content"
+    }
+  }
+}

@@ -40,6 +40,9 @@ _TOOL_RL_REQUIREMENTS: dict[str, ResponsibilityLevel] = {
     "library_index": ResponsibilityLevel.ASSISTED,
     "git_commit": ResponsibilityLevel.CROSS_MODULE,
     "telegram_notify": ResponsibilityLevel.ASSISTED,
+    # Side-effecting n8n workflows (send/post/modify the owner's data) require
+    # RL4 pre-approval (Phase 2, D-07). Read-only n8n runs are not gated here.
+    "n8n_workflow": ResponsibilityLevel.LEAD_EXECUTOR,
 }
 
 

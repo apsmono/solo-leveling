@@ -1,0 +1,16 @@
+{
+  "id": "gmail_read_summary",
+  "name": "Gmail Read Summary",
+  "description": "Read and summarize recent Gmail messages",
+  "integration": "gmail",
+  "n8n_workflow_id": 0,
+  "keywords": ["gmail", "email", "inbox", "summarize", "read"],
+  "side_effecting": false,
+  "parameter_schema": {
+    "max_messages": {
+      "type": "integer",
+      "description": "How many recent messages to read and summarize",
+      "default": 5
+    }
+  }
+}
