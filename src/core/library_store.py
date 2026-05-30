@@ -12,6 +12,15 @@ from pathlib import Path
 import re
 from typing import Any, Optional
 
+# Sort field map: named sort shortcuts -> (field_name, reverse)
+SORT_FIELD_MAP: dict[str, tuple[str, bool]] = {
+    "newest": ("captured_at", True),
+    "oldest": ("captured_at", False),
+    "title_asc": ("title", False),
+    "title_desc": ("title", True),
+    "updated": ("updated_at", True),
+}
+
 
 class _LibraryStore(ABC):
     """Abstract base for library storage backends."""
@@ -65,6 +74,8 @@ class _LibraryStore(ABC):
         source_url: Optional[str] = None,
         page: int = 1,
         per_page: int = 20,
+        sort: Optional[str] = None,
+        order: Optional[str] = None,
     ) -> dict[str, Any]:
         """Paginated list of entries with metadata only."""
 
@@ -279,6 +290,16 @@ class _FileLibraryStore(_LibraryStore):
                     break
         return [str(p.relative_to(self._project_root)) for p in matches]
 
+    @staticmethod
+    def _resolve_sort(sort: Optional[str], order: Optional[str]) -> tuple[str, bool]:
+        """Resolve sort param to (field_name, reverse) tuple."""
+        if sort and sort in SORT_FIELD_MAP:
+            return SORT_FIELD_MAP[sort]
+        if sort in ("captured_at", "updated_at", "title", "section", "status", "type"):
+            reverse = (order or "desc").lower() == "desc"
+            return sort, reverse
+        return "captured_at", True  # default: newest first
+
     def list_entries(
         self,
         section: Optional[str] = None,
@@ -287,6 +308,8 @@ class _FileLibraryStore(_LibraryStore):
         source_url: Optional[str] = None,
         page: int = 1,
         per_page: int = 20,
+        sort: Optional[str] = None,
+        order: Optional[str] = None,
     ) -> dict[str, Any]:
         index = self.load_index()
         entries = index.get("entries", [])
@@ -299,6 +322,14 @@ class _FileLibraryStore(_LibraryStore):
             entries = [e for e in entries if tag in e.get("tags", [])]
         if source_url:
             entries = [e for e in entries if e.get("source_url") == source_url]
+
+        sort_field, reverse = self._resolve_sort(sort, order)
+
+        def _sort_key(entry: dict[str, Any]) -> str:
+            val = entry.get(sort_field, "")
+            return str(val) if val is not None else ""
+
+        entries.sort(key=_sort_key, reverse=reverse)
 
         total = len(entries)
         start = (page - 1) * per_page
@@ -640,6 +671,8 @@ class _FirestoreLibraryStore(_LibraryStore):
         source_url: Optional[str] = None,
         page: int = 1,
         per_page: int = 20,
+        sort: Optional[str] = None,
+        order: Optional[str] = None,
     ) -> dict[str, Any]:
         import logging
 
@@ -665,6 +698,8 @@ class _FirestoreLibraryStore(_LibraryStore):
             source_url=source_url,
             page=page,
             per_page=per_page,
+            sort=sort,
+            order=order,
         )
 
     def list_sections(self) -> list[str]:
