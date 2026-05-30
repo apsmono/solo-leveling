@@ -34,6 +34,10 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ## Unreleased
 
+### Fixed
+
+- 2026-05-30 15-42-00 **Dashboard Table View Sort**: Removed client-side sorting conflict in TableView component. Library sort dropdown now properly controls server-side sort across all views (cards, compact, table). Table displays entries in backend sort order instead of overriding with React Table's local sorting state.
+
 ### Added
 
 - 2026-05-30 12-08-58 **Phase 2 — Signal n8n Execution Layer**: wires the brain to n8n as the firm execution engine (N8N-01, N8N-02, N8N-04, INFRA-05). New `src/n8n/` package — `client.py` (httpx Public REST API client, `X-N8N-API-KEY` auth, workflow trigger + execution + credential endpoints), `errors.py` (7-class error abstraction → soft, owner-facing messages with no stack traces), `templates.py` (versioned JSON skeletons + keyword matcher + parameter filler), `credentials.py` (owner-token → n8n credential injection, upsert by name, D-04/D-05/D-06), `executor.py` (intent orchestrator: keyword match → LLM parameter fill via dispatcher (D-01) → RL approval gate at the owner's real RL (D-07) → credential sync (N8N-02) → trigger → one retry → soft error (D-10/D-11), plus unmet-intent logging (D-02)). Starter skeletons `src/n8n/templates/gmail_read_summary.json` (read-only) and `gmail_send_draft.json` (side-effecting). New webhook endpoint `POST /api/v1/webhook/n8n` (`src/api/n8n_callback.py`) ingesting execution callbacks into `data/n8n_executions.json` (500-entry rolling cap). New config: `N8N_BASE_URL`, `N8N_API_KEY`. Tests: `tests/test_n8n_execution.py` (38 tests across 6 classes, all green offline).
