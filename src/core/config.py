@@ -94,6 +94,12 @@ FRONTEND_ORIGIN: str = os.environ.get("FRONTEND_ORIGIN", "")
 GITHUB_PAT: str = os.environ.get("GITHUB_PAT", "")
 
 # ---------------------------------------------------------------------------
+# n8n (firm execution engine)
+# ---------------------------------------------------------------------------
+N8N_BASE_URL: str = os.environ.get("N8N_BASE_URL", "http://localhost:5678")
+N8N_API_KEY: str = os.environ.get("N8N_API_KEY", "")
+
+# ---------------------------------------------------------------------------
 # Workflows
 # ---------------------------------------------------------------------------
 NOTION_WORKFLOW_PARENT_ID: str = os.environ.get("NOTION_WORKFLOW_PARENT_ID", "")
