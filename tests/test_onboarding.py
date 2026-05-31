@@ -289,6 +289,47 @@ class AppConnectDigestAPITests(unittest.TestCase):
         response = self.client.get("/api/v1/onboarding/digest")
         self.assertIn(response.status_code, (401, 403))
 
+    @patch("src.api.deps.verify_id_token")
+    def test_digest_mode_live_with_connected_data(self, mock_verify: MagicMock) -> None:
+        """GET /digest when _query_connected_sources returns data -> mode='live'."""
+        mock_verify.return_value = self.mock_user
+        live_data = [{"app": "gmail", "items": [{"subject": "Hi"}]}]
+        mock_bullets = ["a.", "b.", "c."]
+
+        with patch("src.api.onboarding._query_connected_sources", return_value=live_data), \
+             patch("src.api.onboarding.generate_digest", return_value=mock_bullets), \
+             patch("src.api.onboarding.load_profile", return_value={}):
+            response = self.client.get(
+                "/api/v1/onboarding/digest",
+                headers={"Authorization": "Bearer valid-token"},
+            )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["mode"], "live")
+        self.assertEqual(len(data["bullets"]), 3)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_digest_mode_preview_on_cold_start(self, mock_verify: MagicMock) -> None:
+        """GET /digest when _query_connected_sources returns [] -> mode='preview'."""
+        mock_verify.return_value = self.mock_user
+        preview_bullets = [
+            "Signal will compress your streams into daily insights.",
+            "Connected apps will be monitored for important updates.",
+            "Your personalized digest will appear here.",
+        ]
+
+        with patch("src.api.onboarding._query_connected_sources", return_value=[]), \
+             patch("src.api.onboarding.generate_digest", return_value=preview_bullets), \
+             patch("src.api.onboarding.load_profile", return_value={}):
+            response = self.client.get(
+                "/api/v1/onboarding/digest",
+                headers={"Authorization": "Bearer valid-token"},
+            )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["mode"], "preview")
+        self.assertEqual(len(data["bullets"]), 3)
+
 
 if __name__ == "__main__":
     unittest.main()
