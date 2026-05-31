@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Callable
 from typing import Any
 
 from src.agents.dispatcher import run_agent
@@ -223,28 +224,47 @@ def _cold_start_preview(profile: dict[str, Any]) -> list[str]:
         return _FALLBACK
 
 
-def _query_connected_sources(profile: dict[str, Any]) -> list[dict[str, Any]]:
-    """Fetch recent data from connected integrations.
+def _gmail_fetcher() -> list[Any]:
+    """Fetch recent Gmail messages using the file-based credentials client."""
+    from src.integrations.gmail.client import list_messages  # type: ignore[import]
+    return list_messages(max_results=5)
 
-    Checks profile['connected_apps'] and tries to pull recent data from each.
+
+# Registry mapping app names to zero-arg fetcher callables.
+# Adding a new integration is a one-line entry here — no structural changes needed.
+_SOURCE_FETCHERS: dict[str, Callable[[], list[Any]]] = {
+    "gmail": _gmail_fetcher,
+}
+
+
+def _query_connected_sources(profile: dict[str, Any]) -> list[dict[str, Any]]:
+    """Fetch recent data from connected integrations using a fetcher registry.
+
+    Checks profile['connected_apps'] and dispatches to registered fetchers for each app.
+    Apps with no registered fetcher are skipped (logged at debug).
     Returns an empty list when nothing is connected or all fetches fail.
+
+    The registry-based dispatch makes adding future integrations (youtube, etc.)
+    a one-line entry in _SOURCE_FETCHERS rather than a structural change.
 
     Args:
         profile: The owner's profile dict (must contain 'connected_apps' list).
 
     Returns:
-        A list of data dicts. May be empty.
+        A list of data dicts with keys 'app' and 'items'. May be empty.
     """
     connected_apps: list[str] = profile.get("connected_apps", [])
     results: list[dict[str, Any]] = []
 
     for app in connected_apps:
+        fetcher = _SOURCE_FETCHERS.get(app)
+        if fetcher is None:
+            logger.debug("No fetcher registered for app %s; skipping", app)
+            continue
         try:
-            if app == "gmail":
-                from src.integrations.gmail.client import list_messages  # type: ignore[import]
-                messages = list_messages(max_results=5)
-                if messages:
-                    results.append({"app": "gmail", "items": messages})
+            items = fetcher()
+            if items:
+                results.append({"app": app, "items": items})
         except Exception:
             logger.debug("Could not fetch data from %s; skipping", app)
 

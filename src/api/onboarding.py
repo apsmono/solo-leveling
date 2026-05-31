@@ -111,10 +111,13 @@ async def digest_endpoint(
 ) -> dict[str, Any]:
     """Generate a 3-bullet 24-hour digest from connected sources.
 
+    Returns a mode flag indicating whether the digest is live (real data fetched)
+    or preview (cold-start capability preview, no real data available — SC-3 / ONB-04).
     On cold start (no connected apps or all fetches fail), returns a capability
     preview instead of empty content (D-13).
     """
     profile = load_profile() or {}
     connected_data = _query_connected_sources(profile)
+    mode = "live" if connected_data else "preview"
     bullets = generate_digest(profile, connected_data)
-    return {"status": "ok", "bullets": bullets[:3]}
+    return {"status": "ok", "bullets": bullets[:3], "mode": mode}
