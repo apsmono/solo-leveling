@@ -112,6 +112,18 @@ class OnboardingAPITests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
     @patch("src.api.deps.verify_id_token")
+    def test_parse_identity_llm_failure_returns_502(self, mock_verify: MagicMock) -> None:
+        """POST /api/v1/onboarding/parse-identity with LLM exception returns 502."""
+        mock_verify.return_value = self.mock_user
+        with patch("src.api.onboarding.parse_identity", side_effect=Exception("LLM down")):
+            response = self.client.post(
+                "/api/v1/onboarding/parse-identity",
+                json={"text": "I'm a software engineer"},
+                headers={"Authorization": "Bearer valid-token"},
+            )
+        self.assertEqual(response.status_code, 502)
+
+    @patch("src.api.deps.verify_id_token")
     def test_parse_identity_needs_followup(self, mock_verify: MagicMock) -> None:
         """POST /api/v1/onboarding/parse-identity with vague text returns needs_followup=true."""
         mock_verify.return_value = self.mock_user
