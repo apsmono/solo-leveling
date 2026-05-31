@@ -34,6 +34,10 @@ Release step: move completed entries from `Unreleased` into the new version sect
 
 ## Unreleased
 
+### Added
+
+- 2026-05-31 **Phase 5 — Onboarding backend foundation**: `src/core/profile_store.py` — JSON profile persistence (`load_profile`, `save_profile`, `load_onboarding_step`, `save_onboarding_step`) in `data/profile.json` following local-first brain pattern. `src/core/onboarding.py` — LLM profile parsing via `run_agent()` with constrained system prompt (JSON-only output, allowed `suggested_apps` list, `needs_followup` logic, graceful fallback). `src/api/profile.py` — `GET /api/v1/profile` (404 for first-run detection) and `POST /api/v1/profile` (save profile). `src/api/onboarding.py` — `POST /api/v1/onboarding/parse-identity` (LLM parsing) and `POST /api/v1/profile/onboarding-step` (D-10 resume tracking). All 4 endpoints require Firebase auth. `v1_router.py` updated to register both new routers. Contract tests: `tests/test_onboarding.py` (8 tests, all passing).
+
 ### Fixed
 
 - 2026-05-30 16-48-00 **Library delete_entry stub**: Replaced `_FileLibraryStore.delete_entry()` stub (always returned `False`) with working implementation — finds entry by ID via index, removes file from disk (`unlink()` for single files, `shutil.rmtree()` for bundle directories), rebuilds index. Prerequisite for DELETE endpoint in Phase 3.1.
