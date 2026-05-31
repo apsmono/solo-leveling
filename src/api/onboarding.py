@@ -46,10 +46,10 @@ async def parse_identity_endpoint(
         return {"status": "ok", "profile": parsed}
     except Exception:
         logger.exception("Failed to parse identity")
-        return {
-            "status": "error",
-            "message": "Failed to parse identity. Please try again.",
-        }
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Failed to parse identity. Please try again.",
+        ) from None
 
 
 @router.post("/profile/onboarding-step")
