@@ -1,7 +1,8 @@
 """
-LLM-based profile parsing for Signal onboarding.
+LLM-based profile parsing and digest generation for Signal onboarding.
 
-Uses run_agent() to parse free-text identity descriptions into structured profiles.
+Uses run_agent() to parse free-text identity descriptions into structured profiles
+and to generate 24-hour digests from connected data sources.
 Follows the same pattern as intent_parser.py.
 """
 
@@ -14,6 +15,42 @@ from typing import Any
 from src.agents.dispatcher import run_agent
 
 logger = logging.getLogger(__name__)
+
+_DIGEST_SYSTEM_PROMPT = """You are a personal digest generator for a command center.
+Given the owner's profile and recent data from their connected apps, summarize the last 24 hours
+into exactly 3 concise, actionable bullet points.
+
+Respond with valid JSON only. No markdown, no explanations, no code blocks.
+
+Format:
+{
+  "bullets": ["bullet 1", "bullet 2", "bullet 3"]
+}
+
+Rules:
+- Exactly 3 bullets, no more, no fewer
+- Each bullet is one sentence, under 100 characters
+- Be specific to the data provided; do not invent details
+- Prioritize actionable items (emails needing reply, deadlines, important updates)
+"""
+
+_COLD_START_PREVIEW_PROMPT = """You are a capability preview generator for a personal command center.
+Given the owner's profile (role and pain points), generate 3 example bullets showing what Signal
+will track and surface for them once their apps are connected. Be specific to their role.
+
+Respond with valid JSON only. No markdown, no explanations, no code blocks.
+
+Format:
+{
+  "bullets": ["bullet 1", "bullet 2", "bullet 3"]
+}
+
+Rules:
+- Exactly 3 bullets, no more, no fewer
+- Each bullet describes a concrete thing Signal will monitor or surface for this person
+- Be specific to their stated role and pain points
+- Use future tense: "Signal will..." or "You'll see..."
+"""
 
 _PROFILE_SYSTEM_PROMPT = """You are a profile parser for a personal command center.
 Given the owner's description of their work and pain points, extract a structured profile.
@@ -90,3 +127,137 @@ def parse_identity(text: str) -> dict[str, Any]:
             "needs_followup": True,
             "followup_question": "Could you tell me a bit more about what you do and which apps you use most?",
         }
+
+
+def generate_digest(
+    profile: dict[str, Any],
+    connected_data: list[dict[str, Any]],
+) -> list[str]:
+    """Generate a 3-bullet digest from connected source data.
+
+    If connected_data is empty, returns a cold-start capability preview instead.
+    Always returns exactly 3 bullet strings.
+
+    Args:
+        profile: The owner's profile dict (role, pain_points, suggested_apps, …).
+        connected_data: List of data dicts from connected integrations (may be empty).
+
+    Returns:
+        A list of exactly 3 bullet strings.
+    """
+    _FALLBACK = [
+        "Your streams are being set up.",
+        "Data will appear here once connected sources sync.",
+        "Check back in a few minutes.",
+    ]
+
+    if not connected_data:
+        return _cold_start_preview(profile)
+
+    try:
+        data_context = json.dumps(connected_data, ensure_ascii=False)[:4000]
+        profile_context = f"Role: {profile.get('role', '')}\nPain points: {', '.join(profile.get('pain_points', []))}"
+        response = run_agent(
+            task=f"Generate a 24-hour digest from this data:\n{data_context}",
+            context=profile_context,
+            system=_DIGEST_SYSTEM_PROMPT,
+        )
+
+        cleaned = _strip_fences(response)
+        parsed = json.loads(cleaned)
+        bullets = list(parsed.get("bullets", []))[:3]
+
+        # Ensure exactly 3 bullets; pad with fallback if LLM returned fewer
+        while len(bullets) < 3:
+            bullets.append(_FALLBACK[len(bullets)])
+
+        logger.info("Digest generated: %d bullets", len(bullets))
+        return bullets[:3]
+
+    except Exception:
+        logger.warning("Digest generation failed", exc_info=True)
+        return _FALLBACK
+
+
+def _cold_start_preview(profile: dict[str, Any]) -> list[str]:
+    """Generate capability preview bullets for a cold-start (no connected apps) state.
+
+    Uses the owner's role and pain points to show what Signal will do for them.
+
+    Args:
+        profile: The owner's profile dict.
+
+    Returns:
+        A list of exactly 3 preview bullet strings.
+    """
+    _FALLBACK = [
+        "Signal will compress your streams into daily insights.",
+        "Connected apps will be monitored for important updates.",
+        "Your personalized digest will appear here.",
+    ]
+
+    try:
+        profile_context = (
+            f"Role: {profile.get('role', 'professional')}\n"
+            f"Pain points: {', '.join(profile.get('pain_points', []))}\n"
+            f"Suggested apps: {', '.join(profile.get('suggested_apps', []))}"
+        )
+        response = run_agent(
+            task="Generate 3 capability preview bullets for this owner's profile.",
+            context=profile_context,
+            system=_COLD_START_PREVIEW_PROMPT,
+        )
+
+        cleaned = _strip_fences(response)
+        parsed = json.loads(cleaned)
+        bullets = list(parsed.get("bullets", []))[:3]
+
+        while len(bullets) < 3:
+            bullets.append(_FALLBACK[len(bullets)])
+
+        logger.info("Cold-start preview generated: %d bullets", len(bullets))
+        return bullets[:3]
+
+    except Exception:
+        logger.warning("Cold-start preview generation failed", exc_info=True)
+        return _FALLBACK
+
+
+def _query_connected_sources(profile: dict[str, Any]) -> list[dict[str, Any]]:
+    """Fetch recent data from connected integrations.
+
+    Checks profile['connected_apps'] and tries to pull recent data from each.
+    Returns an empty list when nothing is connected or all fetches fail.
+
+    Args:
+        profile: The owner's profile dict (must contain 'connected_apps' list).
+
+    Returns:
+        A list of data dicts. May be empty.
+    """
+    connected_apps: list[str] = profile.get("connected_apps", [])
+    results: list[dict[str, Any]] = []
+
+    for app in connected_apps:
+        try:
+            if app == "gmail":
+                from src.integrations.gmail.client import list_messages  # type: ignore[import]
+                messages = list_messages(max_results=5)
+                if messages:
+                    results.append({"app": "gmail", "items": messages})
+        except Exception:
+            logger.debug("Could not fetch data from %s; skipping", app)
+
+    return results
+
+
+def _strip_fences(text: str) -> str:
+    """Remove markdown code fences from LLM output."""
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.splitlines()
+        lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        cleaned = "\n".join(lines).strip()
+    return cleaned

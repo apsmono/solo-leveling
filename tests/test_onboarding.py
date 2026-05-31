@@ -238,7 +238,7 @@ class AppConnectDigestAPITests(unittest.TestCase):
         mock_bullets = ["Bullet one.", "Bullet two.", "Bullet three."]
 
         with patch("src.api.onboarding.load_profile", return_value=mock_profile), \
-             patch("src.core.onboarding.generate_digest", return_value=mock_bullets):
+             patch("src.api.onboarding.generate_digest", return_value=mock_bullets):
             response = self.client.get(
                 "/api/v1/onboarding/digest",
                 headers={"Authorization": "Bearer valid-token"},
@@ -260,7 +260,7 @@ class AppConnectDigestAPITests(unittest.TestCase):
         ]
 
         with patch("src.api.onboarding.load_profile", return_value=mock_profile), \
-             patch("src.core.onboarding.generate_digest", return_value=preview_bullets):
+             patch("src.api.onboarding.generate_digest", return_value=preview_bullets):
             response = self.client.get(
                 "/api/v1/onboarding/digest",
                 headers={"Authorization": "Bearer valid-token"},
