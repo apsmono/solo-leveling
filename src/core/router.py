@@ -61,7 +61,7 @@ INTENT_MAP: dict[str, list[str]] = {
 }
 
 
-def route_command(text: str, source: str = "api") -> str:
+def route_command(text: str, source: str = "api", history: list | None = None, persona: str = "") -> str:
     """Parse intent from text and dispatch to the correct handler.
 
     Uses LLM-driven intent parsing (parse_intent) for structured classification.
@@ -75,12 +75,12 @@ def route_command(text: str, source: str = "api") -> str:
         params = parsed.get("params", {})
         confidence = parsed.get("confidence", 0.0)
         logger.info("Intent detected: %s (confidence=%.2f)", intent, confidence)
-        reply = _dispatch(intent, text, params)
+        reply = _dispatch(intent, text, params, history=history, persona=persona)
     except Exception:
         logger.exception("Intent parsing failed; falling back to keyword detection")
         intent = _detect_intent(text)
         logger.info("Intent detected (fallback): %s", intent)
-        reply = _dispatch(intent, text)
+        reply = _dispatch(intent, text, history=history, persona=persona)
     _log_command(text, intent, reply, source)
     return reply
 
@@ -153,7 +153,7 @@ def _detect_intent(text: str) -> str:
 # Dispatch
 # ---------------------------------------------------------------------------
 
-def _dispatch(intent: str, original_text: str, params: dict[str, Any] | None = None) -> str:
+def _dispatch(intent: str, original_text: str, params: dict[str, Any] | None = None, history: list | None = None, persona: str = "") -> str:
     """Dispatch to the correct handler based on intent.
 
     Args:
@@ -208,6 +208,8 @@ def _dispatch(intent: str, original_text: str, params: dict[str, Any] | None = N
             effective_text = f"thought: {params['text']}"
 
     try:
+        if intent == "unknown" and history:
+            return _handle_unknown(effective_text, history=history, persona=persona)
         return handler(effective_text)
     except EnvironmentError as e:
         logger.error("Configuration error in handler '%s': %s", intent, e)
@@ -587,7 +589,24 @@ def _format_approvals(approvals: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _handle_unknown(text: str) -> str:
+def _handle_unknown(text: str, history: list | None = None, persona: str = "") -> str:
+    if history:
+        from src.agents.dispatcher import run_agent
+
+        context_parts = []
+        for msg in history:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            context_parts.append(f"{role}: {content}")
+        formatted_history = "\n".join(context_parts)
+
+        effective_persona = persona or (
+            "You are a helpful, witty personal assistant. "
+            "Reply naturally and conversationally. Keep responses concise."
+        )
+
+        return run_agent(task=text, context=formatted_history, system=effective_persona)
+
     return (
         f'I didn\'t understand: "{text}"\n'
         "Send *help* to see available commands."

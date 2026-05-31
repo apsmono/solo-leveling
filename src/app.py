@@ -94,8 +94,11 @@ async def command(
     if not text:
         return {"status": "error", "reply": "Missing 'text' in request payload."}
 
+    history = payload.get("history", [])
+    persona = payload.get("persona", "")
+
     source = f"api:{user['email']}" if user else "api"
-    reply = route_command(text, source=source)
+    reply = route_command(text, source=source, history=history, persona=persona)
     return {"status": "ok", "reply": reply}
 
 
