@@ -175,5 +175,108 @@ class OnboardingAPITests(unittest.TestCase):
             )
 
 
+class AppConnectDigestAPITests(unittest.TestCase):
+    """Contract tests for connect-app and digest endpoints (Phase 5 Plan 02)."""
+
+    def setUp(self) -> None:
+        self.client = TestClient(app)
+        self.mock_user = {"email": "owner@example.com", "uid": "abc123"}
+
+    # --- POST /onboarding/connect-app ---
+
+    @patch("src.api.deps.verify_id_token")
+    def test_connect_app_saves_connection(self, mock_verify: MagicMock) -> None:
+        """POST /connect-app with {app: 'gmail'} -> 200, profile saved with gmail in connected_apps."""
+        mock_verify.return_value = self.mock_user
+        existing_profile = {"role": "Engineer", "suggested_apps": ["gmail"], "onboarding_step": 2}
+        saved = {}
+
+        def capture_save(p: dict) -> None:
+            saved.update(p)
+
+        with patch("src.api.onboarding.load_profile", return_value=existing_profile), \
+             patch("src.api.onboarding.save_profile", side_effect=capture_save):
+            response = self.client.post(
+                "/api/v1/onboarding/connect-app",
+                json={"app": "gmail"},
+                headers={"Authorization": "Bearer valid-token"},
+            )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["status"], "ok")
+        self.assertIn("gmail", saved.get("connected_apps", []))
+
+    @patch("src.api.deps.verify_id_token")
+    def test_connect_app_invalid_app_returns_400(self, mock_verify: MagicMock) -> None:
+        """POST /connect-app with unknown app name returns 400."""
+        mock_verify.return_value = self.mock_user
+        response = self.client.post(
+            "/api/v1/onboarding/connect-app",
+            json={"app": "invalid_app"},
+            headers={"Authorization": "Bearer valid-token"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_connect_app_missing_app_returns_400(self, mock_verify: MagicMock) -> None:
+        """POST /connect-app with missing app key returns 400."""
+        mock_verify.return_value = self.mock_user
+        response = self.client.post(
+            "/api/v1/onboarding/connect-app",
+            json={},
+            headers={"Authorization": "Bearer valid-token"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    # --- GET /onboarding/digest ---
+
+    @patch("src.api.deps.verify_id_token")
+    def test_digest_returns_3_bullets(self, mock_verify: MagicMock) -> None:
+        """GET /digest with connected data returns 200 with exactly 3 bullets."""
+        mock_verify.return_value = self.mock_user
+        mock_profile = {"role": "Engineer", "connected_apps": ["gmail"], "suggested_apps": ["gmail"]}
+        mock_bullets = ["Bullet one.", "Bullet two.", "Bullet three."]
+
+        with patch("src.api.onboarding.load_profile", return_value=mock_profile), \
+             patch("src.core.onboarding.generate_digest", return_value=mock_bullets):
+            response = self.client.get(
+                "/api/v1/onboarding/digest",
+                headers={"Authorization": "Bearer valid-token"},
+            )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["status"], "ok")
+        self.assertEqual(len(data["bullets"]), 3)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_cold_start_digest_returns_capability_preview(self, mock_verify: MagicMock) -> None:
+        """GET /digest with no connected apps returns 200 with 3 capability preview bullets."""
+        mock_verify.return_value = self.mock_user
+        mock_profile = {"role": "Engineer", "connected_apps": [], "suggested_apps": ["gmail"]}
+        preview_bullets = [
+            "Signal will compress your streams into daily insights.",
+            "Connected apps will be monitored for important updates.",
+            "Your personalized digest will appear here.",
+        ]
+
+        with patch("src.api.onboarding.load_profile", return_value=mock_profile), \
+             patch("src.core.onboarding.generate_digest", return_value=preview_bullets):
+            response = self.client.get(
+                "/api/v1/onboarding/digest",
+                headers={"Authorization": "Bearer valid-token"},
+            )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["status"], "ok")
+        self.assertEqual(len(data["bullets"]), 3)
+
+    @patch("src.api.deps.verify_id_token")
+    def test_digest_requires_auth(self, mock_verify: MagicMock) -> None:
+        """GET /digest without auth returns 401 or 403."""
+        mock_verify.side_effect = Exception("No token")
+        response = self.client.get("/api/v1/onboarding/digest")
+        self.assertIn(response.status_code, (401, 403))
+
+
 if __name__ == "__main__":
     unittest.main()
