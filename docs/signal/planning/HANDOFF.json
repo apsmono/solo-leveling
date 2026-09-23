@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-31T07:27:36.413Z",
+  "phase": "6",
+  "phase_name": "smart-feeds",
+  "phase_dir": ".planning/phases/06-smart-feeds",
+  "plan": 0,
+  "task": 0,
+  "total_tasks": 5,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": 0, "name": "Research (RESEARCH.md)", "status": "done"},
+    {"id": 0, "name": "Pattern mapping (PATTERNS.md)", "status": "done"},
+    {"id": 0, "name": "Planning (2 PLAN.md files)", "status": "done"},
+    {"id": 0, "name": "Plan verification (checker passed 12/12)", "status": "done"},
+    {"id": 0, "name": "Revision (3 blockers + 2 warnings fixed)", "status": "done"}
+  ],
+  "remaining_tasks": [
+    {"id": 1, "name": "06-01: Backend feeds module + API + intent wiring", "status": "not_started"},
+    {"id": 2, "name": "06-02: Frontend StreamCard/ContextNest/FeedSources", "status": "not_started"}
+  ],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {"decision": "2 plans, 2 waves — backend first (Wave 1), frontend second (Wave 2)", "rationale": "Frontend depends on backend API endpoints", "phase": "6"},
+    {"decision": "Command Bar intent wiring in Plan 06-01 Task 3", "rationale": "Checker flagged YouTube URL and RSS feed commands not wired — added as separate task", "phase": "6"},
+    {"decision": "Email compression trigger via POST /feeds/email", "rationale": "Checker flagged compress_email() had no API endpoint — added to Plan 06-01 Task 2", "phase": "6"},
+    {"decision": "Boolean inversion contract: unread: entry.read === false", "rationale": "Checker flagged implicit mapping — made explicit in Plan 06-02 interfaces", "phase": "6"}
+  ],
+  "uncommitted_files": [
+    ".planning/phases/06-smart-feeds/06-RESEARCH.md",
+    ".planning/phases/06-smart-feeds/06-PATTERNS.md",
+    ".planning/phases/06-smart-feeds/06-VALIDATION.md",
+    ".planning/phases/06-smart-feeds/06-01-PLAN.md",
+    ".planning/phases/06-smart-feeds/06-02-PLAN.md",
+    ".planning/STATE.md",
+    ".planning/ROADMAP.md"
+  ],
+  "next_action": "Run /gsd:execute-phase 6 to execute Plan 06-01 (Wave 1: backend feeds module)",
+  "context_notes": "Phase 6 fully planned. Research found all building blocks exist from Phases 1-5 — only feedparser is new. Plans went through 1 revision cycle (3 blockers: email trigger, YouTube URL wiring, RSS feed commands). All 13 CONTEXT.md decisions covered. Nyquist validation strategy created. Security threat model included in plans."
+}
